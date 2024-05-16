@@ -81,7 +81,12 @@ void main() async {
       print('Error: $e');
       print('StackTrace: $stackTrace');
     }
-    await receiveEnginedataSendToDartserver(engineaddr, displayaddr, check);
+    var enginedData = await receiveEnginedataSendToDartserver(engineaddr, displayaddr, check);
+    print(enginedData);
+    var jsonDB = jsonEncode(enginedData);
+    router.get('/getResource', (Request request) {
+      return Response.ok(jsonDB);
+    });
     DateTime now = DateTime.now();
     check = now;
   });

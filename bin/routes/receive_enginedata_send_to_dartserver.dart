@@ -6,7 +6,7 @@ import 'dart:io';
 
 import '../data/manage_address.dart';
 
-Future<void> receiveEnginedataSendToDartserver(
+Future<List<dynamic>> receiveEnginedataSendToDartserver(
     var engineDbaddr, var displayDbAddr, DateTime check) async {
   print('Sending data to server at: ${DateTime.now()}');
   try {
@@ -52,7 +52,7 @@ Future<void> receiveEnginedataSendToDartserver(
           lot["isUsed"] = 0;
         }
       }
-
+      
       DateTime now = DateTime.now();
       int hour = check.hour;
       int day = check.day;
@@ -411,6 +411,7 @@ Future<void> receiveEnginedataSendToDartserver(
           );
         }
       }
+      return parkingLotList;
     } else {
       print(
           'Failed to send data to server. Status code: ${response.statusCode}');
@@ -418,4 +419,5 @@ Future<void> receiveEnginedataSendToDartserver(
   } catch (e) {
     print('Error occurred while sending data to server: $e');
   }
+  return [];
 }
