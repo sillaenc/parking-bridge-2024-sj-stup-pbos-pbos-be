@@ -52,7 +52,7 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(
           lot["isUsed"] = 0;
         }
       }
-      
+
       DateTime now = DateTime.now();
       DateTime checks = check.subtract(Duration(seconds: 10));
       int hour = checks.hour;
@@ -64,15 +64,18 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(
       String strDay = DateFormat('yyyy-M-d').format(onedayBefore);
       String strMonth = DateFormat('yyyy-M').format(onedayBefore);
       String strYear = DateFormat('yyyy').format(onedayBefore);
-      print('10초빼기 : $checks');
-      print('지금 시각 : $now');
+      // print('12초빼기 : $checks');
+      // print('지금 시각 : $now');
       for (int i = 0; i < resultSet2.length; i++) {
         String url = displayDbAddr;
         var body3 = {
           "transaction": [
             {
               "query": "UPDATE 'tb_lots' SET isUsed = :isUsed WHERE tag = :tag",
-              "values": {"isUsed": resultSet2[i]['isUsed'], "tag": resultSet2[i]['tag']}
+              "values": {
+                "isUsed": resultSet2[i]['isUsed'],
+                "tag": resultSet2[i]['tag']
+              }
             },
             {
               "query":
@@ -139,10 +142,11 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(
           processedResult[lot] = item['uid'];
         }
         DateTime oneHourBefore = now.subtract(Duration(hours: 1));
-        String fromattedTime = "${oneHourBefore.year}-${oneHourBefore.month}-${oneHourBefore.day} ${oneHourBefore.hour}";
+        String fromattedTime =
+            "${oneHourBefore.year}-${oneHourBefore.month}-${oneHourBefore.day} ${oneHourBefore.hour}";
         // print(processedResult);
         print('processed_result : $processedResult2');
-      
+
         var check = {
           'transaction': [
             {
@@ -158,14 +162,20 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(
         );
         var dcCheckDb = jsonDecode(checkDb.body);
         var checkVal = dcCheckDb['results'][0]['resultSet'];
-        
+
         if (checkVal.isEmpty) {
           for (int i = 1; i <= rowDb2.length; i++) {
             var uploadProcessedData = {
               'transaction': [
                 {
-                  "query": "INSERT INTO processed_db (lot , car_type, hour_parking, recorded_hour) VALUES (:lot, :car_type, :hour_parking, :recorded_hour)",
-                  "values": {"lot":processedResult[i], "car_type": processedResult3[i], "hour_parking": processedResult2[i], "recorded_hour": fromattedTime}
+                  "query":
+                      "INSERT INTO processed_db (lot , car_type, hour_parking, recorded_hour) VALUES (:lot, :car_type, :hour_parking, :recorded_hour)",
+                  "values": {
+                    "lot": processedResult[i],
+                    "car_type": processedResult3[i],
+                    "hour_parking": processedResult2[i],
+                    "recorded_hour": fromattedTime
+                  }
                 }
               ]
             };
@@ -196,7 +206,8 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(
         var rowStatus = {
           'transaction': [
             {
-              "query": "SELECT * FROM processed_db WHERE recorded_hour LIKE :checkdate",
+              "query":
+                  "SELECT * FROM processed_db WHERE recorded_hour LIKE :checkdate",
               "values": {'checkdate': '$strDay%'}
             }
           ]
@@ -244,25 +255,41 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(
           int tag = item['uid'];
           processedResult3[tag] = item['lot_type'];
         }
-        
+
         DateTime oneHourBefore = now.subtract(Duration(days: 1));
-        String fromattedTime = "${oneHourBefore.year}-${oneHourBefore.month}-${oneHourBefore.day}";
-        // print(rowDb2.length);
+        String fromattedTime ="${oneHourBefore.year}-${oneHourBefore.month}-${oneHourBefore.day}";
+        var check = {
+          'transaction': [
+            {
+              "query": "SELECT * FROM perday WHERE recorded_day = :time",
+              "values": {"time": fromattedTime}
+            }
+          ]
+        };
+        var checkDb = await http.post(
+          Uri.parse(url2),
+          headers: headers,
+          body: jsonEncode(check),
+        );
+        var dcCheckDb = jsonDecode(checkDb.body);
+        var checkVal = dcCheckDb['results'][0]['resultSet'];
         print(processedResult2);
-        for (int i = 1; i <= rowDb2.length; i++) {
-          var uploadProcessedData = {
-            'transaction': [
-              {
-                "query": "INSERT INTO perday (lot ,car_type, day_parking, recorded_day) VALUES (:lot ,:car_type, :day_parking, :fromattedTime)",
-                "values": {"lot":processedResult[i], "car_type": processedResult3[i], "day_parking": processedResult2[i], "fromattedTime": fromattedTime }
-              }
-            ]
-          };
-          await http.post(
-            Uri.parse(url2),
-            headers: headers,
-            body: jsonEncode(uploadProcessedData),
-          );
+        if (checkVal.isEmpty) {
+          for (int i = 1; i <= rowDb2.length; i++) {
+            var uploadProcessedData = {
+              'transaction': [
+                {
+                  "query": "INSERT INTO perday (lot ,car_type, day_parking, recorded_day) VALUES (:lot ,:car_type, :day_parking, :fromattedTime)",
+                  "values": {"lot": processedResult[i],"car_type": processedResult3[i],"day_parking": processedResult2[i],"fromattedTime": fromattedTime}
+                }
+              ]
+            };
+            await http.post(
+              Uri.parse(url2),
+              headers: headers,
+              body: jsonEncode(uploadProcessedData),
+            );
+          }
         }
       }
 
@@ -306,9 +333,6 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(
           if (value == 1) {
             processedResult2[tag] = true;
           }
-          // else if(value == 0){
-          //   processedResult2[tag] = false;
-          // }이거 주석인 이유는. 한번이라도 찬 경우는 1로 보기 때문에 0이 아닌 1로 변환함
           processedResult[lot] = processedResult[lot] ?? 0;
           processedResult[lot] = item['lot'];
         }
@@ -323,12 +347,28 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(
         DateTime oneHourBefore = now.subtract(Duration(days: 1));
         String fromattedTime = "${oneHourBefore.year}-${oneHourBefore.month}";
 
-        for (int i = 1; i <= rowDb2.length; i++) {
+        var check = {
+          'transaction': [
+            {
+              "query": "SELECT * FROM permonth WHERE recorded_month = :time",
+              "values": {"time": fromattedTime}
+            }
+          ]
+        };
+        var checkDb = await http.post(
+          Uri.parse(url2),
+          headers: headers,
+          body: jsonEncode(check),
+        );
+        var dcCheckDb = jsonDecode(checkDb.body);
+        var checkVal = dcCheckDb['results'][0]['resultSet'];
+        if(checkVal.isEmpty){
+          for (int i = 1; i <= rowDb2.length; i++) {
           var uploadProcessedData = {
             'transaction': [
               {
                 "query": "INSERT INTO permonth (lot, car_type, month_parking, recorded_month) VALUES (:lot, :car_type, :month_parking, :fromattedTime)",
-                "values": {"lot":processedResult[i], "car_type": processedResult3[i], "month_parking": processedResult2[i], "fromattedTime": fromattedTime }
+                "values": {"lot": processedResult[i],"car_type": processedResult3[i],"month_parking": processedResult2[i],"fromattedTime": fromattedTime}
               }
             ]
           };
@@ -338,6 +378,8 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(
             body: jsonEncode(uploadProcessedData),
           );
         }
+        }
+        
       }
 
       //월 -> 연 단위로 db를 뽑아내는 코드
@@ -380,27 +422,38 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(
           if (value == 1) {
             processedResult2[tag] = true;
           }
-          // else if(value == 0){
-          //   processedResult2[tag] = false;
-          // }이거 주석인 이유는. 한번이라도 찬 경우는 1로 보기 때문에 0이 아닌 1로 변환함
           processedResult[lot] = processedResult[lot] ?? 0;
           processedResult[lot] = item['lot'];
         }
-
         Map<dynamic, dynamic> processedResult3 = {};
-
         for (var item in rowDb2) {
           int tag = item['uid'];
           processedResult3[tag] = item['lot_type'];
         }
         DateTime oneHourBefore = now.subtract(Duration(days: 1));
         String fromattedTime = "${oneHourBefore.year}";
-        for (int i = 1; i <= rowDb2.length; i++) {
+        var check = {
+          'transaction': [
+            {
+              "query": "SELECT * FROM peryear WHERE recorded_year = :time",
+              "values": {"time": fromattedTime}
+            }
+          ]
+        };
+        var checkDb = await http.post(
+          Uri.parse(url2),
+          headers: headers,
+          body: jsonEncode(check),
+        );
+        var dcCheckDb = jsonDecode(checkDb.body);
+        var checkVal = dcCheckDb['results'][0]['resultSet'];
+        if(checkVal.isEmpty){
+          for (int i = 1; i <= rowDb2.length; i++) {
           var uploadProcessedData = {
             'transaction': [
               {
                 "query": "INSERT INTO permonth (lot ,car_type, year_parking, recorded_month) VALUES (:lot, :car_type, :year_parking, :fromattedTime)",
-                "values": {"lot":processedResult[i], "car_type": processedResult3[i], "year_parking": processedResult2[i], "fromattedTime": fromattedTime }
+                "values": {"lot": processedResult[i],"car_type": processedResult3[i],"year_parking": processedResult2[i],"fromattedTime": fromattedTime}
               }
             ]
           };
@@ -410,6 +463,8 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(
             body: jsonEncode(uploadProcessedData),
           );
         }
+        }
+        
       }
       return parkingLotList;
     } else {
