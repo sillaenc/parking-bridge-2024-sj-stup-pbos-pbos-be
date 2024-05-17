@@ -54,16 +54,18 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(
       }
       
       DateTime now = DateTime.now();
-      int hour = check.hour;
-      int day = check.day;
-      int month = check.month;
-      int year = check.year;
+      DateTime checks = check.subtract(Duration(seconds: 10));
+      int hour = checks.hour;
+      int day = checks.day;
+      int month = checks.month;
+      int year = checks.year;
       // String strDay = DateFormat('yyyy-M-dd').format(check);
       DateTime onedayBefore = now.subtract(Duration(days: 1));
       String strDay = DateFormat('yyyy-M-d').format(onedayBefore);
       String strMonth = DateFormat('yyyy-M').format(onedayBefore);
       String strYear = DateFormat('yyyy').format(onedayBefore);
-      
+      print('10초빼기 : $checks');
+      print('지금 시각 : $now');
       for (int i = 0; i < resultSet2.length; i++) {
         String url = displayDbAddr;
         var body3 = {
@@ -126,9 +128,6 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(
           if (value == 1) {
             processedResult2[tag] = true;
           }
-          // if (value == 0) {
-          //   processedResult2[tag] = false;
-          // }이거 주석인 이유는. 한번이라도 찬 경우는 1로 보기 때문에 0이 아닌 1로 변환함
         }
         Map<dynamic, dynamic> processedResult3 = {};
         Map<dynamic, dynamic> processedResult = {};
@@ -192,6 +191,7 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(
 
       //1시간 -> 하루 단위로 db를 뽑아내는 코드
       // if (1 == 1) {
+      //now.subtract(Duration(days: 1))
       if (day != now.day) {
         var rowStatus = {
           'transaction': [
