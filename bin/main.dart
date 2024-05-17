@@ -82,10 +82,11 @@ void main() async {
       print('StackTrace: $stackTrace');
     }
     var enginedData = await receiveEnginedataSendToDartserver(engineaddr, displayaddr, check);
-    print(enginedData);
-    var jsonDB = jsonEncode(enginedData);
+    String strRawDdata = 'start,${enginedData.join(',')}';
+    print(strRawDdata);
+    //var jsonDB = jsonEncode(enginedData);
     router.get('/getResource', (Request request) {
-      return Response.ok(jsonDB);
+      return Response.ok(strRawDdata);
     });
     DateTime now = DateTime.now();
     check = now;
