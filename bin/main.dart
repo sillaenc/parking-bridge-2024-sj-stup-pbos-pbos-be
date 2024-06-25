@@ -57,9 +57,8 @@ void main() async {
   DateTime check = DateTime.now();
 
   firstSetting(url);
-
-  //2Seconds Per delay - 반복 동작.
-  Timer.periodic(Duration(seconds: 2), (timer) async {
+  //0.5 Seconds Per delay - 반복 동작.
+  Timer.periodic(Duration(milliseconds: 500), (timer) async {
     var engineaddr;
     try {
       var header = {'Content-Type': 'application/json'};
@@ -74,6 +73,7 @@ void main() async {
         body: jsonEncode(body),
       );
       var engine = jsonDecode(response.body);
+      //print('engine : $engine');
       engineaddr = engine['results'][0]['resultSet'][0]['engine_db_addr'];
       manageAddress.engineDbAddr = engineaddr;
       
@@ -83,7 +83,7 @@ void main() async {
     }
     var enginedData = await receiveEnginedataSendToDartserver(engineaddr, displayaddr, check);
     String strRawDdata = 'start,${enginedData.join(',')}';
-    print(strRawDdata);
+    // print(strRawDdata);
     //var jsonDB = jsonEncode(enginedData);
     router.get('/getResource', (Request request) {
       return Response.ok(strRawDdata);

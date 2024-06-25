@@ -30,8 +30,31 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(
       var parkingLotList = parkingLot.split(',');
       parkingLotList.removeAt(0); // "start" 제거
       parkingLotList.sort();
+      print(resultSet);
       // print(parkingLotList);
+      // int id = resultSet['id'];
+
+      // var timestamp = resultSet['timestamp'];
+      // var parkinglot = resultSet['parking_lot'];
+      // print(parkinglot);
       String url2 = displayDbAddr;
+      var raw = {
+        "transaction": [
+          {
+            "query": "INSERT INTO 'rawdata' (id, timestamp, parking_lot) VALUES (:id, :timestamp, :parking_lot)",
+            "values": {
+              "id": resultSet['id'],
+              "timestamp": resultSet['timestamp'],
+              "parking_lot": resultSet['parking_lot']
+            }
+          }
+        ]
+      };
+      await http.post(
+        Uri.parse(url2),
+        headers: headers,
+        body: jsonEncode(raw),
+      );
       var body2 = {
         "transaction": [
           {"query": "SELECT * FROM tb_lots"}
@@ -257,7 +280,8 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(
         }
 
         DateTime oneHourBefore = now.subtract(Duration(days: 1));
-        String fromattedTime ="${oneHourBefore.year}-${oneHourBefore.month}-${oneHourBefore.day}";
+        String fromattedTime =
+            "${oneHourBefore.year}-${oneHourBefore.month}-${oneHourBefore.day}";
         var check = {
           'transaction': [
             {
@@ -279,8 +303,14 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(
             var uploadProcessedData = {
               'transaction': [
                 {
-                  "query": "INSERT INTO perday (lot ,car_type, day_parking, recorded_day) VALUES (:lot ,:car_type, :day_parking, :fromattedTime)",
-                  "values": {"lot": processedResult[i],"car_type": processedResult3[i],"day_parking": processedResult2[i],"fromattedTime": fromattedTime}
+                  "query":
+                      "INSERT INTO perday (lot ,car_type, day_parking, recorded_day) VALUES (:lot ,:car_type, :day_parking, :fromattedTime)",
+                  "values": {
+                    "lot": processedResult[i],
+                    "car_type": processedResult3[i],
+                    "day_parking": processedResult2[i],
+                    "fromattedTime": fromattedTime
+                  }
                 }
               ]
             };
@@ -299,7 +329,8 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(
         var rowStatus = {
           'transaction': [
             {
-              "query": "SELECT * FROM processed_db WHERE recorded_hour LIKE ':checkdate'",
+              "query":
+                  "SELECT * FROM processed_db WHERE recorded_hour LIKE ':checkdate'",
               "values": {"checkdate": '$strMonth%'}
             }
           ]
@@ -362,24 +393,29 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(
         );
         var dcCheckDb = jsonDecode(checkDb.body);
         var checkVal = dcCheckDb['results'][0]['resultSet'];
-        if(checkVal.isEmpty){
+        if (checkVal.isEmpty) {
           for (int i = 1; i <= rowDb2.length; i++) {
-          var uploadProcessedData = {
-            'transaction': [
-              {
-                "query": "INSERT INTO permonth (lot, car_type, month_parking, recorded_month) VALUES (:lot, :car_type, :month_parking, :fromattedTime)",
-                "values": {"lot": processedResult[i],"car_type": processedResult3[i],"month_parking": processedResult2[i],"fromattedTime": fromattedTime}
-              }
-            ]
-          };
-          await http.post(
-            Uri.parse(url2),
-            headers: headers,
-            body: jsonEncode(uploadProcessedData),
-          );
+            var uploadProcessedData = {
+              'transaction': [
+                {
+                  "query":
+                      "INSERT INTO permonth (lot, car_type, month_parking, recorded_month) VALUES (:lot, :car_type, :month_parking, :fromattedTime)",
+                  "values": {
+                    "lot": processedResult[i],
+                    "car_type": processedResult3[i],
+                    "month_parking": processedResult2[i],
+                    "fromattedTime": fromattedTime
+                  }
+                }
+              ]
+            };
+            await http.post(
+              Uri.parse(url2),
+              headers: headers,
+              body: jsonEncode(uploadProcessedData),
+            );
+          }
         }
-        }
-        
       }
 
       //월 -> 연 단위로 db를 뽑아내는 코드
@@ -387,7 +423,8 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(
         var rowStatus = {
           'transaction': [
             {
-              "query": "SELECT * FROM processed_db WHERE recorded_hour LIKE ':checkdate'",
+              "query":
+                  "SELECT * FROM processed_db WHERE recorded_hour LIKE ':checkdate'",
               "values": {"checkdate": '$strYear%'}
             }
           ]
@@ -447,24 +484,29 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(
         );
         var dcCheckDb = jsonDecode(checkDb.body);
         var checkVal = dcCheckDb['results'][0]['resultSet'];
-        if(checkVal.isEmpty){
+        if (checkVal.isEmpty) {
           for (int i = 1; i <= rowDb2.length; i++) {
-          var uploadProcessedData = {
-            'transaction': [
-              {
-                "query": "INSERT INTO permonth (lot ,car_type, year_parking, recorded_month) VALUES (:lot, :car_type, :year_parking, :fromattedTime)",
-                "values": {"lot": processedResult[i],"car_type": processedResult3[i],"year_parking": processedResult2[i],"fromattedTime": fromattedTime}
-              }
-            ]
-          };
-          await http.post(
-            Uri.parse(url2),
-            headers: headers,
-            body: jsonEncode(uploadProcessedData),
-          );
+            var uploadProcessedData = {
+              'transaction': [
+                {
+                  "query":
+                      "INSERT INTO permonth (lot ,car_type, year_parking, recorded_month) VALUES (:lot, :car_type, :year_parking, :fromattedTime)",
+                  "values": {
+                    "lot": processedResult[i],
+                    "car_type": processedResult3[i],
+                    "year_parking": processedResult2[i],
+                    "fromattedTime": fromattedTime
+                  }
+                }
+              ]
+            };
+            await http.post(
+              Uri.parse(url2),
+              headers: headers,
+              body: jsonEncode(uploadProcessedData),
+            );
+          }
         }
-        }
-        
       }
       return parkingLotList;
     } else {
