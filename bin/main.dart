@@ -9,7 +9,7 @@ import 'routes/create_admin.dart'; // 관리자 계정 생성
 import 'routes/firstSetting.dart';
 import 'routes/login_setting.dart'; // 주차 관련 차량 정보 획득
 import 'routes/login_main.dart';
-
+import 'routes/multiple_electric_signs.dart';
 import 'routes/receive_enginedata_send_to_dartserver.dart';
 import 'routes/settings_db_management.dart';
 import 'routes/settings_account.dart';
@@ -48,6 +48,7 @@ void main() async {
   SettingsDbManagement settingsDbManagement = SettingsDbManagement(manageAddress);
   SettingsParkingArea settingsParkingArea = SettingsParkingArea(manageAddress);
   SettingsCamParkingArea settingsCamParkingArea = SettingsCamParkingArea(manageAddress);
+  MultipleElectricSigns multipleElectricSigns = MultipleElectricSigns(manageAddress);
 
   final router = Router();
 
@@ -92,18 +93,16 @@ void main() async {
     check = now;
   });
 
-  // 이미 생성된 인스턴스의 메서드 전달
   router.mount('/confirm_account_list', confirmAccountList.router);
   router.mount('/create_admin', createAdmin.router);
   router.mount('/login_main', loginMain.router);
   router.mount('/login_setting', loginSetting.router);
-
-  // 아래는 인스턴스를 생성해 그 인스턴스의 메서드를 직접 호출
   router.mount('/settings/db_management', settingsDbManagement.router);
   router.mount('/settings/account', settingsAccount.router);
   router.mount('/settings/parking_area', settingsParkingArea.router);
   router.mount('/settings/cam_parking_area', settingsCamParkingArea.router);
   router.mount('/statistics/cam_parking_area', statisticsCamParkingArea.router);
+  router.mount('/multiple_electric_signs', multipleElectricSigns.router);
 
   var handler = Pipeline()
       .addMiddleware(logRequests())
