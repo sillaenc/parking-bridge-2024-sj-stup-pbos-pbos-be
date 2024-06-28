@@ -44,7 +44,7 @@ class MultipleElectricSigns {
 
         var body = {
           "transaction": [
-            {"query": "UPDATE tb_parking_surface SET (parking_lot) = (:parking_lot) WHERE uid = :uid",
+            {"query": "UPDATE multiple_signs SET (parking_lot) = (:parking_lot) WHERE uid = :uid",
               "values": {"uid": uid ,"parking_lot": parkingLot}
             },
           ]
