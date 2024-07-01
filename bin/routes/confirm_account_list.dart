@@ -7,8 +7,11 @@ import 'package:http/http.dart' as http;
 import '../data/manage_address.dart';
 
 class ConfirmAccountList {
-  ManageAddress manageAddress;
-  ConfirmAccountList(this.manageAddress);
+  final ManageAddress manageAddress;
+
+  ConfirmAccountList({
+    required this.manageAddress,
+  });
   var userDB;
 
   Router get router {

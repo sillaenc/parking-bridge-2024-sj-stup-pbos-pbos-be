@@ -6,3 +6,5 @@
 /file
 /image
 /txt
+*.exe
+*.bat

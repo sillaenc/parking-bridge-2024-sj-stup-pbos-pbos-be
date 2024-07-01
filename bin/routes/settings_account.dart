@@ -14,8 +14,8 @@ import '../data/manage_address.dart';
 // userlevel, isActivated update하는 기능.
 // 마지막으로 시작할때, tb_users 전부 response하게 하자.
 class SettingsAccount {
-  ManageAddress manageAddress = ManageAddress();
-  SettingsAccount(this.manageAddress);
+  final ManageAddress manageAddress;
+  SettingsAccount({required this.manageAddress});
   Router get router {
     final router = Router();
     String? url = manageAddress.displayDbAddr;

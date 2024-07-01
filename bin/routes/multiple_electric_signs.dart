@@ -2,13 +2,12 @@ import 'dart:convert';
 import 'package:shelf/shelf.dart';
 import 'package:shelf_router/shelf_router.dart';
 import 'package:http/http.dart' as http;
-import 'dart:io';
 import '../data/manage_address.dart';
 
 
 class MultipleElectricSigns {
-  ManageAddress manageAddress = ManageAddress();
-  MultipleElectricSigns(this.manageAddress);
+  final ManageAddress manageAddress;
+  MultipleElectricSigns({required this.manageAddress});
   Router get router {
     final router = Router();
     String? url = manageAddress.displayDbAddr;

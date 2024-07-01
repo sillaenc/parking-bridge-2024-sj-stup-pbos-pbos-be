@@ -26,8 +26,8 @@ String getExtensionFromContentDisposition(String contentDisposition) {
 }
 
 class SettingsParkingArea {
-  ManageAddress manageAddress = ManageAddress();
-  SettingsParkingArea(this.manageAddress);
+  final ManageAddress manageAddress;
+  SettingsParkingArea({required this.manageAddress});
   Router get router {
     final router = Router();
 

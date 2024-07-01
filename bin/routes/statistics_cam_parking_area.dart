@@ -8,8 +8,8 @@ import 'package:intl/intl.dart';
 import '../data/manage_address.dart';
 
 class StatisticsCamParkingArea {
-  ManageAddress manageAddress = ManageAddress();
-  StatisticsCamParkingArea(this.manageAddress);
+  final ManageAddress manageAddress;
+  StatisticsCamParkingArea({required this.manageAddress});
   
   Router get router {
     final router = Router();

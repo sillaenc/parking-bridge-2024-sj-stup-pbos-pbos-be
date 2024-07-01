@@ -7,8 +7,8 @@ import 'dart:io'; // json 처리
 import '../data/manage_address.dart';
 
 class SettingsDbManagement {
-  ManageAddress manageAddress;
-  SettingsDbManagement(this.manageAddress);
+  final ManageAddress manageAddress;
+  SettingsDbManagement({required this.manageAddress});
 
   Router get router {
     final router = Router();

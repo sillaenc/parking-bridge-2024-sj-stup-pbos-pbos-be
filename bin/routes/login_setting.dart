@@ -3,24 +3,13 @@ import 'dart:io';
 import 'package:shelf/shelf.dart';
 import 'package:shelf_router/shelf_router.dart';
 import 'package:http/http.dart' as http;
-
 import '../routes/confirm_account_list.dart';
 
-// LoginSetting
-// EngineDb
-// - req :
-// - res :
-// DisplayDb
-// - req : GET
-// - res : 이미지 총 픽셀 수, 위치 태그, 차량타입, 차량 위치좌표
-// RESPONSE(프론트, get)
-// - res : 이미지 총 픽셀 수, 차량타입,     위치 태그, 차량 위치좌표
-//           tb_lots_image , tb_lot_type,    tb_lots
 
 class LoginSetting {
   final ConfirmAccountList confirmAccountList;
 
-  LoginSetting(this.confirmAccountList);
+  LoginSetting({required this.confirmAccountList});
   //var account="";var passwd="";
 
   Router get router {

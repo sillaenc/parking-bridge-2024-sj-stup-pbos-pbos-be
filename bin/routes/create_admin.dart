@@ -11,8 +11,11 @@ import 'dart:io'; // json 파일
 import '../routes/confirm_account_list.dart';
 
 class CreateAdmin {
-  final ConfirmAccountList accountList;
-  CreateAdmin(this.accountList);
+  final ConfirmAccountList confirmAccountList;
+
+  CreateAdmin({
+    required this.confirmAccountList,
+  });
 
   Router get router {
     final router = Router();
@@ -23,7 +26,7 @@ class CreateAdmin {
         var account = requestData['account'];
         var passwd = requestData['passwd'];
 
-        var responseFuture = _ReqToWs4AccInfo(account, passwd, accountList.manageAddress.displayDbAddr);
+        var responseFuture = _ReqToWs4AccInfo(account, passwd, confirmAccountList.manageAddress.displayDbAddr);
 
         var response = await responseFuture;
 

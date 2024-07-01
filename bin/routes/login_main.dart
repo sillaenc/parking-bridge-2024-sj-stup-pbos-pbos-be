@@ -9,8 +9,8 @@ import 'dart:io';
 import '../data/manage_address.dart';
 
 class LoginMain {
-  ManageAddress manageAddress = ManageAddress();
-  LoginMain(this.manageAddress);
+  final ManageAddress manageAddress;
+  LoginMain({required this.manageAddress});
 
   Router get router {
     final router = Router();
