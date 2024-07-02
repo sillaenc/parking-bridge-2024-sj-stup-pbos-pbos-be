@@ -46,7 +46,7 @@ void main() async {
   final settingsParkingArea = SettingsParkingArea(manageAddress: manageAddress);
   final settingsCamParkingArea = SettingsCamParkingArea(manageAddress: manageAddress);
   final multipleElectricSigns = MultipleElectricSigns(manageAddress: manageAddress);
-  // final getResource = GetResource(manageAddress: manageAddress);
+  final getResource = GetResource(manageAddress: manageAddress);
   final router = Router();
 
   manageAddress.displayDbAddr = env['displayDbAddr'];
@@ -64,7 +64,7 @@ void main() async {
   router.mount('/settings/cam_parking_area', settingsCamParkingArea.router);
   router.mount('/statistics/cam_parking_area', statisticsCamParkingArea.router);
   router.mount('/multiple_electric_signs', multipleElectricSigns.router);
-  // router.mount('/getResource', getResource.router);
+  router.mount('/getResource', getResource.router);
 
   firstSetting(url);
   //0.5 Seconds Per delay - 반복 동작.
@@ -95,17 +95,16 @@ void main() async {
     
     String strRawData;
     List enginedData = await receiveEnginedataSendToDartserver(engineaddr, displayaddr, check);
-    router.get('/getResource', (Request request) async {
-      strRawData = 'start,${enginedData.join(',')}';
-      return Response.ok(strRawData);
-    });
+    // router.get('/getResource', (Request request) async {
+    //   strRawData = 'start,${enginedData.join(',')}';
+    //   return Response.ok(strRawData);
+    // });
     strRawData='';
-    //enginedData.clear();
+    enginedData.clear();
 
     DateTime now = DateTime.now();
     check = now;
   });
-  
   
 
 
