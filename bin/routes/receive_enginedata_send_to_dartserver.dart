@@ -133,6 +133,7 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(
         );
         var rowResult = jsonDecode(rowResponse.body);
         var rowDb = rowResult['results'][0]['resultSet'];
+
         var rowLot = {
           'transaction': [
             {"query": "SELECT * FROM tb_lots"}
@@ -145,8 +146,11 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(
         );
         var rowResult2 = jsonDecode(rowResponse2.body);
         var rowDb2 = rowResult2['results'][0]['resultSet'];
-        // print(rowDb2);//여기까지 문제 x
+
         Map<dynamic, dynamic> processedResult2 = {};
+        Map<dynamic, dynamic> processedResult3 = {};
+        Map<dynamic, dynamic> processedResult = {};
+
         for (var item in rowDb) {
           int tag = item['lot'];
           var value = item['isParked'];
@@ -155,8 +159,7 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(
             processedResult2[tag] = true;
           }
         }
-        Map<dynamic, dynamic> processedResult3 = {};
-        Map<dynamic, dynamic> processedResult = {};
+
         for (var item in rowDb2) {
           int tag = item['uid'];
           int lot = item['uid'];
@@ -164,11 +167,10 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(
           processedResult[lot] = processedResult[lot] ?? 0;
           processedResult[lot] = item['uid'];
         }
+
         DateTime oneHourBefore = now.subtract(Duration(hours: 1));
         String fromattedTime =
             "${oneHourBefore.year}-${oneHourBefore.month}-${oneHourBefore.day} ${oneHourBefore.hour}";
-        // print(processedResult);
-        print('processed_result : $processedResult2');
 
         var check = {
           'transaction': [
@@ -235,7 +237,9 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(
             }
           ]
         };
-        var rowResponse = await http.post(
+        var client = http.Client();
+
+        var rowResponse = await client.post(
           Uri.parse(url2),
           headers: headers,
           body: jsonEncode(rowStatus),
@@ -248,7 +252,7 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(
             {"query": "SELECT * FROM tb_lots"}
           ]
         };
-        var rowResponse2 = await http.post(
+        var rowResponse2 = await client.post(
           Uri.parse(url2),
           headers: headers,
           body: jsonEncode(rowLot),
@@ -290,7 +294,7 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(
             }
           ]
         };
-        var checkDb = await http.post(
+        var checkDb = await client.post(
           Uri.parse(url2),
           headers: headers,
           body: jsonEncode(check),
@@ -303,24 +307,19 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(
             var uploadProcessedData = {
               'transaction': [
                 {
-                  "query":
-                      "INSERT INTO perday (lot ,car_type, day_parking, recorded_day) VALUES (:lot ,:car_type, :day_parking, :fromattedTime)",
-                  "values": {
-                    "lot": processedResult[i],
-                    "car_type": processedResult3[i],
-                    "day_parking": processedResult2[i],
-                    "fromattedTime": fromattedTime
-                  }
+                  "query": "INSERT INTO perday (lot ,car_type, day_parking, recorded_day) VALUES (:lot ,:car_type, :day_parking, :fromattedTime)",
+                  "values": { "lot": processedResult[i], "car_type": processedResult3[i], "day_parking": processedResult2[i], "fromattedTime": fromattedTime }
                 }
               ]
             };
-            await http.post(
+            await client.post(
               Uri.parse(url2),
               headers: headers,
               body: jsonEncode(uploadProcessedData),
             );
           }
         }
+        client.close();
       }
 
       //하루 -> 월 단위로 db를 뽑아내는 코드
@@ -335,7 +334,8 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(
             }
           ]
         };
-        var rowResponse = await http.post(
+        var client = http.Client();
+        var rowResponse = await client.post(
           Uri.parse(url2),
           headers: headers,
           body: jsonEncode(rowStatus),
@@ -347,7 +347,7 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(
             {"query": "SELECT * FROM tb_lots"}
           ]
         };
-        var rowResponse2 = await http.post(
+        var rowResponse2 = await client.post(
           Uri.parse(url2),
           headers: headers,
           body: jsonEncode(rowLot),
@@ -386,7 +386,7 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(
             }
           ]
         };
-        var checkDb = await http.post(
+        var checkDb = await client.post(
           Uri.parse(url2),
           headers: headers,
           body: jsonEncode(check),
@@ -400,22 +400,18 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(
                 {
                   "query":
                       "INSERT INTO permonth (lot, car_type, month_parking, recorded_month) VALUES (:lot, :car_type, :month_parking, :fromattedTime)",
-                  "values": {
-                    "lot": processedResult[i],
-                    "car_type": processedResult3[i],
-                    "month_parking": processedResult2[i],
-                    "fromattedTime": fromattedTime
-                  }
+                  "values": { "lot": processedResult[i], "car_type": processedResult3[i], "month_parking": processedResult2[i], "fromattedTime": fromattedTime }
                 }
               ]
             };
-            await http.post(
+            await client.post(
               Uri.parse(url2),
               headers: headers,
               body: jsonEncode(uploadProcessedData),
             );
           }
         }
+        client.close();
       }
 
       //월 -> 연 단위로 db를 뽑아내는 코드
@@ -429,7 +425,8 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(
             }
           ]
         };
-        var rowResponse = await http.post(
+        var client = http.Client();
+        var rowResponse = await client.post(
           Uri.parse(url2),
           headers: headers,
           body: jsonEncode(rowStatus),
@@ -442,7 +439,7 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(
             {"query": "SELECT * FROM tb_lots"}
           ]
         };
-        var rowResponse2 = await http.post(
+        var rowResponse2 = await client.post(
           Uri.parse(url2),
           headers: headers,
           body: jsonEncode(rowLot),
@@ -477,7 +474,7 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(
             }
           ]
         };
-        var checkDb = await http.post(
+        var checkDb = await client.post(
           Uri.parse(url2),
           headers: headers,
           body: jsonEncode(check),
@@ -489,24 +486,19 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(
             var uploadProcessedData = {
               'transaction': [
                 {
-                  "query":
-                      "INSERT INTO permonth (lot ,car_type, year_parking, recorded_month) VALUES (:lot, :car_type, :year_parking, :fromattedTime)",
-                  "values": {
-                    "lot": processedResult[i],
-                    "car_type": processedResult3[i],
-                    "year_parking": processedResult2[i],
-                    "fromattedTime": fromattedTime
-                  }
+                  "query": "INSERT INTO permonth (lot ,car_type, year_parking, recorded_month) VALUES (:lot, :car_type, :year_parking, :fromattedTime)",
+                  "values": { "lot": processedResult[i], "car_type": processedResult3[i], "year_parking": processedResult2[i], "fromattedTime": fromattedTime }
                 }
               ]
             };
-            await http.post(
+            await client.post(
               Uri.parse(url2),
               headers: headers,
               body: jsonEncode(uploadProcessedData),
             );
           }
         }
+        client.close();
       }
       return parkingLotList;
       //return to Main.dart and send that to client

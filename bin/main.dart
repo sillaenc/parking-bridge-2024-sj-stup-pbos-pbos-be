@@ -92,15 +92,15 @@ void main() async {
       print('StackTrace: $stackTrace');
     }
 
-    
-    String strRawData;
-    List enginedData = await receiveEnginedataSendToDartserver(engineaddr, displayaddr, check);
+    await receiveEnginedataSendToDartserver(engineaddr, displayaddr, check);
+    // String strRawData;
+    // List enginedData = await receiveEnginedataSendToDartserver(engineaddr, displayaddr, check);
     // router.get('/getResource', (Request request) async {
     //   strRawData = 'start,${enginedData.join(',')}';
     //   return Response.ok(strRawData);
     // });
-    strRawData='';
-    enginedData.clear();
+    // strRawData='';
+    // enginedData.clear();
 
     DateTime now = DateTime.now();
     check = now;
