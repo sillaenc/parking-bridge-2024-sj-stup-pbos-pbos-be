@@ -1,8 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:path/path.dart';
 import 'package:http/http.dart' as http;
-import 'package:shelf/shelf.dart';
 
 Future<void> firstSetting(url) async {
   try {

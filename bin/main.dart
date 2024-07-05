@@ -6,7 +6,7 @@ import 'package:shelf/shelf_io.dart';
 import 'package:shelf_router/shelf_router.dart';
 import 'routes/confirm_account_list.dart'; // 계정 확인
 import 'routes/create_admin.dart'; // 관리자 계정 생성
-import 'routes/firstSetting.dart';
+import 'routes/first_setting.dart';
 import 'routes/login_setting.dart'; // 주차 관련 차량 정보 획득
 import 'routes/login_main.dart';
 import 'routes/multiple_electric_signs.dart';

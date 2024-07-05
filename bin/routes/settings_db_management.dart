@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'package:shelf/shelf.dart';
 import 'package:shelf_router/shelf_router.dart';
 import 'package:http/http.dart' as http;
-import 'dart:io'; // json 처리
 
 import '../data/manage_address.dart';
 
@@ -16,8 +15,8 @@ class SettingsDbManagement {
     router.post('/engine', (Request request) async {
       try {
         var requestBody = await request.readAsString();
-        var DBData = jsonDecode(requestBody);
-        var changeEngine = DBData['engineDb'];
+        var dbData = jsonDecode(requestBody);
+        var changeEngine = dbData['engineDb'];
 
         String? url = manageAddress.displayDbAddr;
         var headers = {'Content-Type': 'application/json'};
@@ -53,8 +52,8 @@ class SettingsDbManagement {
     router.post('/display', (Request request) async {
       try {
         var requestBody = await request.readAsString();
-        var DBData = jsonDecode(requestBody);
-        var changeDisplay = DBData['displayDb'];
+        var dbData = jsonDecode(requestBody);
+        var changeDisplay = dbData['displayDb'];
         print(changeDisplay);
 
         String? url = manageAddress.displayDbAddr;

@@ -1,15 +1,11 @@
 import 'dart:convert';
 // import 'package:drift/drift.dart';
-import 'package:drift/drift.dart';
 import 'package:shelf/shelf.dart';
 import 'package:shelf_router/shelf_router.dart';
 import 'package:shelf_multipart/multipart.dart';
 import 'package:http/http.dart' as http;
 import 'dart:io';
 import 'package:path/path.dart' as p;
-import 'package:shelf/shelf_io.dart' as io;
-import 'package:mime/mime.dart';
-import 'package:http_parser/http_parser.dart';
 
 import '../data/manage_address.dart'; // json 처리
 
@@ -33,7 +29,6 @@ class SettingsParkingArea {
 
     String? url = manageAddress.displayDbAddr;
     var header = {'Content-Type': 'application/json'};
-    var headers = {'Content-Type': 'multipart/form-data'};
     router.get('/', (Request request) async {
       var body = {
         "transaction": [

@@ -5,8 +5,7 @@ import 'package:shelf/shelf.dart';
 import 'package:shelf_router/shelf_router.dart';
 import 'package:http/http.dart' as http;
 
-import 'dart:async'; // 타이머 사용을 위한 import 문 추가
-import 'dart:io'; // json 파일
+import 'dart:async'; // 타이머 사용을 위한 import 문 추가 // json 파일
 
 import '../routes/confirm_account_list.dart';
 
