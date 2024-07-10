@@ -128,6 +128,6 @@ void main() async {
   }).addHandler(router);
 
   // 서버 시작
-  var server = await serve(handler, 'localhost', 8080);
+  var server = await serve(handler, '192.168.0.229', 8080);
   print('Serving at http://${server.address.host}:${server.port}');
 }
