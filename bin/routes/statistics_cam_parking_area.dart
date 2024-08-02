@@ -23,7 +23,8 @@ class StatisticsCamParkingArea {
         var strYesterday = DateFormat('yyyy-mm-dd').format(yesterday);
         var headers = {'Content-Type': 'application/json'};
         var body = { "transaction": [
-            {"query": "SELECT car_type, hour_parking, recorded_hour FROM processed_db" }
+            {"query": "SELECT hour_parking, recorded_hour FROM processed_db where hour_parking = 1" }
+            // {"query": "SELECT count(recorded_hour) FROM processed_db where hour_parking = 1" }
           ]};
         var user = await http.post(
           Uri.parse(url!),
@@ -54,7 +55,7 @@ class StatisticsCamParkingArea {
         var strYesterday = DateFormat('yyyy-mm-dd').format(yesterday);
         var headers = {'Content-Type': 'application/json'};
         var body = { "transaction": [
-            {"query": "SELECT car_type, day_parking, recorded_day FROM perday" }
+            {"query": "SELECT uid, car_type, day_parking, recorded_day FROM perday" }
           ]};
         var user = await http.post(
           Uri.parse(url!),
@@ -76,7 +77,7 @@ class StatisticsCamParkingArea {
     });
 
     router.post('/oneYear', (Request request) async {
-      String? displayurl = manageAddress.displayDbAddr;
+      // String? displayurl = manageAddress.displayDbAddr;
       String? engineurl = manageAddress.engineDbAddr;
       print(engineurl);
       try {
@@ -86,7 +87,7 @@ class StatisticsCamParkingArea {
         var strYesterday = DateFormat('yyyy-mm-dd').format(yesterday);
         var headers = {'Content-Type': 'application/json'};
         var body = { "transaction": [
-            {"query": "SELECT car_type, month_parking, recorded_month FROM permonth" }
+            {"query": "SELECT uid, car_type, month_parking, recorded_month FROM permonth" }
           ]};
         var user = await http.post(
           Uri.parse(url!),
@@ -118,7 +119,7 @@ class StatisticsCamParkingArea {
         var strYesterday = DateFormat('yyyy-mm-dd').format(yesterday);
         var headers = {'Content-Type': 'application/json'};
         var body = { "transaction": [
-            {"query": "SELECT car_type, year_parking, recorded_year FROM peryear" }
+            {"query": "SELECT uid, car_type, year_parking, recorded_year FROM peryear" }
           ]};
         var user = await http.post(
           Uri.parse(url!),
