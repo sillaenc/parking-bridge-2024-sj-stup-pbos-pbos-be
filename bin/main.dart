@@ -20,7 +20,6 @@ import 'package:dotenv/dotenv.dart';
 import 'routes/statistics_cam_parking_area.dart';
 import 'data/manage_address.dart';
 import 'routes/get_resource.dart';
-// import 'package:weak_reference/weak_reference.dart';
 
 String formatDateTime(DateTime dateTime) {
   String year = dateTime.year.toString();
@@ -128,6 +127,6 @@ void main() async {
   }).addHandler(router);
 
   // 서버 시작
-  var server = await serve(handler, '192.168.0.229', 8080);
+  var server = await serve(handler, '0.0.0.0', 8080);
   print('Serving at http://${server.address.host}:${server.port}');
 }
