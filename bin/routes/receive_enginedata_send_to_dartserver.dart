@@ -37,7 +37,8 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(
       var raw = {
         "transaction": [
           {
-            "query": "INSERT INTO 'rawdata' (id, timestamp, parking_lot) VALUES (:id, :timestamp, :parking_lot)",
+            "query":
+                "INSERT INTO 'rawdata' (id, timestamp, parking_lot) VALUES (:id, :timestamp, :parking_lot)",
             "values": {
               "id": resultSet['id'],
               "timestamp": resultSet['timestamp'],
@@ -303,8 +304,11 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(
             var uploadProcessedData = {
               'transaction': [
                 {
-                  "query": "INSERT INTO perday (lot ,car_type, day_parking, recorded_day) VALUES (:lot ,:car_type, :day_parking, :fromattedTime)",
-                  "values": { "lot": processedResult[i], "car_type": processedResult3[i], "day_parking": processedResult2[i], "fromattedTime": fromattedTime }
+                  "query":
+                      "INSERT INTO perday (lot ,car_type, day_parking, recorded_day) VALUES (:lot ,:car_type, :day_parking, :fromattedTime)",
+                  "values": {
+                    "lot": processedResult[i], "car_type": processedResult3[i], "day_parking": processedResult2[i], "fromattedTime": fromattedTime
+                  }
                 }
               ]
             };
@@ -324,13 +328,13 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(
         var rowStatus = {
           'transaction': [
             {
-              "query":
-                  "SELECT * FROM processed_db WHERE recorded_hour LIKE ':checkdate'",
-              "values": {"checkdate": '$strMonth%'}
+              "query": "SELECT * FROM perday WHERE recorded_day LIKE :checkdate",
+              "values": {'checkdate': '$strMonth%'}
             }
           ]
         };
         var client = http.Client();
+
         var rowResponse = await client.post(
           Uri.parse(url2),
           headers: headers,
@@ -338,6 +342,7 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(
         );
         var rowResult = jsonDecode(rowResponse.body);
         var rowDb = rowResult['results'][0]['resultSet'];
+        // print(rowDb);
         var rowLot = {
           'transaction': [
             {"query": "SELECT * FROM tb_lots"}
@@ -350,12 +355,13 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(
         );
         var rowResult2 = jsonDecode(rowResponse2.body);
         var rowDb2 = rowResult2['results'][0]['resultSet'];
+
         Map<dynamic, dynamic> processedResult2 = {};
         Map<dynamic, dynamic> processedResult = {};
         for (var item in rowDb) {
           int tag = item['lot'];
-          var value = item['hour_parking'];
           int lot = item['lot'];
+          var value = item['day_parking'];
           processedResult2[tag] = processedResult2[tag] ?? false;
           if (value == 1) {
             processedResult2[tag] = true;
@@ -365,15 +371,13 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(
         }
 
         Map<dynamic, dynamic> processedResult3 = {};
-
         for (var item in rowDb2) {
           int tag = item['uid'];
           processedResult3[tag] = item['lot_type'];
         }
 
-        DateTime oneHourBefore = now.subtract(Duration(days: 1));
-        String fromattedTime = "${oneHourBefore.year}-${oneHourBefore.month}";
-
+        // DateTime oneHourBefore = now.subtract(Duration(days: 30));
+        String fromattedTime = "${now.year}-${now.month - 1}";
         var check = {
           'transaction': [
             {
@@ -389,13 +393,13 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(
         );
         var dcCheckDb = jsonDecode(checkDb.body);
         var checkVal = dcCheckDb['results'][0]['resultSet'];
+        print(processedResult3);
         if (checkVal.isEmpty) {
           for (int i = 1; i <= rowDb2.length; i++) {
             var uploadProcessedData = {
               'transaction': [
                 {
-                  "query":
-                      "INSERT INTO permonth (lot, car_type, month_parking, recorded_month) VALUES (:lot, :car_type, :month_parking, :fromattedTime)",
+                  "query": "INSERT INTO permonth (lot, car_type, month_parking, recorded_month) VALUES (:lot, :car_type, :month_parking, :fromattedTime)",
                   "values": { "lot": processedResult[i], "car_type": processedResult3[i], "month_parking": processedResult2[i], "fromattedTime": fromattedTime }
                 }
               ]
@@ -415,13 +419,13 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(
         var rowStatus = {
           'transaction': [
             {
-              "query":
-                  "SELECT * FROM processed_db WHERE recorded_hour LIKE ':checkdate'",
-              "values": {"checkdate": '$strYear%'}
+              "query": "SELECT * FROM permonth WHERE recorded_month LIKE :checkdate",
+              "values": {'checkdate': '$strYear%'}
             }
           ]
         };
         var client = http.Client();
+
         var rowResponse = await client.post(
           Uri.parse(url2),
           headers: headers,
@@ -429,7 +433,7 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(
         );
         var rowResult = jsonDecode(rowResponse.body);
         var rowDb = rowResult['results'][0]['resultSet'];
-
+        // print(rowDb);
         var rowLot = {
           'transaction': [
             {"query": "SELECT * FROM tb_lots"}
@@ -442,12 +446,13 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(
         );
         var rowResult2 = jsonDecode(rowResponse2.body);
         var rowDb2 = rowResult2['results'][0]['resultSet'];
+
         Map<dynamic, dynamic> processedResult2 = {};
         Map<dynamic, dynamic> processedResult = {};
         for (var item in rowDb) {
           int tag = item['lot'];
-          var value = item['hour_parking'];
           int lot = item['lot'];
+          var value = item['month_parking'];
           processedResult2[tag] = processedResult2[tag] ?? false;
           if (value == 1) {
             processedResult2[tag] = true;
@@ -455,13 +460,14 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(
           processedResult[lot] = processedResult[lot] ?? 0;
           processedResult[lot] = item['lot'];
         }
+
         Map<dynamic, dynamic> processedResult3 = {};
         for (var item in rowDb2) {
           int tag = item['uid'];
           processedResult3[tag] = item['lot_type'];
         }
-        DateTime oneHourBefore = now.subtract(Duration(days: 1));
-        String fromattedTime = "${oneHourBefore.year}";
+
+        String fromattedTime = "${now.year - 1}";
         var check = {
           'transaction': [
             {
@@ -477,12 +483,13 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(
         );
         var dcCheckDb = jsonDecode(checkDb.body);
         var checkVal = dcCheckDb['results'][0]['resultSet'];
+        print(processedResult3);
         if (checkVal.isEmpty) {
           for (int i = 1; i <= rowDb2.length; i++) {
             var uploadProcessedData = {
               'transaction': [
                 {
-                  "query": "INSERT INTO permonth (lot ,car_type, year_parking, recorded_month) VALUES (:lot, :car_type, :year_parking, :fromattedTime)",
+                  "query" : "INSERT INTO peryear (lot, car_type, year_parking, recorded_year) VALUES (:lot, :car_type, :year_parking, :fromattedTime)",
                   "values": { "lot": processedResult[i], "car_type": processedResult3[i], "year_parking": processedResult2[i], "fromattedTime": fromattedTime }
                 }
               ]
