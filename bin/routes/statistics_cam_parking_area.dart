@@ -12,14 +12,12 @@ class StatisticsCamParkingArea {
   
   Router get router {
     final router = Router();
-    router.post('/oneDay', (Request request) async {
-      String? displayurl = manageAddress.displayDbAddr;
-      String? engineurl = manageAddress.engineDbAddr;
-      // print(engineurl);
+    router.post('/oneDayAll', (Request request) async {
       try {
         var url = manageAddress.displayDbAddr;
         var now = DateTime.now();
         var yesterday = now.subtract(Duration(days: 1));
+        var today = DateFormat('yyyy-mm-dd').format(now);
         var strYesterday = DateFormat('yyyy-mm-dd').format(yesterday);
         var headers = {'Content-Type': 'application/json'};
         var body = { "transaction": [
@@ -43,6 +41,40 @@ class StatisticsCamParkingArea {
         return Response.badRequest(body: 'Error: $e');
       }
     });
+    router.get('/oneDay', (Request request) async {
+      // print(engineurl);
+      try {
+        var url = manageAddress.displayDbAddr;
+        DateTime now = DateTime.now();
+        String today = '${DateFormat('yyyy-M-d').format(now)} 23';
+        DateTime onedayBefore = now.subtract(Duration(days: 1));
+        String yesterday = '${DateFormat('yyyy-M-d').format(onedayBefore)} 0';
+        print(today);
+        print(yesterday);
+        var headers = {'Content-Type': 'application/json'};
+        var body = { "transaction": [
+            // {"query": "SELECT hour_parking, recorded_hour FROM processed_db where hour_parking = 1 AND (recorded_hour = :today OR recorded_hour = :yesterday)" },
+            {"query": "SELECT hour_parking, recorded_hour FROM processed_db where hour_parking = 1 AND (recorded_hour >= :yesterday AND recorded_hour < :today)" ,
+            "values" : {'today': today , 'yesterday': yesterday}}
+          ]};
+        var user = await http.post(
+          Uri.parse(url!),
+          headers: headers,
+          body: jsonEncode(body),
+        );
+        var user2 = jsonDecode(user.body);
+        print(user2);
+        var resultSet = user2['results'][0]['resultSet'];
+        var user3 = jsonEncode(resultSet);
+        print("resultSet : $user3");
+        return Response.ok(user3);
+      } catch (e, stackTrace) {
+        print('Error: $e');
+        print('StackTrace: $stackTrace');
+        return Response.badRequest(body: 'Error: $e');
+      }
+    });
+    
 
     router.post('/oneMonth', (Request request) async {
       String? displayurl = manageAddress.displayDbAddr;
