@@ -127,6 +127,7 @@ void main() async {
   }).addHandler(router);
 
   // 서버 시작
-  var server = await serve(handler, '0.0.0.0', 8080);
+  int? port = int.tryParse(env['PORT']!);
+  var server = await serve(handler, '0.0.0.0', port!);
   print('Serving at http://${server.address.host}:${server.port}');
 }
