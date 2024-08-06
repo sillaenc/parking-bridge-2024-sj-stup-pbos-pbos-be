@@ -128,6 +128,7 @@ void main() async {
 
   // 서버 시작
   int? port = int.tryParse(env['PORT']!);
+  print('port is $port');
   var server = await serve(handler, '0.0.0.0', port!);
   print('Serving at http://${server.address.host}:${server.port}');
 }
