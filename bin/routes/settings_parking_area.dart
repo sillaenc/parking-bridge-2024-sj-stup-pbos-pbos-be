@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:typed_data';
 // import 'package:drift/drift.dart';
 import 'package:shelf/shelf.dart';
 import 'package:shelf_router/shelf_router.dart';
@@ -50,6 +51,9 @@ class SettingsParkingArea {
     router.post('/insertFile', (Request request) async {
       String? fileName;
       String? filePath;
+      File file;
+      String? extension;
+      Uint8List? content;
       if (!request.isMultipart) {
         return Response.badRequest(body: 'bad request');
       }
@@ -59,17 +63,37 @@ class SettingsParkingArea {
           fileName = await part.readString();
           fileName = p.basename(fileName);
         } else if (headers.contains('name="file"')) {
-          final content = await part.readBytes();
-          final extension = getExtensionFromContentDisposition(headers);
-          print('extension: $extension');
-          File file = await File('$fileDirectory/$fileName.$extension').create();
-          filePath = '$fileDirectory/$fileName.$extension';
-          file.writeAsBytesSync(content);
+          content = await part.readBytes();
+          extension = getExtensionFromContentDisposition(headers);
         }
       }
-      print(filePath);
-      print(fileName);
-      if (fileName != null && filePath != null) {
+      filePath = '$fileDirectory/$fileName.$extension';
+      file = File(filePath);
+      await file.create();
+      file.writeAsBytesSync(content!);
+
+      // print('수정 filePath : $filePath');
+      // var get ={
+      //   "transaction": [
+      //     {
+      //       "query": "SELECT * FROM tb_parking_zone "
+      //     },
+      //   ]
+      // };
+      // var check = await http.post(
+      //     Uri.parse(url!),
+      //     headers: header,
+      //     body: jsonEncode(get),
+      //   );
+      // var decodecheck = jsonDecode(check.body);
+      // var resultSet = decodecheck['results'][0]['resultSet'];
+      // print(resultSet);
+      // var user2 = jsonDecode(user.body);
+        
+      //   var resultSet = user2['results'][0]['resultSet'];
+      //   var user3 = jsonEncode(resultSet);
+      // if (fileName != resultSet[fileName] && filePath != resultSet[filePath]) {
+      if (1==1) {
         var body = {
           "transaction": [
             {
@@ -120,6 +144,9 @@ class SettingsParkingArea {
       String? fileName;
       String? filePath;
       String? beforeName;
+      File file;
+      String? extension;
+      Uint8List? content;
       var body = {
         "transaction": [
           {"query": "SELECT * FROM tb_parking_zone"}
@@ -132,7 +159,7 @@ class SettingsParkingArea {
       );
       var db = jsonDecode(utf8.decode(response.bodyBytes));
       var dbSet = db['results'][0]['resultSet'];
-      print(dbSet);
+      // print(dbSet);
       if (!request.isMultipart) {
         return Response.badRequest(body: 'bad request');
       }
@@ -145,25 +172,32 @@ class SettingsParkingArea {
           beforeName = await part.readString();
           beforeName = p.basename(beforeName);
         } else if (headers.contains('name="file"')) {
-          final content = await part.readBytes();
-          final extension = getExtensionFromContentDisposition(headers);
-          print('extension: $extension');
+          content = await part.readBytes();
+          extension = getExtensionFromContentDisposition(headers);
+          print('1extension: $extension');
 
-          File file = await File('$fileDirectory/$fileName.$extension').create();
-          filePath = '$fileDirectory/$fileName.$extension';
-          file.writeAsBytesSync(content);
+          // File file = await File('$fileDirectory/$fileName.$extension').create();
+          // filePath = '$fileDirectory/$fileName.$extension';
+          // file.writeAsBytesSync(content);
         }
+        
       }
-      print(filePath);
-      print(fileName);
-      print(beforeName);
-      print(dbSet);
+      print('2extension : $extension');
+      filePath = '$fileDirectory/$fileName.$extension';
+      file = File(filePath);
+      await file.create();
+      file.writeAsBytesSync(content!);
+      print('filePath : $filePath');
+      print("fileName : $fileName");
+      print('beforeName : $beforeName');
+      print('dbSet : $dbSet');
       for(var item in dbSet){
         if(item['filename'] == fileName){
           return Response.ok('UpDate Complete');
         }
       }
-      if (fileName != null && filePath != null) {
+      // if (fileName != null && filePath != null) {
+      if (1==1) {
         var body = {
           "transaction": [
             {
