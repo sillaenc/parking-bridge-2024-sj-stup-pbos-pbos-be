@@ -72,26 +72,6 @@ class SettingsParkingArea {
       await file.create();
       file.writeAsBytesSync(content!);
 
-      // print('수정 filePath : $filePath');
-      // var get ={
-      //   "transaction": [
-      //     {
-      //       "query": "SELECT * FROM tb_parking_zone "
-      //     },
-      //   ]
-      // };
-      // var check = await http.post(
-      //     Uri.parse(url!),
-      //     headers: header,
-      //     body: jsonEncode(get),
-      //   );
-      // var decodecheck = jsonDecode(check.body);
-      // var resultSet = decodecheck['results'][0]['resultSet'];
-      // print(resultSet);
-      // var user2 = jsonDecode(user.body);
-        
-      //   var resultSet = user2['results'][0]['resultSet'];
-      //   var user3 = jsonEncode(resultSet);
       // if (fileName != resultSet[fileName] && filePath != resultSet[filePath]) {
       if (1==1) {
         var body = {
@@ -118,7 +98,6 @@ class SettingsParkingArea {
       var requestData = jsonDecode(requestBody);
 
       var filename = requestData['filename'];
-      print('test');
       try {
         var find ={
           "transaction": [
@@ -165,6 +144,7 @@ class SettingsParkingArea {
     router.post('/UpdateFile', (Request request) async {
       String? fileName;
       String? filePath;
+      String? beforePath;
       String? beforeName;
       File file;
       String? extension;
@@ -206,9 +186,17 @@ class SettingsParkingArea {
       }
       print('2extension : $extension');
       filePath = '$fileDirectory/$fileName.$extension';
+      beforePath= '$fileDirectory/$beforeName.$extension';
+      print(beforePath);
       file = File(filePath);
+      File beforefile = File(beforePath);
       await file.create();
       file.writeAsBytesSync(content!);
+      if(await beforefile.exists()){
+        await beforefile.delete();
+        print("파일 삭제 성공!!");
+      }else {print("파일이 이미 존재하지 않습니다!");}
+      
       print('filePath : $filePath');
       print("fileName : $fileName");
       print('beforeName : $beforeName');
