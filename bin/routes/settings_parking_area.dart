@@ -118,7 +118,29 @@ class SettingsParkingArea {
       var requestData = jsonDecode(requestBody);
 
       var filename = requestData['filename'];
+      print('test');
       try {
+        var find ={
+          "transaction": [
+            {
+              "query": "SELECT * FROM tb_parking_zone WHERE parking_name = :parking_name",
+              "values": {"parking_name": filename}
+            },
+          ]
+        };
+        var result = await http.post(
+          Uri.parse(url!),
+          headers: header,
+          body: jsonEncode(find),
+        );
+        var resultSet = jsonDecode(utf8.decode(result.bodyBytes));
+        var isfind = resultSet['results'][0]['resultSet'];
+        print(isfind[0]);
+        File file = File(isfind[0]['file_address']);
+        if(await file.exists()){
+          await file.delete();
+          print("파일 삭제 성공!!");
+        }else {print("파일이 존재하지 않습니다!");}
         var body = {
           "transaction": [
             {
@@ -128,7 +150,7 @@ class SettingsParkingArea {
           ]
         };
         await http.post(
-          Uri.parse(url!),
+          Uri.parse(url),
           headers: header,
           body: jsonEncode(body),
         );
