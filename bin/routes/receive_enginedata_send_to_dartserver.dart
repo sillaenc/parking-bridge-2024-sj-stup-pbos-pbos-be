@@ -26,7 +26,7 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(
       var parkingLotList = parkingLot.split(',');
       parkingLotList.removeAt(0); // "start" 제거
       parkingLotList.sort();
-      print(parkingLotList);
+      // print(parkingLotList);
       // print(parkingLotList);
       // int id = resultSet['id'];
 

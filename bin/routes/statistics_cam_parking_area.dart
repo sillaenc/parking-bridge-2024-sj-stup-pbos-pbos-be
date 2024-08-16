@@ -12,7 +12,7 @@ class StatisticsCamParkingArea {
   
   Router get router {
     final router = Router();
-    router.post('/oneDayAll', (Request request) async {
+    router.get('/oneDayAll', (Request request) async {
       try {
         var url = manageAddress.displayDbAddr;
         var now = DateTime.now();
@@ -46,7 +46,8 @@ class StatisticsCamParkingArea {
       try {
         var url = manageAddress.displayDbAddr;
         DateTime now = DateTime.now();
-        String today = '${DateFormat('yyyy-M-d').format(now)} 23';
+        // String today = '${DateFormat('yyyy-M-d').format(now)} 23';
+        String today = '${DateFormat('yyyy-M-d').format(now)} 9';
         DateTime onedayBefore = now.subtract(Duration(days: 1));
         String yesterday = '${DateFormat('yyyy-M-d').format(onedayBefore)} 0';
         print(today);
@@ -54,7 +55,7 @@ class StatisticsCamParkingArea {
         var headers = {'Content-Type': 'application/json'};
         var body = { "transaction": [
             // {"query": "SELECT hour_parking, recorded_hour FROM processed_db where hour_parking = 1 AND (recorded_hour = :today OR recorded_hour = :yesterday)" },
-            {"query": "SELECT hour_parking, recorded_hour FROM processed_db where hour_parking = 1 AND (recorded_hour >= :yesterday AND recorded_hour < :today)" ,
+            {"query": "SELECT hour_parking, recorded_hour FROM processed_db where hour_parking = 1 AND (recorded_hour >= :yesterday AND recorded_hour <= :today)" ,
             "values" : {'today': today , 'yesterday': yesterday}}
           ]};
         var user = await http.post(
@@ -76,18 +77,18 @@ class StatisticsCamParkingArea {
     });
     
 
-    router.post('/oneMonth', (Request request) async {
+    router.get('/oneMonthAll', (Request request) async {
       String? displayurl = manageAddress.displayDbAddr;
       String? engineurl = manageAddress.engineDbAddr;
       print(engineurl);
       try {
         var url = manageAddress.displayDbAddr;
         var now = DateTime.now();
-        var yesterday = now.subtract(Duration(days: 1));
-        var strYesterday = DateFormat('yyyy-mm-dd').format(yesterday);
+        var last_month = now.subtract(Duration(days: 30));//추후 수정 필요. 달 단위로 수정해야함
+        var strYesterday = DateFormat('yyyy-mm-dd').format(last_month);
         var headers = {'Content-Type': 'application/json'};
         var body = { "transaction": [
-            {"query": "SELECT uid, car_type, day_parking, recorded_day FROM perday" }
+            {"query": "SELECT uid, car_type, month_parking, recorded_month FROM permonth" }
           ]};
         var user = await http.post(
           Uri.parse(url!),
@@ -108,14 +109,48 @@ class StatisticsCamParkingArea {
       }
     });
 
-    router.post('/oneYear', (Request request) async {
+    router.get('/oneMonth', (Request request) async {
+      // print(engineurl);
+      try {
+        var url = manageAddress.displayDbAddr;
+        DateTime now = DateTime.now();
+        String this_motnh = DateFormat('yyyy-M-d').format(now);
+        DateTime onemonthBefore = now.subtract(Duration(days: 30));
+        String last_month = DateFormat('yyyy-M-d').format(onemonthBefore);
+        print(this_motnh);
+        print(last_month);
+        var headers = {'Content-Type': 'application/json'};
+        var body = { "transaction": [
+            // {"query": "SELECT hour_parking, recorded_hour FROM processed_db where hour_parking = 1 AND (recorded_hour = :today OR recorded_hour = :yesterday)" },
+            {"query": "SELECT day_parking, recorded_day FROM perday where day_parking = 1 AND (recorded_day >= :last_month AND recorded_day < :today)" ,
+            "values" : {'today': this_motnh , 'last_month': last_month}}
+          ]};
+        var user = await http.post(
+          Uri.parse(url!),
+          headers: headers,
+          body: jsonEncode(body),
+        );
+        var user2 = jsonDecode(user.body);
+        print(user2);
+        var resultSet = user2['results'][0]['resultSet'];
+        var user3 = jsonEncode(resultSet);
+        print("resultSet : $user3");
+        return Response.ok(user3);
+      } catch (e, stackTrace) {
+        print('Error: $e');
+        print('StackTrace: $stackTrace');
+        return Response.badRequest(body: 'Error: $e');
+      }
+    });
+
+    router.get('/oneYearAll', (Request request) async {
       // String? displayurl = manageAddress.displayDbAddr;
       String? engineurl = manageAddress.engineDbAddr;
       print(engineurl);
       try {
         var url = manageAddress.displayDbAddr;
         var now = DateTime.now();
-        var yesterday = now.subtract(Duration(days: 1));
+        var yesterday = now.subtract(Duration(days: 365));
         var strYesterday = DateFormat('yyyy-mm-dd').format(yesterday);
         var headers = {'Content-Type': 'application/json'};
         var body = { "transaction": [
@@ -140,14 +175,48 @@ class StatisticsCamParkingArea {
       }
     });
 
-    router.post('/sevealYears', (Request request) async {
+    router.get('/oneYear', (Request request) async {
+      // print(engineurl);
+      try {
+        var url = manageAddress.displayDbAddr;
+        DateTime now = DateTime.now();
+        String thisYear = DateFormat('yyyy-M').format(now);
+        DateTime onemonthBefore = now.subtract(Duration(days: 365));
+        String lastYear = DateFormat('yyyy-M').format(onemonthBefore);
+        print(thisYear);
+        print(lastYear);
+        var headers = {'Content-Type': 'application/json'};
+        var body = { "transaction": [
+            // {"query": "SELECT hour_parking, recorded_hour FROM processed_db where hour_parking = 1 AND (recorded_hour = :today OR recorded_hour = :yesterday)" },
+            {"query": "SELECT month_parking, recorded_month FROM permonth where month_parking = 1 AND (recorded_month >= :lastYear AND recorded_month < :today)" ,
+            "values" : {'today': thisYear , 'lastYear': lastYear}}
+          ]};
+        var user = await http.post(
+          Uri.parse(url!),
+          headers: headers,
+          body: jsonEncode(body),
+        );
+        var user2 = jsonDecode(user.body);
+        print(user2);
+        var resultSet = user2['results'][0]['resultSet'];
+        var user3 = jsonEncode(resultSet);
+        print("resultSet : $user3");
+        return Response.ok(user3);
+      } catch (e, stackTrace) {
+        print('Error: $e');
+        print('StackTrace: $stackTrace');
+        return Response.badRequest(body: 'Error: $e');
+      }
+    });
+
+    router.get('/severalYearsAll', (Request request) async {
       String? displayurl = manageAddress.displayDbAddr;
       String? engineurl = manageAddress.engineDbAddr;
       print(engineurl);
       try {
         var url = manageAddress.displayDbAddr;
         var now = DateTime.now();
-        var yesterday = now.subtract(Duration(days: 1));
+        var yesterday = now.subtract(Duration(days: 365));
         var strYesterday = DateFormat('yyyy-mm-dd').format(yesterday);
         var headers = {'Content-Type': 'application/json'};
         var body = { "transaction": [
@@ -171,6 +240,41 @@ class StatisticsCamParkingArea {
         return Response.badRequest(body: 'Error: $e');
       }
     });
+
+    router.get('/severalYears', (Request request) async {
+      // print(engineurl);
+      try {
+        var url = manageAddress.displayDbAddr;
+        DateTime now = DateTime.now();
+        String this_motnh = DateFormat('yyyy-M-d').format(now);
+        DateTime onemonthBefore = now.subtract(Duration(days: 30));
+        String last_month = DateFormat('yyyy-M-d').format(onemonthBefore);
+        print(this_motnh);
+        print(last_month);
+        var headers = {'Content-Type': 'application/json'};
+        var body = { "transaction": [
+            // {"query": "SELECT hour_parking, recorded_hour FROM processed_db where hour_parking = 1 AND (recorded_hour = :today OR recorded_hour = :yesterday)" },
+            {"query": "SELECT day_parking, recorded_day FROM perday where day_parking = 1 AND (recorded_day >= :last_month AND recorded_day < :today)" ,
+            "values" : {'today': this_motnh , 'last_month': last_month}}
+          ]};
+        var user = await http.post(
+          Uri.parse(url!),
+          headers: headers,
+          body: jsonEncode(body),
+        );
+        var user2 = jsonDecode(user.body);
+        print(user2);
+        var resultSet = user2['results'][0]['resultSet'];
+        var user3 = jsonEncode(resultSet);
+        print("resultSet : $user3");
+        return Response.ok(user3);
+      } catch (e, stackTrace) {
+        print('Error: $e');
+        print('StackTrace: $stackTrace');
+        return Response.badRequest(body: 'Error: $e');
+      }
+    });
+
     return router;
   }
 

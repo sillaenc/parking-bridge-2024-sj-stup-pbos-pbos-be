@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 
 Future<void> firstSetting(url) async {
   try {
-    final folderPath = 'bin/data/json_folder/';
+    final folderPath = 'json_folder/';
     final files = Directory(folderPath).listSync();
     var header = {'Content-Type': 'application/json'};
     print(files);
