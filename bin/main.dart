@@ -55,7 +55,7 @@ void main() async {
   // List enginedData;
   router.mount('/confirm_account_list', confirmAccountList.router);
   router.mount('/create_admin', createAdmin.router);
-  router.mount('/login_main', loginMain.router);
+  router.mount('/parking_status', loginMain.router);
   router.mount('/login_setting', loginSetting.router);
   router.mount('/settings/db_management', settingsDbManagement.router);
   router.mount('/settings/account', settingsAccount.router);
@@ -67,7 +67,7 @@ void main() async {
 
   firstSetting(url);
   //0.5 Seconds Per delay - 반복 동작.
-  Timer.periodic(Duration(milliseconds: 1000), (timer) async {
+  Timer.periodic(Duration(milliseconds: 2000), (timer) async {
     var engineaddr;
     try {
       var header = {'Content-Type': 'application/json'};
