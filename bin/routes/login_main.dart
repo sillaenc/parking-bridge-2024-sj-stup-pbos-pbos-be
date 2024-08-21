@@ -14,8 +14,6 @@ class LoginMain {
     var url = manageAddress.displayDbAddr;
     var headers = {'Content-Type': 'application/json'};
     router.get('/', (Request request) async {
-      
-      
       var body = { "transaction": [
             {"query": "SELECT uid, tag, lot_type, isUsed, asset FROM tb_lots" }
           ]};
