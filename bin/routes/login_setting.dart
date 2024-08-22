@@ -83,10 +83,10 @@ class LoginSetting {
           for (int i = 0; i < resultSet3.length; i++) {
             check[resultSet3[i]['lot_type'] - 1]++;
           }
-          Map<int, int> map = {
-            for (var index in List.generate(check.length, (index) => index + 1))
-              index: check[index - 1]
-          };
+          // Map<int, int> map = {
+          //   for (var index in List.generate(check.length, (index) => index + 1))
+          //     index: check[index - 1]
+          // };
           var responseData1 = jsonDecode(response1.body);
           // print('responseData4 : $responseLoginData');
           var resultSet1 = responseData1['results'][0]['resultSet'];
@@ -176,6 +176,7 @@ class LoginSetting {
     );
     return jwt.sign(SecretKey(_secretKey));
   }
+  
   bool verifyJwt(String token) {
     try {
       final jwt = JWT.verify(token, SecretKey(_secretKey));
