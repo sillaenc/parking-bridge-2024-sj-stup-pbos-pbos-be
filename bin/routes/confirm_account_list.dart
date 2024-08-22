@@ -19,7 +19,7 @@ class ConfirmAccountList {
     router.get('/', (Request request) async {
       var confirmResult = "0";
       try {
-        var response = await _ReqToWs4ConfirmAccList(manageAddress.displayDbAddr);
+        var response = await reqConfirmList(manageAddress.displayDbAddr);
         if (response.statusCode == 200) {
           var responseData = jsonDecode(response.body);
           print('responseData: $responseData');
@@ -50,7 +50,7 @@ class ConfirmAccountList {
     });
     return router;
   }
-  Future<http.Response> _ReqToWs4ConfirmAccList(var displayDbAddr) async {
+  Future<http.Response> reqConfirmList(var displayDbAddr) async {
     String url = displayDbAddr;
     Map<String, String> headers = {'Content-Type': 'application/json'};
     Map<String, dynamic> body = {

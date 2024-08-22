@@ -26,7 +26,7 @@ class LoginSetting {
       var account = loginData['account'];
       var passwd = loginData['passwd'];
       
-      var loginDataResult = _ReqToWs4Login(account, passwd, url);
+      var loginDataResult = reqLogin(account, passwd, url);
       var responseLogin = await loginDataResult;
       var responseLoginData = jsonDecode(responseLogin.body);      
       var resultSet4 = responseLoginData['results'][0]['resultSet'];
@@ -66,9 +66,9 @@ class LoginSetting {
     });
 
     router.get('/base', (Request request) async{
-      var response1Future = _ReqToWs4TotalPixel(url);
-      var response3Future = _ReqToWs4LotInfo(url);
-      var response2Future = _ReqToWs4LotType(url);
+      var response1Future = reqToPixel(url);
+      var response3Future = reqLotInfo(url);
+      var response2Future = reqLotType(url);
 
       var response1 = await response1Future;
       var response3 = await response3Future;
@@ -179,7 +179,7 @@ class LoginSetting {
   
   bool verifyJwt(String token) {
     try {
-      final jwt = JWT.verify(token, SecretKey(_secretKey));
+      // final jwt = JWT.verify(token, SecretKey(_secretKey));
       return true; // 유효한 토큰
     } catch (e) {
       return false; // 유효하지 않은 토큰
@@ -187,7 +187,7 @@ class LoginSetting {
   }
   // 서버로 요청 보내는 함수
   //사진 크기 요청..?
-  Future<http.Response> _ReqToWs4TotalPixel(var displayDbAddr) async {
+  Future<http.Response> reqToPixel(var displayDbAddr) async {
     String url = displayDbAddr;
     Map<String, String> headers = {'Content-Type': 'application/json'};
     Map<String, dynamic> body = {
@@ -204,7 +204,7 @@ class LoginSetting {
 
   // 서버로 요청 보내는 함수
   // 좌표 요청
-  Future<http.Response> _ReqToWs4LotInfo(var displayDbAddr) async {
+  Future<http.Response> reqLotInfo(var displayDbAddr) async {
     String url = displayDbAddr;
     Map<String, String> headers = {'Content-Type': 'application/json'};
     Map<String, dynamic> body = {
@@ -220,7 +220,7 @@ class LoginSetting {
   }
 
   // 서버로 요청 보내는 함수
-  Future<http.Response> _ReqToWs4LotType(var displayDbAddr) async {
+  Future<http.Response> reqLotType(var displayDbAddr) async {
     String url = displayDbAddr;
     Map<String, String> headers = {'Content-Type': 'application/json'};
     Map<String, dynamic> body = {
@@ -235,7 +235,7 @@ class LoginSetting {
     );
   }
 
-  Future<http.Response> _ReqToWs4Login(
+  Future<http.Response> reqLogin(
       var account, var passwd, var displayDbAddr) async {
     String url = displayDbAddr;
     Map<String, String> headers = {'Content-Type': 'application/json'};

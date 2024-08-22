@@ -15,10 +15,10 @@ class StatisticsCamParkingArea {
     router.get('/oneDayAll', (Request request) async {
       try {
         var url = manageAddress.displayDbAddr;
-        var now = DateTime.now();
-        var yesterday = now.subtract(Duration(days: 1));
-        var today = DateFormat('yyyy-mm-dd').format(now);
-        var strYesterday = DateFormat('yyyy-mm-dd').format(yesterday);
+        // var now = DateTime.now();
+        // var yesterday = now.subtract(Duration(days: 1));
+        // var today = DateFormat('yyyy-mm-dd').format(now);
+        // var strYesterday = DateFormat('yyyy-mm-dd').format(yesterday);
         var headers = {'Content-Type': 'application/json'};
         var body = { "transaction": [
             {"query": "SELECT hour_parking, recorded_hour FROM processed_db where hour_parking = 1" }
@@ -114,14 +114,14 @@ class StatisticsCamParkingArea {
     });
 
     router.get('/oneMonthAll', (Request request) async {
-      String? displayurl = manageAddress.displayDbAddr;
+      // String? displayurl = manageAddress.displayDbAddr;
       String? engineurl = manageAddress.engineDbAddr;
       print(engineurl);
       try {
         var url = manageAddress.displayDbAddr;
-        var now = DateTime.now();
-        var last_month = now.subtract(Duration(days: 30));//추후 수정 필요. 달 단위로 수정해야함
-        var strYesterday = DateFormat('yyyy-mm-dd').format(last_month);
+        // var now = DateTime.now();
+        // var last_month = now.subtract(Duration(days: 30));//추후 수정 필요. 달 단위로 수정해야함
+        // var strYesterday = DateFormat('yyyy-mm-dd').format(last_month);
         var headers = {'Content-Type': 'application/json'};
         var body = { "transaction": [
             {"query": "SELECT uid, car_type, month_parking, recorded_month FROM permonth" }
@@ -150,16 +150,16 @@ class StatisticsCamParkingArea {
       try {
         var url = manageAddress.displayDbAddr;
         DateTime now = DateTime.now();
-        String this_motnh = DateFormat('yyyy-M-d').format(now);
+        String thisMotnh = DateFormat('yyyy-M-d').format(now);
         DateTime onemonthBefore = now.subtract(Duration(days: 30));
-        String last_month = DateFormat('yyyy-M-d').format(onemonthBefore);
-        print(this_motnh);
-        print(last_month);
+        String lastMonth = DateFormat('yyyy-M-d').format(onemonthBefore);
+        print(thisMotnh);
+        print(lastMonth);
         var headers = {'Content-Type': 'application/json'};
         var body = { "transaction": [
             // {"query": "SELECT hour_parking, recorded_hour FROM processed_db where hour_parking = 1 AND (recorded_hour = :today OR recorded_hour = :yesterday)" },
             {"query": "SELECT day_parking, recorded_day FROM perday where day_parking = 1 AND (recorded_day >= :last_month AND recorded_day < :today)" ,
-            "values" : {'today': this_motnh , 'last_month': last_month}}
+            "values" : {'today': thisMotnh , 'last_month': lastMonth}}
           ]};
         var user = await http.post(
           Uri.parse(url!),
@@ -185,9 +185,9 @@ class StatisticsCamParkingArea {
       print(engineurl);
       try {
         var url = manageAddress.displayDbAddr;
-        var now = DateTime.now();
-        var yesterday = now.subtract(Duration(days: 365));
-        var strYesterday = DateFormat('yyyy-mm-dd').format(yesterday);
+        // var now = DateTime.now();
+        // var yesterday = now.subtract(Duration(days: 365));
+        // var strYesterday = DateFormat('yyyy-mm-dd').format(yesterday);
         var headers = {'Content-Type': 'application/json'};
         var body = { "transaction": [
             {"query": "SELECT uid, car_type, month_parking, recorded_month FROM permonth" }
@@ -246,14 +246,14 @@ class StatisticsCamParkingArea {
     });
 
     router.get('/severalYearsAll', (Request request) async {
-      String? displayurl = manageAddress.displayDbAddr;
+      // String? displayurl = manageAddress.displayDbAddr;
       String? engineurl = manageAddress.engineDbAddr;
       print(engineurl);
       try {
         var url = manageAddress.displayDbAddr;
-        var now = DateTime.now();
-        var yesterday = now.subtract(Duration(days: 365));
-        var strYesterday = DateFormat('yyyy-mm-dd').format(yesterday);
+        // var now = DateTime.now();
+        // var yesterday = now.subtract(Duration(days: 365));
+        // var strYesterday = DateFormat('yyyy-mm-dd').format(yesterday);
         var headers = {'Content-Type': 'application/json'};
         var body = { "transaction": [
             {"query": "SELECT uid, car_type, year_parking, recorded_year FROM peryear" }
@@ -282,16 +282,16 @@ class StatisticsCamParkingArea {
       try {
         var url = manageAddress.displayDbAddr;
         DateTime now = DateTime.now();
-        String this_motnh = DateFormat('yyyy-M-d').format(now);
+        String thisMotnh = DateFormat('yyyy-M-d').format(now);
         DateTime onemonthBefore = now.subtract(Duration(days: 30));
-        String last_month = DateFormat('yyyy-M-d').format(onemonthBefore);
-        print(this_motnh);
-        print(last_month);
+        String lastMonth = DateFormat('yyyy-M-d').format(onemonthBefore);
+        print(thisMotnh);
+        print(lastMonth);
         var headers = {'Content-Type': 'application/json'};
         var body = { "transaction": [
             // {"query": "SELECT hour_parking, recorded_hour FROM processed_db where hour_parking = 1 AND (recorded_hour = :today OR recorded_hour = :yesterday)" },
             {"query": "SELECT day_parking, recorded_day FROM perday where day_parking = 1 AND (recorded_day >= :last_month AND recorded_day < :today)" ,
-            "values" : {'today': this_motnh , 'last_month': last_month}}
+            "values" : {'today': thisMotnh , 'last_month': lastMonth}}
           ]};
         var user = await http.post(
           Uri.parse(url!),

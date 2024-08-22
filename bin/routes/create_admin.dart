@@ -25,7 +25,7 @@ class CreateAdmin {
         var account = requestData['account'];
         var passwd = requestData['passwd'];
 
-        var responseFuture = _ReqToWs4AccInfo(account, passwd, confirmAccountList.manageAddress.displayDbAddr);
+        var responseFuture = reqAccInfo(account, passwd, confirmAccountList.manageAddress.displayDbAddr);
 
         var response = await responseFuture;
 
@@ -56,7 +56,7 @@ class CreateAdmin {
   }
 
   // 서버로 요청 보내는 함수
-  Future<http.Response> _ReqToWs4AccInfo(
+  Future<http.Response> reqAccInfo(
       var account, var passwd, var displayDbAddr) async {
     String url = displayDbAddr;
     Map<String, String> headers = {'Content-Type': 'application/json'};
