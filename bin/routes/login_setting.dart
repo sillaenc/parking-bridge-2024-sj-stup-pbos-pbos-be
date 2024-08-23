@@ -95,8 +95,9 @@ class LoginSetting {
           // print(check[i-1]);
           if(check[i-1]==0){
             var body6 = { "transaction": [
-              {"query": "UPDATE tb_lot_type SET (isUsed) = (:isUsed) WHERE uid = :uid",
-              "values": {"isUsed": 0, "uid": i}
+              {
+                "query": "UPDATE tb_lot_type SET (isUsed) = (:isUsed) WHERE uid = :uid",
+                "values": {"isUsed": 0, "uid": i}
               }
             ]};
             await http.post(
@@ -209,7 +210,7 @@ class LoginSetting {
     Map<String, String> headers = {'Content-Type': 'application/json'};
     Map<String, dynamic> body = {
       "transaction": [
-        {"query": "SELECT point, lot_type, asset FROM tb_lots WHERE isUsed = 1"}
+        {"query": "SELECT point, lot_type, asset, isUsed FROM tb_lots WHERE isUsed = 1"}
       ]
     };
     return await http.post(
