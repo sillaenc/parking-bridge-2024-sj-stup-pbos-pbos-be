@@ -210,7 +210,7 @@ class LoginSetting {
     Map<String, String> headers = {'Content-Type': 'application/json'};
     Map<String, dynamic> body = {
       "transaction": [
-        {"query": "SELECT point, lot_type, asset, isUsed FROM tb_lots WHERE isUsed = 1"}
+        {"query": "SELECT point, lot_type, asset, isUsed FROM tb_lots"}
       ]
     };
     return await http.post(
