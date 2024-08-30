@@ -100,6 +100,61 @@ class SettingsAccount {
       }
     });
 
+    router.post('/changePassword', (Request request) async {
+      try {
+        // 프런트의 요청의 body를 JSON 형식으로 디코딩하여 데이터 추출
+        var requestBody = await request.readAsString();
+        var requestData = jsonDecode(requestBody);
+        // print(requestData);
+        var account = requestData['account'];
+        var passwd = requestData['passwd'];
+        var newpasswd = requestData['passwdCheck'];
+
+        var passwdcheck ={"transaction": [
+            {
+              "query": "SELECT * FROM tb_users WHERE account = :account AND passwd = :passwd",
+              "values": {"account": account, "passwd": passwd}
+            }
+          ]
+        };
+        var pwcorrect = await http.post(
+          Uri.parse(url!),
+          headers: headers,
+          body: jsonEncode(passwdcheck),
+        );
+        // print(pwcorrect.body);
+        var dcpwcoreect = jsonDecode(pwcorrect.body);
+        if (dcpwcoreect['results'].isEmpty || dcpwcoreect['results'][0]['resultSet'].isEmpty) {
+          return Response.unauthorized("사용자 또는 비밀번호가 잘못되었습니다.");
+        }
+        var pwcorrectcheck = dcpwcoreect['results'][0]['resultSet'][0];
+        if(pwcorrect.body.isNotEmpty && passwd == pwcorrectcheck['passwd']){
+          var body = {
+            "transaction": [
+              {"query": "UPDATE tb_users SET (passwd) = (:passwd) WHERE account = :account",
+                "values": {"passwd": newpasswd, "account": account}
+              },
+            ]
+          };
+          await http.post(
+            Uri.parse(url),
+            headers: headers,
+            body: jsonEncode(body),
+          );
+          return Response.ok("update success");
+        }else if(pwcorrect.body.isNotEmpty && passwd != pwcorrectcheck['passwd']){
+          return Response.unauthorized("비밀번호와 비밀번호 확인이 다릅니다!!");
+        }else{
+          return Response.unauthorized("비밀번호 틀림");
+        }
+      } catch (e, stackTrace) {
+        // 예외 처리
+        print('Error: $e');
+        print('StackTrace: $stackTrace');
+        return Response.internalServerError(body: 'Error: $e');
+      }
+    });
+
     router.post('/insertUser', (Request request) async {
       try{
         var requestBody = await request.readAsString();
