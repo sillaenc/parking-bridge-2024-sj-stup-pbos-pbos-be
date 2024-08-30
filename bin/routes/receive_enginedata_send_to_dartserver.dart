@@ -172,7 +172,7 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(
         var check = {
           'transaction': [
             {
-              "query": "SELECT * FROM processed_db WHERE recorded_hour = :time",
+              "query": "SELECT COUNT(*) as count FROM processed_db WHERE recorded_hour = :time",
               "values": {"time": fromattedTime}
             }
           ]
@@ -183,21 +183,15 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(
           body: jsonEncode(check),
         );
         var dcCheckDb = jsonDecode(checkDb.body);
-        var checkVal = dcCheckDb['results'][0]['resultSet'];
-
-        if (checkVal.isEmpty) {
+        var checkVal = dcCheckDb['results'][0]['resultSet'][0]['count'];
+        print(checkVal);
+        if (checkVal == 0) {
           for (int i = 1; i <= rowDb2.length; i++) {
             var uploadProcessedData = {
               'transaction': [
                 {
-                  "query":
-                      "INSERT INTO processed_db (lot , car_type, hour_parking, recorded_hour) VALUES (:lot, :car_type, :hour_parking, :recorded_hour)",
-                  "values": {
-                    "lot": processedResult[i],
-                    "car_type": processedResult3[i],
-                    "hour_parking": processedResult2[i],
-                    "recorded_hour": fromattedTime
-                  }
+                  "query": "INSERT INTO processed_db (lot , car_type, hour_parking, recorded_hour) VALUES (:lot, :car_type, :hour_parking, :recorded_hour)",
+                  "values": { "lot": processedResult[i], "car_type": processedResult3[i], "hour_parking": processedResult2[i], "recorded_hour": fromattedTime }
                 }
               ]
             };
@@ -286,7 +280,7 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(
         var check = {
           'transaction': [
             {
-              "query": "SELECT * FROM perday WHERE recorded_day = :time",
+              "query": "SELECT COUNT(*) as count FROM perday WHERE recorded_day = :time",
               "values": {"time": fromattedTime}
             }
           ]
@@ -297,18 +291,15 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(
           body: jsonEncode(check),
         );
         var dcCheckDb = jsonDecode(checkDb.body);
-        var checkVal = dcCheckDb['results'][0]['resultSet'];
+        var checkVal = dcCheckDb['results'][0]['resultSet'][0]['count'];
         print(processedResult2);
-        if (checkVal.isEmpty) {
+        if (checkVal == 0) {
           for (int i = 1; i <= rowDb2.length; i++) {
             var uploadProcessedData = {
               'transaction': [
                 {
-                  "query":
-                      "INSERT INTO perday (lot ,car_type, day_parking, recorded_day) VALUES (:lot ,:car_type, :day_parking, :fromattedTime)",
-                  "values": {
-                    "lot": processedResult[i], "car_type": processedResult3[i], "day_parking": processedResult2[i], "fromattedTime": fromattedTime
-                  }
+                  "query": "INSERT INTO perday (lot ,car_type, day_parking, recorded_day) VALUES (:lot ,:car_type, :day_parking, :fromattedTime)",
+                  "values": { "lot": processedResult[i], "car_type": processedResult3[i], "day_parking": processedResult2[i], "fromattedTime": fromattedTime }
                 }
               ]
             };
@@ -381,7 +372,7 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(
         var check = {
           'transaction': [
             {
-              "query": "SELECT * FROM permonth WHERE recorded_month = :time",
+              "query": "SELECT COUNT(*) as count FROM permonth WHERE recorded_month = :time",
               "values": {"time": fromattedTime}
             }
           ]
@@ -392,9 +383,9 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(
           body: jsonEncode(check),
         );
         var dcCheckDb = jsonDecode(checkDb.body);
-        var checkVal = dcCheckDb['results'][0]['resultSet'];
+        var checkVal = dcCheckDb['results'][0]['resultSet'][0]['count'];
         print(processedResult3);
-        if (checkVal.isEmpty) {
+        if (checkVal == 0) {
           for (int i = 1; i <= rowDb2.length; i++) {
             var uploadProcessedData = {
               'transaction': [
@@ -471,7 +462,7 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(
         var check = {
           'transaction': [
             {
-              "query": "SELECT * FROM peryear WHERE recorded_year = :time",
+              "query": "SELECT COUNT(*) as count FROM peryear WHERE recorded_year = :time",
               "values": {"time": fromattedTime}
             }
           ]
@@ -482,9 +473,9 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(
           body: jsonEncode(check),
         );
         var dcCheckDb = jsonDecode(checkDb.body);
-        var checkVal = dcCheckDb['results'][0]['resultSet'];
+        var checkVal = dcCheckDb['results'][0]['resultSet'][0]['count'];
         print(processedResult3);
-        if (checkVal.isEmpty) {
+        if (checkVal == 0) {
           for (int i = 1; i <= rowDb2.length; i++) {
             var uploadProcessedData = {
               'transaction': [
