@@ -21,7 +21,7 @@ class SettingsDbManagement {
         String? url = manageAddress.displayDbAddr;
         var headers = {'Content-Type': 'application/json'};
         var body = {"transaction": [
-          { "query": "SELECT * FROM tb_db_setting" }
+          { "statement": "#S_TbDbSetting" }
         ]};    
         var response = await http.post(
           Uri.parse(url!),
@@ -33,7 +33,7 @@ class SettingsDbManagement {
         print(dbSet);
 
         var body2 = {"transaction": [
-          { "query": "UPDATE tb_db_setting SET 'engine_db_addr' = :changeEngine WHERE uid = 1" 
+          { "statement": "#U_TbDbSetting" 
           , "values": {"changeEngine": changeEngine} }
         ]};
         await http.post(
@@ -59,7 +59,7 @@ class SettingsDbManagement {
         String? url = manageAddress.displayDbAddr;
         var headers = {'Content-Type': 'application/json'};
         var body = {"transaction": [
-          { "query": "SELECT * FROM tb_db_setting" }
+          { "statement": "#S_TbDbSetting" }
         ]};    
         var response = await http.post(
           Uri.parse(url!),
@@ -71,7 +71,7 @@ class SettingsDbManagement {
         print(dbSet);
 
         var body2 = {"transaction": [
-          { "query": "UPDATE tb_db_setting SET 'display_db_id' = :changeDisplay WHERE uid = 1" 
+          { "statement": "#U_TbDbSetting" 
           , "values": {"changeDisplay": changeDisplay} }
         ]};
         await http.post(

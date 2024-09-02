@@ -16,7 +16,7 @@ class MultipleElectricSigns {
     router.get('/', (Request request) async {
       var body = {
         "transaction": [
-          {"query": "SELECT * FROM multiple_signs"}
+          {"statement": "#S_Multi"}
         ]
       };
       var response = await http.post(
@@ -43,7 +43,8 @@ class MultipleElectricSigns {
 
         var body = {
           "transaction": [
-            {"query": "UPDATE multiple_signs SET (parking_lot) = (:parking_lot) WHERE uid = :uid",
+            { 
+              "statement": "#U_Multi",
               "values": {"uid": uid ,"parking_lot": parkingLot}
             },
           ]
@@ -71,7 +72,7 @@ class MultipleElectricSigns {
         var parkingLot = requestData['parking_lot'];
         var body = {
           "transaction": [
-            { "query": "INSERT INTO multiple_signs (uid, parking_lot) VALUES (:uid, :parking_lot)",
+            { "statement": "#I_Multi",
               "values": {"uid": uid ,"parking_lot": parkingLot}
             },
           ]
@@ -103,7 +104,7 @@ class MultipleElectricSigns {
 
         var body = {
           "transaction": [
-            { "query": "DELETE FROM multiple_signs WHERE uid = :uid",
+            { "statement": "#D_Multi",
               "values": {"uid": uid }
             },
           ]

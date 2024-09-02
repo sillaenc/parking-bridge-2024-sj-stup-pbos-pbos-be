@@ -37,13 +37,8 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(
       var raw = {
         "transaction": [
           {
-            "query":
-                "INSERT INTO 'rawdata' (id, timestamp, parking_lot) VALUES (:id, :timestamp, :parking_lot)",
-            "values": {
-              "id": resultSet['id'],
-              "timestamp": resultSet['timestamp'],
-              "parking_lot": resultSet['parking_lot']
-            }
+            "statement": "#I_Rawdata",
+            "values": { "id": resultSet['id'], "timestamp": resultSet['timestamp'], "parking_lot": resultSet['parking_lot'] }
           }
         ]
       };
@@ -54,7 +49,7 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(
       );
       var body2 = {
         "transaction": [
-          {"query": "SELECT * FROM tb_lots"}
+          {"statement": "#S_TbLots"}
         ]
       };
       var response2 = await http.post(
@@ -91,20 +86,12 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(
         var body3 = {
           "transaction": [
             {
-              "query": "UPDATE 'tb_lots' SET isUsed = :isUsed WHERE tag = :tag",
-              "values": {
-                "isUsed": resultSet2[i]['isUsed'],
-                "tag": resultSet2[i]['tag']
-              }
+              "statement": "#U_TbLots",
+              "values": { "isUsed": resultSet2[i]['isUsed'], "tag": resultSet2[i]['tag'] }
             },
             {
-              "query":
-                  "INSERT INTO 'tb_lot_status' (lot, isParked, added) VALUES (:lot, :isParked, :added)",
-              "values": {
-                "lot": resultSet2[i]['uid'],
-                "isParked": resultSet2[i]['isUsed'],
-                "added": resultSet['timestamp']
-              }
+              "statement": "#I_TbLotStatus",
+              "values": { "lot": resultSet2[i]['uid'], "isParked": resultSet2[i]['isUsed'], "added": resultSet['timestamp'] }
             }
           ]
         };
@@ -120,7 +107,7 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(
       if (hour != now.hour) {
         var rowStatus = {
           'transaction': [
-            {"query": "SELECT * FROM tb_lot_status"}
+            {"statement": "#S_TbLotStatus"}
           ]
         };
         var rowResponse = await http.post(
@@ -133,7 +120,7 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(
 
         var rowLot = {
           'transaction': [
-            {"query": "SELECT * FROM tb_lots"}
+            {"statement": "#S_TbLots"}
           ]
         };
         var rowResponse2 = await http.post(
@@ -172,7 +159,7 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(
         var check = {
           'transaction': [
             {
-              "query": "SELECT COUNT(*) as count FROM processed_db WHERE recorded_hour = :time",
+              "statement": "#S_CountProcessedDb",
               "values": {"time": fromattedTime}
             }
           ]
@@ -190,7 +177,7 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(
             var uploadProcessedData = {
               'transaction': [
                 {
-                  "query": "INSERT INTO processed_db (lot , car_type, hour_parking, recorded_hour) VALUES (:lot, :car_type, :hour_parking, :recorded_hour)",
+                  "statement": "#I_processedDB",
                   "values": { "lot": processedResult[i], "car_type": processedResult3[i], "hour_parking": processedResult2[i], "recorded_hour": fromattedTime }
                 }
               ]
@@ -205,7 +192,7 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(
 
         var deleteRawData = {
           'transaction': [
-            {"query": "DELETE FROM tb_lot_status"}
+            {"statement": "#D_TbLotStatus"}
           ]
         };
         await http.post(
@@ -222,8 +209,7 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(
         var rowStatus = {
           'transaction': [
             {
-              "query":
-                  "SELECT * FROM processed_db WHERE recorded_hour LIKE :checkdate",
+              "statement": "#S_ProcessedDB",
               "values": {'checkdate': '$strDay%'}
             }
           ]
@@ -240,7 +226,7 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(
         // print(rowDb);
         var rowLot = {
           'transaction': [
-            {"query": "SELECT * FROM tb_lots"}
+            {"statement": "#S_TbLots"}
           ]
         };
         var rowResponse2 = await client.post(
@@ -280,7 +266,7 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(
         var check = {
           'transaction': [
             {
-              "query": "SELECT COUNT(*) as count FROM perday WHERE recorded_day = :time",
+              "statement": "#S_CountRecordedDay",
               "values": {"time": fromattedTime}
             }
           ]
@@ -298,7 +284,7 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(
             var uploadProcessedData = {
               'transaction': [
                 {
-                  "query": "INSERT INTO perday (lot ,car_type, day_parking, recorded_day) VALUES (:lot ,:car_type, :day_parking, :fromattedTime)",
+                  "statement": "#I_PerDay",
                   "values": { "lot": processedResult[i], "car_type": processedResult3[i], "day_parking": processedResult2[i], "fromattedTime": fromattedTime }
                 }
               ]
@@ -319,7 +305,7 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(
         var rowStatus = {
           'transaction': [
             {
-              "query": "SELECT * FROM perday WHERE recorded_day LIKE :checkdate",
+              "statement": "#S_PerDay",
               "values": {'checkdate': '$strMonth%'}
             }
           ]
@@ -336,7 +322,7 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(
         // print(rowDb);
         var rowLot = {
           'transaction': [
-            {"query": "SELECT * FROM tb_lots"}
+            {"statement": "#S_TbLots"}
           ]
         };
         var rowResponse2 = await client.post(
@@ -372,7 +358,7 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(
         var check = {
           'transaction': [
             {
-              "query": "SELECT COUNT(*) as count FROM permonth WHERE recorded_month = :time",
+              "statement": "#S_CountPerMonth",
               "values": {"time": fromattedTime}
             }
           ]
@@ -390,7 +376,7 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(
             var uploadProcessedData = {
               'transaction': [
                 {
-                  "query": "INSERT INTO permonth (lot, car_type, month_parking, recorded_month) VALUES (:lot, :car_type, :month_parking, :fromattedTime)",
+                  "statement": "#I_PerMonth",
                   "values": { "lot": processedResult[i], "car_type": processedResult3[i], "month_parking": processedResult2[i], "fromattedTime": fromattedTime }
                 }
               ]
@@ -410,7 +396,7 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(
         var rowStatus = {
           'transaction': [
             {
-              "query": "SELECT * FROM permonth WHERE recorded_month LIKE :checkdate",
+              "statement": "#S_PerMonth",
               "values": {'checkdate': '$strYear%'}
             }
           ]
@@ -427,7 +413,7 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(
         // print(rowDb);
         var rowLot = {
           'transaction': [
-            {"query": "SELECT * FROM tb_lots"}
+            {"statement": "#S_TbLots"}
           ]
         };
         var rowResponse2 = await client.post(
@@ -462,7 +448,7 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(
         var check = {
           'transaction': [
             {
-              "query": "SELECT COUNT(*) as count FROM peryear WHERE recorded_year = :time",
+              "statement": "#S_CountPerYear",
               "values": {"time": fromattedTime}
             }
           ]
@@ -480,7 +466,7 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(
             var uploadProcessedData = {
               'transaction': [
                 {
-                  "query" : "INSERT INTO peryear (lot, car_type, year_parking, recorded_year) VALUES (:lot, :car_type, :year_parking, :fromattedTime)",
+                  "statement" : "#I_PerYear",
                   "values": { "lot": processedResult[i], "car_type": processedResult3[i], "year_parking": processedResult2[i], "fromattedTime": fromattedTime }
                 }
               ]

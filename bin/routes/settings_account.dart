@@ -25,7 +25,7 @@ class SettingsAccount {
         //var headers = {'Content-Type': 'application/json'};
         Map<String, dynamic> body = {
           "transaction": [
-            {"query": "SELECT account, username, userlevel, isActivated FROM tb_users"},
+            {"statement": "#S_TbUsers"},
           ]
         };
         var user = await http.post(
@@ -62,7 +62,7 @@ class SettingsAccount {
 
         var passwdcheck ={"transaction": [
             {
-              "query": "SELECT * FROM tb_users WHERE account = :account",
+              "statement": "#S_TbNowUsers",
               "values": {"account": account}
             }
           ]
@@ -81,7 +81,8 @@ class SettingsAccount {
         }//비번 통과해야지 아래 코드가 실행가능.
         var body = {
           "transaction": [
-            {"query": "UPDATE tb_users SET (passwd, username, userlevel, isActivated) = (:passwd, :username, :userlevel, :isActivated) WHERE account = :account",
+            {
+              "statement": "#U_TbUsers",
               "values": {"passwd": newpasswd, "username": username, "userlevel": userlevel, "isActivated": isActivated, "account": account}
             },
           ]
@@ -113,7 +114,7 @@ class SettingsAccount {
 
         var passwdcheck ={"transaction": [
             {
-              "query": "SELECT * FROM tb_users WHERE account = :account AND passwd = :passwd",
+              "statement": "#S_UserCheck",
               "values": {"account": account, "passwd": passwd}
             }
           ]
@@ -128,11 +129,12 @@ class SettingsAccount {
         if (dcpwcoreect['results'].isEmpty || dcpwcoreect['results'][0]['resultSet'].isEmpty) {
           return Response.unauthorized("사용자 또는 비밀번호가 잘못되었습니다.");
         }
-        var pwcorrectcheck = dcpwcoreect['results'][0]['resultSet'][0];
+        // var pwcorrectcheck = dcpwcoreect['results'][0]['resultSet'][0];
         if(pwcorrect.body.isNotEmpty && passwd == Password_check && passwd != newpasswd){
           var body = {
             "transaction": [
-              {"query": "UPDATE tb_users SET (passwd) = (:passwd) WHERE account = :account",
+              {
+                "statement": "#U_ChangePassword",
                 "values": {"passwd": newpasswd, "account": account}
               },
             ]
@@ -175,7 +177,8 @@ class SettingsAccount {
         }
         var body = {
           "transaction": [
-            { "query": "INSERT INTO tb_users (account, passwd, username, userlevel, isActivated) VALUES (:account, :passwd, :username, :userlevel, :isActivated)",
+            { 
+              "statement": "#I_UserAdd",
               "values": {"account": account ,"passwd": newpasswd, "username": username, "userlevel": userlevel, "isActivated": isActivated }
             },
           ]
@@ -203,7 +206,7 @@ class SettingsAccount {
 
         var passwdcheck ={"transaction": [
             {
-              "query": "SELECT * FROM tb_users WHERE account = :account",
+              "statement": "#S_TbNowUsers",
               "values": {"account": account}
             }
           ]
@@ -221,7 +224,8 @@ class SettingsAccount {
         }//비번 통과해야지 아래 코드가 실행가능.
         var body = {
           "transaction": [
-            { "query": "DELETE FROM tb_users WHERE account = :account",
+            { 
+              "statement": "#D_TbUsers",
               "values": {"account": account }
             },
           ]

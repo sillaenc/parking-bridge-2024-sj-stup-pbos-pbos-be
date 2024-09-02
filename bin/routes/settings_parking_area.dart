@@ -33,7 +33,7 @@ class SettingsParkingArea {
     router.get('/', (Request request) async {
       var body = {
         "transaction": [
-          {"query": "SELECT * FROM tb_parking_zone"}
+          {"statement": "#S_TbParkingZone"}
         ]
       };
       var response = await http.post(
@@ -77,7 +77,7 @@ class SettingsParkingArea {
         var body = {
           "transaction": [
             {
-              "query": "INSERT INTO tb_parking_zone (parking_name, file_address) VALUES (:parking_name, :file_address)",
+              "statement": "#I_TbPakringZone",
               "values": {"parking_name": fileName, "file_address": filePath}
             },
           ]
@@ -102,7 +102,7 @@ class SettingsParkingArea {
         var find ={
           "transaction": [
             {
-              "query": "SELECT * FROM tb_parking_zone WHERE parking_name = :parking_name",
+              "statement": "#S_TbPakringZoneName",
               "values": {"parking_name": filename}
             },
           ]
@@ -123,7 +123,7 @@ class SettingsParkingArea {
         var body = {
           "transaction": [
             {
-              "query": "DELETE FROM tb_parking_zone WHERE parking_name = :parking_name",
+              "statement": "#D_TbPakringZoneName",
               "values": {"parking_name": filename}
             },
           ]
@@ -151,7 +151,7 @@ class SettingsParkingArea {
       Uint8List? content;
       var body = {
         "transaction": [
-          {"query": "SELECT * FROM tb_parking_zone"}
+          {"statement": "#S_TbParkingZone"}
         ]
       };
       var response = await http.post(
@@ -211,7 +211,7 @@ class SettingsParkingArea {
         var body = {
           "transaction": [
             {
-              "query": "INSERT INTO tb_parking_zone (parking_name, file_address) VALUES (:parking_name, :file_address)",
+              "statement": "#I_TbPakringZone",
               "values": {"parking_name": fileName, "file_address": filePath}
             },
           ]
@@ -224,7 +224,7 @@ class SettingsParkingArea {
         var body2 = {
           "transaction": [
             {
-              "query": "DELETE FROM tb_parking_zone WHERE parking_name = :parking_name",
+              "statement": "#D_TbPakringZoneName",
               "values": {"parking_name": beforeName}
             },
           ]

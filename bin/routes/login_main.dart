@@ -15,8 +15,8 @@ class LoginMain {
     var headers = {'Content-Type': 'application/json'};
     router.get('/', (Request request) async {
       var body = { "transaction": [
-            {"query": "SELECT uid, tag, lot_type, isUsed, asset FROM tb_lots" }
-          ]};
+            {"statement": "#S_Information" }
+          ]}; 
         var user = await http.post(
           Uri.parse(url!),
           headers: headers,
@@ -37,7 +37,7 @@ class LoginMain {
 
         var body = {
           "transaction": [
-            { "query": "SELECT * FROM tb_users WHERE account = :account",
+            { "statement": "#S_Profile",
               "values": {"account": account }
             },
           ]

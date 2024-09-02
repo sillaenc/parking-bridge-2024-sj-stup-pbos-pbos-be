@@ -20,7 +20,7 @@ Future<void> firstSetting(url) async {
     var body = {
       "transaction": [
         {
-          "query": "SELECT tag FROM tb_lots",
+          "statement": "#S_Tag",
         }
       ]
     };
@@ -38,7 +38,7 @@ Future<void> firstSetting(url) async {
         var body = {
           "transaction": [
             {
-              "query": "INSERT INTO tb_parking_zone (parking_name, file_address) VALUES (:parking_name, :file_address)",
+              "statement": "#I_ParkingZone",
               "values": { "parking_name": fileNames[i], "file_address": filePath[i] }
             }
           ]
@@ -63,7 +63,7 @@ Future<void> firstSetting(url) async {
             var body = {
               "transaction": [
                 {
-                  "query": "INSERT INTO tb_lots ('tag', 'lot_type', 'point', 'asset') VALUES (:tag, :lot_type, :point, :asset)",
+                  "statement": "#I_TbLots",
                   "VALUES": {"tag": tag, "lot_type": lotType, "point": point, "asset": asset}
                 }
               ]

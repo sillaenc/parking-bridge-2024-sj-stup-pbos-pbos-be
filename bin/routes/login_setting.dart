@@ -96,7 +96,7 @@ class LoginSetting {
           if(check[i-1]==0){
             var body6 = { "transaction": [
               {
-                "query": "UPDATE tb_lot_type SET (isUsed) = (:isUsed) WHERE uid = :uid",
+                "statement": "#U_IsUsed",
                 "values": {"isUsed": 0, "uid": i}
               }
             ]};
@@ -107,7 +107,7 @@ class LoginSetting {
             );
           }else{
             var body6 = { "transaction": [
-              {"query": "UPDATE tb_lot_type SET (isUsed) = (:isUsed) WHERE uid = :uid",
+              {"statement": "#U_IsUsed",
               "values": {"isUsed": 1, "uid": i}
               }
             ]};
@@ -119,7 +119,7 @@ class LoginSetting {
             }
           }
           var body5 = { "transaction": [
-              {"query": "SELECT parking_name, file_address FROM tb_parking_zone" }
+              {"statement": "#S_File" }
             ]};
           var parkingZone = await http.post(
             Uri.parse(url!),
@@ -130,7 +130,7 @@ class LoginSetting {
           var resultSet5 = dcParkingZone['results'][0]['resultSet'];
           // print(resultSet5);
           var body7 = { "transaction": [
-              {"query": "SELECT * FROM tb_lot_type" }
+              {"statement": "#S_LotType" }
             ]};
           var lotType = await http.post(
             Uri.parse(url),
@@ -210,7 +210,7 @@ class LoginSetting {
     Map<String, String> headers = {'Content-Type': 'application/json'};
     Map<String, dynamic> body = {
       "transaction": [
-        {"query": "SELECT point, lot_type, asset, isUsed FROM tb_lots"}
+        {"statement": "#S_LotInfo"}
       ]
     };
     return await http.post(
@@ -226,7 +226,7 @@ class LoginSetting {
     Map<String, String> headers = {'Content-Type': 'application/json'};
     Map<String, dynamic> body = {
       "transaction": [
-        {"query": "#S_LotType"}
+        {"statement": "#S_LotType"}
       ]
     };
     return await http.post(
@@ -243,8 +243,7 @@ class LoginSetting {
     Map<String, dynamic> body = {
       "transaction": [
         {
-          "query":
-              "SELECT * FROM tb_users WHERE account = :account AND passwd = :passwd",
+          "statement": "#S_ReqLogin",
           "values": {"account": account, "passwd": passwd}
         }
       ]

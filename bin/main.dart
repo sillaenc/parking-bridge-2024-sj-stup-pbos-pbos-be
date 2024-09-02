@@ -73,7 +73,7 @@ void main() async {
       var header = {'Content-Type': 'application/json'};
       var body = {
         "transaction": [
-          {"query": "SELECT * from tb_db_setting"}
+          {"statement": "#S_TbDbSetting"}
         ]
       };
       var response = await http.post(

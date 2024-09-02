@@ -25,7 +25,7 @@ class SettingsCamParkingArea {
         //var headers = {'Content-Type': 'application/json'};
         Map<String, dynamic> body = {
           "transaction": [
-            {"query": "SELECT tag, engine_code, uri FROM tb_parking_surface"},
+            {"statement": "#S_TbParkingSurface"},
           ]
         };
         var user = await http.post(
@@ -62,7 +62,7 @@ class SettingsCamParkingArea {
 
         var passwdcheck ={"transaction": [
             {
-              "query": "SELECT * FROM tb_parking_surface WHERE tag = :tag",
+              "statement": "#S_TbParkingSurfaceTag",
               "values": {"tag": beforetag}
             }
           ]
@@ -78,7 +78,8 @@ class SettingsCamParkingArea {
 
         var body = {
           "transaction": [
-            {"query": "UPDATE tb_parking_surface SET (tag, engine_code, uri) = (:tag, :engine_code, :uri) WHERE uid = :uid",
+            {
+              "statement": "U_TbParkingSurface",
               "values": {"tag": tag, "engine_code": engineCode, "uri": uri, "uid": uid}
             },
           ]
@@ -107,7 +108,7 @@ class SettingsCamParkingArea {
         var uri = requestData['uri'];
         var body = {
           "transaction": [
-            { "query": "INSERT INTO tb_parking_surface (tag, engine_code, uri) VALUES (:tag, :engine_code, :uri)",
+            { "statement": "#I_TbParkingSurface",
               "values": {"tag": tag ,"engine_code": engineCode, "uri": uri}
             },
           ]
@@ -136,7 +137,7 @@ class SettingsCamParkingArea {
 
         var body = {
           "transaction": [
-            { "query": "DELETE FROM tb_parking_surface WHERE tag = :tag",
+            { "statement": "#D_TbParkingSurface",
               "values": {"tag": tag }
             },
           ]
