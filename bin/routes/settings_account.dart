@@ -109,7 +109,7 @@ class SettingsAccount {
         // print(requestData);
         var account = requestData['account'];
         var passwd = requestData['passwd'];
-        var Password_check = requestData['passwdCheck'];
+        var passwordCheck = requestData['passwdCheck'];
         var newpasswd = requestData['newpasswd'];
 
         var passwdcheck ={"transaction": [
@@ -130,7 +130,7 @@ class SettingsAccount {
           return Response.unauthorized("사용자 또는 비밀번호가 잘못되었습니다.");
         }
         // var pwcorrectcheck = dcpwcoreect['results'][0]['resultSet'][0];
-        if(pwcorrect.body.isNotEmpty && passwd == Password_check && passwd != newpasswd){
+        if(pwcorrect.body.isNotEmpty && passwd == passwordCheck && passwd != newpasswd){
           var body = {
             "transaction": [
               {
@@ -145,7 +145,7 @@ class SettingsAccount {
             body: jsonEncode(body),
           );
           return Response.ok("update success");
-        }else if(pwcorrect.body.isNotEmpty && passwd != Password_check){
+        }else if(pwcorrect.body.isNotEmpty && passwd != passwordCheck){
           return Response.unauthorized("비밀번호와 비밀번호 확인이 다릅니다!!");
         }else if(pwcorrect.body.isNotEmpty && passwd == newpasswd){
           return Response.unauthorized("비밀번호와 새 비밀번호가 같습니다.");
