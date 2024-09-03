@@ -20,7 +20,7 @@ Future<void> firstSetting(url) async {
     var body = {
       "transaction": [
         {
-          "statement": "#S_Tag",
+          "query": "#S_Tag",
         }
       ]
     };

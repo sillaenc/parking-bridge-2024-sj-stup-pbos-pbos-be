@@ -16,7 +16,7 @@ class MultipleElectricSigns {
     router.get('/', (Request request) async {
       var body = {
         "transaction": [
-          {"statement": "#S_Multi"}
+          {"query": "#S_Multi"}
         ]
       };
       var response = await http.post(

@@ -73,7 +73,7 @@ void main() async {
       var header = {'Content-Type': 'application/json'};
       var body = {
         "transaction": [
-          {"statement": "#S_TbDbSetting"}
+          {"query": "#S_TbDbSetting"}
         ]
       };
       var response = await http.post(
@@ -81,8 +81,9 @@ void main() async {
         headers: header,
         body: jsonEncode(body),
       );
+      // print('response : ${response.body}');
       var engine = jsonDecode(response.body);
-      //print('engine : $engine');
+      // print('engine : $engine');
       engineaddr = engine['results'][0]['resultSet'][0]['engine_db_addr'];
       manageAddress.engineDbAddr = engineaddr;
       

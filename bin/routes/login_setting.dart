@@ -119,7 +119,7 @@ class LoginSetting {
             }
           }
           var body5 = { "transaction": [
-              {"statement": "#S_File" }
+              {"query": "#S_File" }
             ]};
           var parkingZone = await http.post(
             Uri.parse(url!),
@@ -130,7 +130,7 @@ class LoginSetting {
           var resultSet5 = dcParkingZone['results'][0]['resultSet'];
           // print(resultSet5);
           var body7 = { "transaction": [
-              {"statement": "#S_LotType" }
+              {"query": "#S_LotType" }
             ]};
           var lotType = await http.post(
             Uri.parse(url),
@@ -210,7 +210,7 @@ class LoginSetting {
     Map<String, String> headers = {'Content-Type': 'application/json'};
     Map<String, dynamic> body = {
       "transaction": [
-        {"statement": "#S_LotInfo"}
+        {"query": "#S_LotInfo"}
       ]
     };
     return await http.post(
@@ -226,7 +226,7 @@ class LoginSetting {
     Map<String, String> headers = {'Content-Type': 'application/json'};
     Map<String, dynamic> body = {
       "transaction": [
-        {"statement": "#S_LotType"}
+        {"query": "#S_LotType"}
       ]
     };
     return await http.post(
@@ -243,7 +243,7 @@ class LoginSetting {
     Map<String, dynamic> body = {
       "transaction": [
         {
-          "statement": "#S_ReqLogin",
+          "query": "#S_ReqLogin",
           "values": {"account": account, "passwd": passwd}
         }
       ]

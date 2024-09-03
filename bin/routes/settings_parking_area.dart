@@ -33,7 +33,7 @@ class SettingsParkingArea {
     router.get('/', (Request request) async {
       var body = {
         "transaction": [
-          {"statement": "#S_TbParkingZone"}
+          {"query": "#S_TbParkingZone"}
         ]
       };
       var response = await http.post(
@@ -102,7 +102,7 @@ class SettingsParkingArea {
         var find ={
           "transaction": [
             {
-              "statement": "#S_TbPakringZoneName",
+              "query": "#S_TbPakringZoneName",
               "values": {"parking_name": filename}
             },
           ]
@@ -151,7 +151,7 @@ class SettingsParkingArea {
       Uint8List? content;
       var body = {
         "transaction": [
-          {"statement": "#S_TbParkingZone"}
+          {"query": "#S_TbParkingZone"}
         ]
       };
       var response = await http.post(
@@ -177,12 +177,7 @@ class SettingsParkingArea {
           content = await part.readBytes();
           extension = getExtensionFromContentDisposition(headers);
           print('1extension: $extension');
-
-          // File file = await File('$fileDirectory/$fileName.$extension').create();
-          // filePath = '$fileDirectory/$fileName.$extension';
-          // file.writeAsBytesSync(content);
         }
-        
       }
       print('2extension : $extension');
       filePath = '$fileDirectory/$fileName.$extension';

@@ -25,7 +25,7 @@ class SettingsCamParkingArea {
         //var headers = {'Content-Type': 'application/json'};
         Map<String, dynamic> body = {
           "transaction": [
-            {"statement": "#S_TbParkingSurface"},
+            {"query": "#S_TbParkingSurface"},
           ]
         };
         var user = await http.post(
@@ -62,7 +62,7 @@ class SettingsCamParkingArea {
 
         var passwdcheck ={"transaction": [
             {
-              "statement": "#S_TbParkingSurfaceTag",
+              "query": "#S_TbParkingSurfaceTag",
               "values": {"tag": beforetag}
             }
           ]
@@ -137,7 +137,8 @@ class SettingsCamParkingArea {
 
         var body = {
           "transaction": [
-            { "statement": "#D_TbParkingSurface",
+            {
+              "statement": "#D_TbParkingSurface",
               "values": {"tag": tag }
             },
           ]

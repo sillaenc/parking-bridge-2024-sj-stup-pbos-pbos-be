@@ -21,7 +21,7 @@ class SettingsDbManagement {
         String? url = manageAddress.displayDbAddr;
         var headers = {'Content-Type': 'application/json'};
         var body = {"transaction": [
-          { "statement": "#S_TbDbSetting" }
+          { "query": "#S_TbDbSetting" }
         ]};    
         var response = await http.post(
           Uri.parse(url!),
@@ -33,8 +33,10 @@ class SettingsDbManagement {
         print(dbSet);
 
         var body2 = {"transaction": [
-          { "statement": "#U_TbDbSetting" 
-          , "values": {"changeEngine": changeEngine} }
+          {
+            "statement": "#U_TbDbSetting",
+            "values": {"changeEngine": changeEngine}
+          }
         ]};
         await http.post(
           Uri.parse(url),
@@ -59,7 +61,7 @@ class SettingsDbManagement {
         String? url = manageAddress.displayDbAddr;
         var headers = {'Content-Type': 'application/json'};
         var body = {"transaction": [
-          { "statement": "#S_TbDbSetting" }
+          { "query": "#S_TbDbSetting" }
         ]};    
         var response = await http.post(
           Uri.parse(url!),

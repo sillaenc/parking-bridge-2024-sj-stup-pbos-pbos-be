@@ -15,7 +15,7 @@ class LoginMain {
     var headers = {'Content-Type': 'application/json'};
     router.get('/', (Request request) async {
       var body = { "transaction": [
-            {"statement": "#S_Information" }
+            {"query": "#S_Information" }
           ]}; 
         var user = await http.post(
           Uri.parse(url!),
@@ -37,7 +37,7 @@ class LoginMain {
 
         var body = {
           "transaction": [
-            { "statement": "#S_Profile",
+            { "query": "#S_Profile",
               "values": {"account": account }
             },
           ]

@@ -49,7 +49,7 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(
       );
       var body2 = {
         "transaction": [
-          {"statement": "#S_TbLots"}
+          {"query": "#S_TbLots"}
         ]
       };
       var response2 = await http.post(
@@ -107,7 +107,7 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(
       if (hour != now.hour) {
         var rowStatus = {
           'transaction': [
-            {"statement": "#S_TbLotStatus"}
+            {"query": "#S_TbLotStatus"}
           ]
         };
         var rowResponse = await http.post(
@@ -120,7 +120,7 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(
 
         var rowLot = {
           'transaction': [
-            {"statement": "#S_TbLots"}
+            {"query": "#S_TbLots"}
           ]
         };
         var rowResponse2 = await http.post(
@@ -159,7 +159,7 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(
         var check = {
           'transaction': [
             {
-              "statement": "#S_CountProcessedDb",
+              "query": "#S_CountProcessedDb",
               "values": {"time": fromattedTime}
             }
           ]
@@ -209,7 +209,7 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(
         var rowStatus = {
           'transaction': [
             {
-              "statement": "#S_ProcessedDB",
+              "query": "#S_ProcessedDB",
               "values": {'checkdate': '$strDay%'}
             }
           ]
@@ -226,7 +226,7 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(
         // print(rowDb);
         var rowLot = {
           'transaction': [
-            {"statement": "#S_TbLots"}
+            {"query": "#S_TbLots"}
           ]
         };
         var rowResponse2 = await client.post(
@@ -266,7 +266,7 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(
         var check = {
           'transaction': [
             {
-              "statement": "#S_CountRecordedDay",
+              "query": "#S_CountRecordedDay",
               "values": {"time": fromattedTime}
             }
           ]
@@ -305,7 +305,7 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(
         var rowStatus = {
           'transaction': [
             {
-              "statement": "#S_PerDay",
+              "query": "#S_PerDay",
               "values": {'checkdate': '$strMonth%'}
             }
           ]
@@ -322,7 +322,7 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(
         // print(rowDb);
         var rowLot = {
           'transaction': [
-            {"statement": "#S_TbLots"}
+            {"query": "#S_TbLots"}
           ]
         };
         var rowResponse2 = await client.post(
@@ -358,7 +358,7 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(
         var check = {
           'transaction': [
             {
-              "statement": "#S_CountPerMonth",
+              "query": "#S_CountPerMonth",
               "values": {"time": fromattedTime}
             }
           ]
@@ -396,7 +396,7 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(
         var rowStatus = {
           'transaction': [
             {
-              "statement": "#S_PerMonth",
+              "query": "#S_PerMonth",
               "values": {'checkdate': '$strYear%'}
             }
           ]
@@ -413,7 +413,7 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(
         // print(rowDb);
         var rowLot = {
           'transaction': [
-            {"statement": "#S_TbLots"}
+            {"query": "#S_TbLots"}
           ]
         };
         var rowResponse2 = await client.post(
@@ -448,7 +448,7 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(
         var check = {
           'transaction': [
             {
-              "statement": "#S_CountPerYear",
+              "query": "#S_CountPerYear",
               "values": {"time": fromattedTime}
             }
           ]
@@ -483,8 +483,7 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(
       return parkingLotList;
       //return to Main.dart and send that to client
     } else {
-      print(
-          'Failed to send data to server. Status code: ${response.statusCode}');
+      print('Failed to send data to server. Status code: ${response.statusCode}');
     }
   } catch (e) {
     print('Error occurred while sending data to server: $e');

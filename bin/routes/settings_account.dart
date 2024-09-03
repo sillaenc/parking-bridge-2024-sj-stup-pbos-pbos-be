@@ -25,7 +25,7 @@ class SettingsAccount {
         //var headers = {'Content-Type': 'application/json'};
         Map<String, dynamic> body = {
           "transaction": [
-            {"statement": "#S_TbUsers"},
+            {"query": "#S_TbUsers"},
           ]
         };
         var user = await http.post(
@@ -62,7 +62,7 @@ class SettingsAccount {
 
         var passwdcheck ={"transaction": [
             {
-              "statement": "#S_TbNowUsers",
+              "query": "#S_TbNowUsers",
               "values": {"account": account}
             }
           ]
@@ -114,7 +114,7 @@ class SettingsAccount {
 
         var passwdcheck ={"transaction": [
             {
-              "statement": "#S_UserCheck",
+              "query": "#S_UserCheck",
               "values": {"account": account, "passwd": passwd}
             }
           ]
@@ -206,7 +206,7 @@ class SettingsAccount {
 
         var passwdcheck ={"transaction": [
             {
-              "statement": "#S_TbNowUsers",
+              "query": "#S_TbNowUsers",
               "values": {"account": account}
             }
           ]

@@ -17,7 +17,7 @@ class StatisticsCamParkingArea {
         var url = manageAddress.displayDbAddr;
         var headers = {'Content-Type': 'application/json'};
         var body = { "transaction": [
-            {"statement": "#S_OneDayAll" }
+            {"query": "#S_OneDayAll" }
           ]};
         var user = await http.post(
           Uri.parse(url!),
@@ -47,7 +47,7 @@ class StatisticsCamParkingArea {
         print(yesterday);
         var headers = {'Content-Type': 'application/json'};
         var body = { "transaction": [
-            {"statement": "#S_OneDay" ,
+            {"query": "#S_OneDay" ,
             "values" : {'today': today , 'yesterday': yesterday}}
           ]};
         var user = await http.post(
@@ -80,7 +80,7 @@ class StatisticsCamParkingArea {
         print(lastWeek);
         var headers = {'Content-Type': 'application/json'};
         var body = { "transaction": [
-            {"statement": "#S_OneWeek" ,
+            {"query": "#S_OneWeek" ,
             "values" : {'today': thisWeek , 'last_month': lastWeek}}
           ]};
         var user = await http.post(
@@ -108,7 +108,7 @@ class StatisticsCamParkingArea {
         var url = manageAddress.displayDbAddr;
         var headers = {'Content-Type': 'application/json'};
         var body = { "transaction": [
-            {"statement": "#S_OneMonthAll" }
+            {"query": "#S_OneMonthAll" }
           ]};
         var user = await http.post(
           Uri.parse(url!),
@@ -132,16 +132,21 @@ class StatisticsCamParkingArea {
     router.get('/oneMonth', (Request request) async {
       try {
         var url = manageAddress.displayDbAddr;
+        // DateTime now = DateTime.now();
+        // String thisMotnh = DateFormat('yyyy-M-d').format(now);
+        // DateTime onemonthBefore = now.subtract(Duration(days: 30));
+        // String lastMonth = DateFormat('yyyy-M-d').format(onemonthBefore);
         DateTime now = DateTime.now();
-        String thisMotnh = DateFormat('yyyy-M-d').format(now);
-        DateTime onemonthBefore = now.subtract(Duration(days: 30));
-        String lastMonth = DateFormat('yyyy-M-d').format(onemonthBefore);
-        print(thisMotnh);
-        print(lastMonth);
+        // DateTime yesterday = now.subtract(Duration(days: 1));
+        DateTime firstDayOfLastMonth = DateTime(now.year, now.month - 1, 1);
+        String lastMonthStart = DateFormat('yyyy-M-d').format(firstDayOfLastMonth);
+        String todayFormat = DateFormat('yyyy-M-d').format(now);
+        print(todayFormat);
+        print(lastMonthStart);
         var headers = {'Content-Type': 'application/json'};
         var body = { "transaction": [
-            {"statement": "#S_OneMonth" ,
-            "values" : {'today': thisMotnh , 'last_month': lastMonth}}
+            {"query": "#S_OneMonth" ,
+            "values" : {'today': todayFormat , 'last_month': lastMonthStart}}
           ]};
         var user = await http.post(
           Uri.parse(url!),
@@ -168,7 +173,7 @@ class StatisticsCamParkingArea {
         var url = manageAddress.displayDbAddr;
         var headers = {'Content-Type': 'application/json'};
         var body = { "transaction": [
-            {"statement": "#S_OneYearAll" }
+            {"query": "#S_OneYearAll" }
           ]};
         var user = await http.post(
           Uri.parse(url!),
@@ -200,7 +205,7 @@ class StatisticsCamParkingArea {
         print(lastYear);
         var headers = {'Content-Type': 'application/json'};
         var body = { "transaction": [
-            {"statement": "#S_OneYear" ,
+            {"query": "#S_OneYear" ,
             "values" : {'today': thisYear , 'lastYear': lastYear}}
           ]};
         var user = await http.post(
@@ -228,7 +233,7 @@ class StatisticsCamParkingArea {
         var url = manageAddress.displayDbAddr;
         var headers = {'Content-Type': 'application/json'};
         var body = { "transaction": [
-            {"statement": "#SeveralYearsAll" }
+            {"query": "#SeveralYearsAll" }
           ]};
         var user = await http.post(
           Uri.parse(url!),
@@ -260,7 +265,7 @@ class StatisticsCamParkingArea {
         print(lastMonth);
         var headers = {'Content-Type': 'application/json'};
         var body = { "transaction": [
-            {"statement": "#SeveralYears" ,
+            {"query": "#SeveralYears" ,
             "values" : {'today': thisMotnh , 'last_month': lastMonth}}
           ]};
         var user = await http.post(
