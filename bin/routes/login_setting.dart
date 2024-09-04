@@ -128,7 +128,6 @@ class LoginSetting {
           );
           var dcParkingZone = jsonDecode(parkingZone.body);
           var resultSet5 = dcParkingZone['results'][0]['resultSet'];
-          // print(resultSet5);
           var body7 = { "transaction": [
               {"query": "#S_LotType" }
             ]};
@@ -139,7 +138,7 @@ class LoginSetting {
           );
           var dcLotType = jsonDecode(utf8.decode(lotType.bodyBytes));
           var resultSet7 = dcLotType['results'][0]['resultSet'];
-          print("resultSet7 : $resultSet7");
+          // print("resultSet7 : $resultSet7");
           return Response.ok(
             jsonEncode(check + resultSet1 + resultSet7 + resultSet3 + resultSet5),
             headers: headers);

@@ -44,7 +44,7 @@ class SettingsParkingArea {
       var db = jsonDecode(utf8.decode(response.bodyBytes));
       var dbSet = db['results'][0]['resultSet'];
       var info = jsonEncode(dbSet);
-      print(info);
+      // print(info);
       return Response.ok(info);
     });
 
