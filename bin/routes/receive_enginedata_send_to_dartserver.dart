@@ -153,9 +153,8 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(
         }
 
         DateTime oneHourBefore = now.subtract(Duration(hours: 1));
-        String fromattedTime =
-            "${oneHourBefore.year}-${oneHourBefore.month}-${oneHourBefore.day} ${oneHourBefore.hour}";
-
+        String fromattedTime ="${oneHourBefore.year.toString().padLeft(4, '0')}-${oneHourBefore.month.toString().padLeft(2, '0')}-${oneHourBefore.day.toString().padLeft(2, '0')} ${oneHourBefore.hour.toString().padLeft(2, '0')}";
+        print(fromattedTime);
         var check = {
           'transaction': [
             {
@@ -260,9 +259,8 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(
           processedResult3[tag] = item['lot_type'];
         }
 
-        DateTime oneHourBefore = now.subtract(Duration(days: 1));
-        String fromattedTime =
-            "${oneHourBefore.year}-${oneHourBefore.month}-${oneHourBefore.day}";
+        DateTime oneDayBefore = now.subtract(Duration(days: 1));
+        String fromattedTime = "${oneDayBefore.year.toString().padLeft(4, '0')}-${oneDayBefore.month.toString().padLeft(2, '0')}-${oneDayBefore.day.toString().padLeft(2, '0')}";
         var check = {
           'transaction': [
             {
@@ -391,8 +389,9 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(
         client.close();
       }
 
-      //월 -> 연 단위로 db를 뽑아내는 코드
+      // 월 -> 연 단위로 db를 뽑아내는 코드
       if (year != now.year) {
+      // if (1 == 1) {
         var rowStatus = {
           'transaction': [
             {
@@ -445,6 +444,7 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(
         }
 
         String fromattedTime = "${now.year - 1}";
+        print(fromattedTime);
         var check = {
           'transaction': [
             {

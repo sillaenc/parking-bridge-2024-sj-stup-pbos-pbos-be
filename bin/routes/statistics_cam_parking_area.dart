@@ -40,15 +40,17 @@ class StatisticsCamParkingArea {
       try {
         var url = manageAddress.displayDbAddr;
         DateTime now = DateTime.now();
-        String today = '${DateFormat('yyyy-M-d').format(now)} 9';
+        String hourago = '${DateFormat('yyyy-MM-dd').format(now)} 9';
+        String today  = '${DateFormat('yyyy-MM-dd').format(now)} 0';
         DateTime onedayBefore = now.subtract(Duration(days: 1));
-        String yesterday = '${DateFormat('yyyy-M-d').format(onedayBefore)} 0';
+        String yesterday = '${DateFormat('yyyy-MM-dd').format(onedayBefore)}%';
+        print(hourago);
         print(today);
         print(yesterday);
         var headers = {'Content-Type': 'application/json'};
         var body = { "transaction": [
             {"query": "#S_OneDay" ,
-            "values" : {'today': today , 'yesterday': yesterday}}
+            "values" : {'hourago': hourago, 'today': today , 'yesterday': yesterday}}
           ]};
         var user = await http.post(
           Uri.parse(url!),
@@ -72,10 +74,9 @@ class StatisticsCamParkingArea {
       try {
         var url = manageAddress.displayDbAddr;
         DateTime now = DateTime.now();
-        String thisWeek = '${DateFormat('yyyy-M-d').format(now)} 9';
+        String thisWeek = DateFormat('yyyy-MM-dd').format(now);
         DateTime lastWeekStart = now.subtract(Duration(days: now.weekday + 7));
-        print(lastWeekStart);
-        String lastWeek = '${DateFormat('yyyy-M-d').format(lastWeekStart)} 0';
+        String lastWeek = DateFormat('yyyy-MM-dd').format(lastWeekStart);
         print(thisWeek);
         print(lastWeek);
         var headers = {'Content-Type': 'application/json'};
@@ -132,15 +133,10 @@ class StatisticsCamParkingArea {
     router.get('/oneMonth', (Request request) async {
       try {
         var url = manageAddress.displayDbAddr;
-        // DateTime now = DateTime.now();
-        // String thisMotnh = DateFormat('yyyy-M-d').format(now);
-        // DateTime onemonthBefore = now.subtract(Duration(days: 30));
-        // String lastMonth = DateFormat('yyyy-M-d').format(onemonthBefore);
         DateTime now = DateTime.now();
-        // DateTime yesterday = now.subtract(Duration(days: 1));
         DateTime firstDayOfLastMonth = DateTime(now.year, now.month - 1, 1);
-        String lastMonthStart = DateFormat('yyyy-M-d').format(firstDayOfLastMonth);
-        String todayFormat = DateFormat('yyyy-M-d').format(now);
+        String lastMonthStart = DateFormat('yyyy-MM-dd').format(firstDayOfLastMonth);
+        String todayFormat = DateFormat('yyyy-MM-dd').format(now);
         print(todayFormat);
         print(lastMonthStart);
         var headers = {'Content-Type': 'application/json'};
@@ -198,9 +194,9 @@ class StatisticsCamParkingArea {
       try {
         var url = manageAddress.displayDbAddr;
         DateTime now = DateTime.now();
-        String thisYear = DateFormat('yyyy-M').format(now);
+        String thisYear = DateFormat('yyyy-MM').format(now);
         DateTime onemonthBefore = now.subtract(Duration(days: 365));
-        String lastYear = DateFormat('yyyy-M').format(onemonthBefore);
+        String lastYear = DateFormat('yyyy-MM').format(onemonthBefore);
         print(thisYear);
         print(lastYear);
         var headers = {'Content-Type': 'application/json'};
