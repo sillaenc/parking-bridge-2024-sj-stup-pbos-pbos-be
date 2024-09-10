@@ -1,5 +1,8 @@
 # https://dart.dev/guides/libraries/private-files
 # Created by `dart pub`
+ws4sqlite
+t01
+pubspec.lock
 .dart_tool/
 .env
 .dotenv
