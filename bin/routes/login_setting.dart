@@ -27,17 +27,19 @@ class LoginSetting {
       var passwd = loginData['passwd'];
       
       var loginDataResult = reqLogin(account, passwd, url);
+      var loginDataResult2 = reqLogin2(account, passwd, url);
       var responseLogin = await loginDataResult;
-      var responseLoginData = jsonDecode(responseLogin.body);      
+      var responseLogin2 = await loginDataResult2;
+      var responseLoginData = jsonDecode(responseLogin.body);
+      var responseLoginData2 = jsonDecode(responseLogin2.body);  
       var resultSet4 = responseLoginData['results'][0]['resultSet'];
+      var resultSet7 = responseLoginData2['results'][0]['resultSet'];
       for (var entry in resultSet4) {
         if (entry['account'] == account) {
           loginCheck = 1;
           if (entry['passwd'] == passwd) {
             loginCheck = 2;
             token = createJwt(account, 1);
-            
-            
             print('Generated Token: $token');
           }
         }
@@ -54,7 +56,7 @@ class LoginSetting {
               'Origin, Content-Type, X-Auth-Token' // 허용할 헤더 설정
         };
         return Response.ok(
-            jsonEncode(resultSet4 + listtoken),
+            jsonEncode(resultSet7 + listtoken),
             headers: headers);
       } else if (loginCheck == 0) {
         print('아이디 틀렸습니다.');
@@ -243,6 +245,25 @@ class LoginSetting {
       "transaction": [
         {
           "query": "#S_ReqLogin",
+          "values": {"account": account, "passwd": passwd}
+        }
+      ]
+    };
+    return await http.post(
+      Uri.parse(url),
+      headers: headers,
+      body: jsonEncode(body),
+    );
+  }
+
+  Future<http.Response> reqLogin2(
+      var account, var passwd, var displayDbAddr) async {
+    String url = displayDbAddr;
+    Map<String, String> headers = {'Content-Type': 'application/json'};
+    Map<String, dynamic> body = {
+      "transaction": [
+        {
+          "query": "#S_ReqLogin2",
           "values": {"account": account, "passwd": passwd}
         }
       ]
