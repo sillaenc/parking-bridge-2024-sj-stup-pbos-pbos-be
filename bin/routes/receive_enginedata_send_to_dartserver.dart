@@ -76,8 +76,8 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(
       int year = checks.year;
       // String strDay = DateFormat('yyyy-M-dd').format(check);
       DateTime onedayBefore = now.subtract(Duration(days: 1));
-      String strDay = DateFormat('yyyy-M-d').format(onedayBefore);
-      String strMonth = DateFormat('yyyy-M').format(onedayBefore);
+      String strDay = DateFormat('yyyy-MM-dd').format(onedayBefore);
+      String strMonth = DateFormat('yyyy-MM').format(onedayBefore);
       String strYear = DateFormat('yyyy').format(onedayBefore);
       // print('12초빼기 : $checks');
       // print('지금 시각 : $now');
@@ -235,7 +235,6 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(
         );
         var rowResult2 = jsonDecode(rowResponse2.body);
         var rowDb2 = rowResult2['results'][0]['resultSet'];
-
         Map<dynamic, dynamic> processedResult2 = {};
         Map<dynamic, dynamic> processedResult = {};
         for (var item in rowDb) {
@@ -276,7 +275,7 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(
         );
         var dcCheckDb = jsonDecode(checkDb.body);
         var checkVal = dcCheckDb['results'][0]['resultSet'][0]['count'];
-        print(processedResult2);
+        print('processedResult3: $processedResult3');
         if (checkVal == 0) {
           for (int i = 1; i <= rowDb2.length; i++) {
             var uploadProcessedData = {
