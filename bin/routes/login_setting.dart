@@ -120,21 +120,11 @@ class LoginSetting {
               );
             }
           }
-          var body5 = { "transaction": [
-              {"query": "#S_File" }
-            ]};
-          var parkingZone = await http.post(
-            Uri.parse(url!),
-            headers: headers,
-            body: jsonEncode(body5),
-          );
-          var dcParkingZone = jsonDecode(parkingZone.body);
-          var resultSet5 = dcParkingZone['results'][0]['resultSet'];
           var body7 = { "transaction": [
               {"query": "#S_LotType" }
             ]};
           var lotType = await http.post(
-            Uri.parse(url),
+            Uri.parse(url!),
             headers: headers,
             body: jsonEncode(body7),
           );
@@ -142,7 +132,7 @@ class LoginSetting {
           var resultSet7 = dcLotType['results'][0]['resultSet'];
           // print("resultSet7 : $resultSet7");
           return Response.ok(
-            jsonEncode(check + resultSet1 + resultSet7 + resultSet3 + resultSet5),
+            jsonEncode(check + resultSet1 + resultSet7 + resultSet3),
             headers: headers);
         }
     });
