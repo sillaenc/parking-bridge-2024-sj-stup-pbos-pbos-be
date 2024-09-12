@@ -2,6 +2,7 @@
 # Created by `dart pub`
 ws4sqlite
 t01
+*.db
 pubspec.lock
 .env
 .dotenv
