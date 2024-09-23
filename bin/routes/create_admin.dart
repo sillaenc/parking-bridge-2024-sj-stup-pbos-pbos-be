@@ -1,6 +1,7 @@
 // bin/routes/create_admin.dart
 
 import 'dart:convert';
+import 'package:drift/drift.dart';
 import 'package:shelf/shelf.dart';
 import 'package:shelf_router/shelf_router.dart';
 import 'package:http/http.dart' as http;
@@ -18,15 +19,37 @@ class CreateAdmin {
 
   Router get router {
     final router = Router();
+    // String url = engineDbaddr;
+    Map<String, String> headers = {'Content-Type': 'application/json'};
     router.post('/', (Request request) async {
       try {
         var requestBody = await request.readAsString();
         var requestData = jsonDecode(requestBody);
         var account = requestData['account'];
+        var username = requestData['username'];
         var passwd = requestData['passwd'];
 
-        var responseFuture = reqAccInfo(account, passwd, confirmAccountList.manageAddress.displayDbAddr);
-
+        var rowLot = {
+          'transaction': [
+            {"query": "#S_userList"}
+          ]
+        };
+        var url = confirmAccountList.manageAddress.displayDbAddr;
+        var rowResponse2 = await http.post(
+          Uri.parse(url!),
+          headers: headers,
+          body: jsonEncode(rowLot),
+        );
+        var rowResult2 = jsonDecode(rowResponse2.body);
+        var rowDb2 = rowResult2['results'][0]['resultSet'];
+        print(rowDb2);
+        for (var item in rowDb2){
+          String name = item['account'];
+          if(name==account){
+            return Response.forbidden('id 중복났숑');
+          }
+        }
+        var responseFuture = reqAccInfo(account, passwd, username, confirmAccountList.manageAddress.displayDbAddr);
         var response = await responseFuture;
 
         if (response.statusCode == 200) {
@@ -56,8 +79,7 @@ class CreateAdmin {
   }
 
   // 서버로 요청 보내는 함수
-  Future<http.Response> reqAccInfo(
-      var account, var passwd, var displayDbAddr) async {
+  Future<http.Response> reqAccInfo(var account, var passwd, var username, var displayDbAddr) async {
     String url = displayDbAddr;
     Map<String, String> headers = {'Content-Type': 'application/json'};
     Map<String, dynamic> body = {
@@ -65,7 +87,7 @@ class CreateAdmin {
         {
           "statement": "#I_AdminAccount",
           "valuesBatch": [
-            {"account": account, "passwd": passwd, "userlevel": 0}
+            {"account": account, "passwd": passwd, "username": username, "userlevel": 0}
           ]
         }
       ]

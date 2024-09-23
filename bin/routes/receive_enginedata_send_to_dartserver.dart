@@ -2,8 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 
-Future<List<dynamic>> receiveEnginedataSendToDartserver(
-    var engineDbaddr, var displayDbAddr, DateTime check) async {
+Future<List<dynamic>> receiveEnginedataSendToDartserver(var engineDbaddr, var displayDbAddr, DateTime check) async {
   print('Sending data to server at: ${DateTime.now()}');
   try {
     String url = engineDbaddr;
