@@ -108,14 +108,12 @@ class SettingsAccount {
         var requestData = jsonDecode(requestBody);
         // print(requestData);
         var account = requestData['account'];
-        var passwd = requestData['passwd'];
-        var passwordCheck = requestData['passwdCheck'];
         var newpasswd = requestData['newpasswd'];
 
         var passwdcheck ={"transaction": [
             {
               "query": "#S_UserCheck",
-              "values": {"account": account, "passwd": passwd}
+              "values": {"account": account}
             }
           ]
         };
@@ -126,11 +124,14 @@ class SettingsAccount {
         );
         // print(pwcorrect.body);
         var dcpwcoreect = jsonDecode(pwcorrect.body);
-        if (dcpwcoreect['results'].isEmpty || dcpwcoreect['results'][0]['resultSet'].isEmpty) {
-          return Response.unauthorized("사용자 또는 비밀번호가 잘못되었습니다.");
-        }
-        // var pwcorrectcheck = dcpwcoreect['results'][0]['resultSet'][0];
-        if(pwcorrect.body.isNotEmpty && passwd == passwordCheck && passwd != newpasswd){
+        var pwcorrectcheck = dcpwcoreect['results'][0]['resultSet'][0];
+        print(pwcorrectcheck);
+        print(newpasswd);
+        if(pwcorrectcheck.isEmpty){
+          return Response.unauthorized("id가 없다고 뜸. 오류 발생. 앱에서는 생기면 안되는 문제");
+        }else if(pwcorrectcheck["passwd"] == newpasswd){
+          return Response.unauthorized("기존 비밀번호와 새 비밀번호가 동일합니다.");
+        }else{
           var body = {
             "transaction": [
               {
@@ -145,18 +146,15 @@ class SettingsAccount {
             body: jsonEncode(body),
           );
           return Response.ok("update success");
-        }else if(pwcorrect.body.isNotEmpty && passwd != passwordCheck){
-          return Response.unauthorized("비밀번호와 비밀번호 확인이 다릅니다!!");
-        }else if(pwcorrect.body.isNotEmpty && passwd == newpasswd){
-          return Response.unauthorized("비밀번호와 새 비밀번호가 같습니다.");
-        }else{
-          return Response.unauthorized("비밀번호 틀림");
         }
-      } catch (e, stackTrace) {
+
+      // } catch (e, stackTrace) {
+      } catch (e) {
         // 예외 처리
-        print('Error: $e');
-        print('StackTrace: $stackTrace');
-        return Response.internalServerError(body: 'Error: $e');
+        // print('Error: $e');
+        // print('StackTrace: $stackTrace');
+        // return Response.internalServerError(body: 'Error: $e');
+        return Response.unauthorized("account는 앱에서는 정상적인 상황에서 틀릴 방법이 없음. 오류임");
       }
     });
 
