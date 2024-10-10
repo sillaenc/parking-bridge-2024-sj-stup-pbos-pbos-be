@@ -109,7 +109,12 @@ class SettingsAccount {
         // print(requestData);
         var account = requestData['account'];
         var newpasswd = requestData['newpasswd'];
+        var passwd = requestData['passwd'];
+        var passwdCheck = requestData['passwdCheck'];
 
+        if(passwd != passwdCheck){
+          return Response.badRequest();
+        }
         var passwdcheck ={"transaction": [
             {
               "query": "#S_UserCheck",
