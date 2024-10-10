@@ -66,7 +66,7 @@ void main() async {
   router.mount('/getResource', getResource.router);
 
   firstSetting(url);
-  //0.5 Seconds Per delay - 반복 동작.
+  //2 Seconds Per delay - 반복 동작.
   Timer.periodic(Duration(milliseconds: 2000), (timer) async {
     var engineaddr;
     try {
