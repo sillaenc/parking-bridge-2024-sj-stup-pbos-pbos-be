@@ -170,28 +170,47 @@ class SettingsAccount {
 
         var account = requestData['account'];
         var passwd = requestData['passwd'];
-        var newpasswd = requestData['passwdCheck'];
+        var passwdCheck = requestData['passwdCheck'];
         var username = requestData['username'];
         int userlevel = requestData['userlevel'];
         int isActivated = requestData['isActivated'];
-
-        if(passwd !=newpasswd){
-          return Response.unauthorized("비밀번호 확인 요망");
-        }
-        var body = {
-          "transaction": [
-            { 
-              "statement": "#I_UserAdd",
-              "values": {"account": account ,"passwd": newpasswd, "username": username, "userlevel": userlevel, "isActivated": isActivated }
-            },
+        var passwdcheck ={"transaction": [
+            {
+              "query": "#S_UserCheck",
+              "values": {"account": account}
+            }
           ]
         };
-        await http.post(
+        var accountCorrect = await http.post(
           Uri.parse(url!),
           headers: headers,
-          body: jsonEncode(body),
+          body: jsonEncode(passwdcheck),
         );
-        return Response.ok("create success");
+        var accorrect = jsonDecode(accountCorrect.body);
+        if (accorrect.isEmpty || accorrect['results'].isEmpty || accorrect['results'][0]['resultSet'].isEmpty) {
+          if(passwd != passwdCheck){
+            return Response.unauthorized("비밀번호 확인 요망");
+          }else{
+            var body = {
+              "transaction": [
+                { 
+                  "statement": "#I_UserAdd",
+                  "values": {"account": account ,"passwd": passwdCheck, "username": username, "userlevel": userlevel, "isActivated": isActivated }
+                },
+              ]
+            };
+            await http.post(
+              Uri.parse(url),
+              headers: headers,
+              body: jsonEncode(body),
+            );
+            return Response.ok("create success");
+          }
+          // return '계정이 존재하지 않습니다.';
+        } else {
+          return Response.unauthorized("id 중복");
+        }
+
       }catch (e, stackTrace) {
         // 예외 처리
         print('Error: $e');
