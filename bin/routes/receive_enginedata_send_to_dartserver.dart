@@ -440,7 +440,7 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(var engineDbaddr, var di
         for (var item in rowDb2) {
           int tag = item['uid'];
           processedResult3[tag] = item['lot_type'];
-        }
+        } 
         
         String fromattedTime = "${now.year - 1}";
         print(fromattedTime);
