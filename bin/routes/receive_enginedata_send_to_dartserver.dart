@@ -350,7 +350,8 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(var engineDbaddr, var di
         }
 
         // DateTime oneHourBefore = now.subtract(Duration(days: 30));
-        String fromattedTime = "${now.year}-${now.month - 1}";
+        DateTime oneMonthAgo = DateTime(now.year, now.month - 1, now.day); // 한 달 전 날짜
+        String fromattedTime = "${oneMonthAgo.year}-${oneMonthAgo.month.toString().padLeft(2, '0')}";
         var check = {
           'transaction': [
             {
@@ -440,7 +441,7 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(var engineDbaddr, var di
           int tag = item['uid'];
           processedResult3[tag] = item['lot_type'];
         }
-
+        
         String fromattedTime = "${now.year - 1}";
         print(fromattedTime);
         var check = {
