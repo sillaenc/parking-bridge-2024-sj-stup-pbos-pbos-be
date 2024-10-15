@@ -54,8 +54,8 @@ class SettingsAccount {
         var requestData = jsonDecode(requestBody);
         // print(requestData);
         var account = requestData['account'];
-        var passwd = requestData['passwd'];
-        var newpasswd = requestData['passwdCheck'];
+        var newpasswd = requestData['newpasswd'];
+        var newpasswdCheck = requestData['newpasswdCheck'];
         var username = requestData['username'];
         int userlevel = requestData['userlevel'];
         int isActivated = requestData['isActivated'];
@@ -75,9 +75,12 @@ class SettingsAccount {
         // print(pwcorrect.body);
         var dcpwcoreect = jsonDecode(pwcorrect.body);
         var pwcorrectcheck = dcpwcoreect['results'][0]['resultSet'][0];
-        print(pwcorrectcheck);
-        if(passwd != pwcorrectcheck['passwd']){
-          return Response.unauthorized("password wrong");
+        print("pwcorrectcheck: $pwcorrectcheck");
+        if(newpasswd == pwcorrectcheck["passwd"]){
+          return Response.forbidden("기존 비밀번호임");
+        }
+        if(newpasswd != newpasswdCheck){
+          return Response.unauthorized("비밀번호 틀림");
         }//비번 통과해야지 아래 코드가 실행가능.
         var body = {
           "transaction": [
