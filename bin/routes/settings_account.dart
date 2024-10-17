@@ -54,8 +54,8 @@ class SettingsAccount {
         var requestData = jsonDecode(requestBody);
         // print(requestData);
         var account = requestData['account'];
-        var newpasswd = requestData['newpasswd'];
-        var newpasswdCheck = requestData['newpasswdCheck'];
+        // var newpasswd = requestData['newpasswd'];
+        // var newpasswdCheck = requestData['newpasswdCheck'];
         var username = requestData['username'];
         int userlevel = requestData['userlevel'];
         int isActivated = requestData['isActivated'];
@@ -76,17 +76,17 @@ class SettingsAccount {
         var dcpwcoreect = jsonDecode(pwcorrect.body);
         var pwcorrectcheck = dcpwcoreect['results'][0]['resultSet'][0];
         print("pwcorrectcheck: $pwcorrectcheck");
-        if(newpasswd == pwcorrectcheck["passwd"]){
-          return Response.forbidden("기존 비밀번호임");
-        }
-        if(newpasswd != newpasswdCheck){
-          return Response.unauthorized("비밀번호 틀림");
-        }//비번 통과해야지 아래 코드가 실행가능.
+        // if(newpasswd == pwcorrectcheck["passwd"]){
+        //   return Response.forbidden("기존 비밀번호임");
+        // }
+        // if(newpasswd != newpasswdCheck){
+        //   return Response.unauthorized("비밀번호 틀림");
+        // }//비번 통과해야지 아래 코드가 실행가능.
         var body = {
           "transaction": [
             {
               "statement": "#U_TbUsers",
-              "values": {"passwd": newpasswd, "username": username, "userlevel": userlevel, "isActivated": isActivated, "account": account}
+              "values": {"username": username, "userlevel": userlevel, "isActivated": isActivated, "account": account}
             },
           ]
         };
