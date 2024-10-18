@@ -165,6 +165,60 @@ class SettingsAccount {
         return Response.unauthorized("account는 앱에서는 정상적인 상황에서 틀릴 방법이 없음. 오류임");
       }
     });
+    router.post('/resetPassword', (Request request) async {
+      try {
+        // 프런트의 요청의 body를 JSON 형식으로 디코딩하여 데이터 추출
+        var requestBody = await request.readAsString();
+        var requestData = jsonDecode(requestBody);
+        // print(requestData);
+        var account = requestData['account'];
+        var newpasswd = "0000";
+
+        var passwdcheck ={"transaction": [
+            {
+              "query": "#S_UserCheck",
+              "values": {"account": account}
+            }
+          ]
+        };
+        var pwcorrect = await http.post(
+          Uri.parse(url!),
+          headers: headers,
+          body: jsonEncode(passwdcheck),
+        );
+        // print(pwcorrect.body);
+        var dcpwcoreect = jsonDecode(pwcorrect.body);
+        var pwcorrectcheck = dcpwcoreect['results'][0]['resultSet'][0];
+        print(pwcorrectcheck);
+        print(newpasswd);
+        if(pwcorrectcheck.isEmpty){
+          return Response.unauthorized("id가 없다고 뜸. 오류 발생. 앱에서는 생기면 안되는 문제");
+        }else{
+          var body = {
+            "transaction": [
+              {
+                "statement": "#U_ChangePassword",
+                "values": {"passwd": newpasswd, "account": account}
+              },
+            ]
+          };
+          await http.post(
+            Uri.parse(url),
+            headers: headers,
+            body: jsonEncode(body),
+          );
+          return Response.ok("reset success");
+        }
+
+      // } catch (e, stackTrace) {
+      } catch (e) {
+        // 예외 처리
+        // print('Error: $e');
+        // print('StackTrace: $stackTrace');
+        // return Response.internalServerError(body: 'Error: $e');
+        return Response.unauthorized("account는 앱에서는 정상적인 상황에서 틀릴 방법이 없음. 오류임");
+      }
+    });
 
     router.post('/insertUser', (Request request) async {
       try{
