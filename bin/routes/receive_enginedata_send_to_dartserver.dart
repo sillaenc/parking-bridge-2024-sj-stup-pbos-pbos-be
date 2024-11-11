@@ -21,6 +21,7 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(var engineDbaddr, var di
     if (response.statusCode == 200) {
       var responseData = jsonDecode(response.body);
       var resultSet = responseData['results'][0]['resultSet'][0];
+      // print(resultSet);
       var parkingLot = resultSet['parking_lot'];
       var parkingLotList = parkingLot.split(',');
       parkingLotList.removeAt(0); // "start" 제거
