@@ -36,9 +36,9 @@ Future<void> firstSetting(url) async {
     } else {
       for (int i = 0; i < fileNames.length; i++) {
         String floor = '';
-        if (fileNames[i].startsWith('지상')) {
+        if (fileNames[i].startsWith('F')) {
           floor += 'F';
-        } else if (fileNames[i].startsWith('지하')) {
+        } else if (fileNames[i].startsWith('B')) {
           floor += 'B';
         }
         RegExp regExp = RegExp(r'\d');
