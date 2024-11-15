@@ -40,6 +40,8 @@ Future<void> firstSetting(url) async {
           floor += 'F';
         } else if (fileNames[i].startsWith('B')) {
           floor += 'B';
+        } else if (fileNames[i].startsWith('ALL')) {
+          floor += 'ALL';
         }
         RegExp regExp = RegExp(r'\d');
         Match? match = regExp.firstMatch(fileNames[i]);

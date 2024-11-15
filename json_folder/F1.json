@@ -16,9 +16,9 @@
         "rect14":{"tag":"F1_A05_2_N012","lot_type":1,"point":"1161, 214","asset":"nHorizontal.png","floor":"F1"},
         "rect15":{"tag":"F1_A05_1_N046","lot_type":1,"point":"900, 214","asset":"nHorizontal.png","floor":"F1"},
         "rect16":{"tag":"F1_A09_2_N045","lot_type":1,"point":"804, 214","asset":"nHorizontal.png","floor":"F1"},
-        "rect17":{"tag":"F1_A09_1_D001","lot_type":1,"point":"543, 214","asset":"eVertical.png","floor":"F1"},
+        "rect17":{"tag":"F1_A09_1_D001","lot_type":1,"point":"543, 214","asset":"nHorizontal.png","floor":"F1"},
         "rect18":{"tag":"F1_A06_2_A003","lot_type":4,"point":"1341, 210","asset":"eVertical.png","floor":"F1"},
-        "rect19":{"tag":"F1_A06_2_A002","lot_type":4,"point":"1285, 210","asset":"nHorizontal.png","floor":"F1"},
+        "rect19":{"tag":"F1_A06_2_A002","lot_type":4,"point":"1285, 210","asset":"eVertical.png","floor":"F1"},
         "rect20":{"tag":"F1_A05_2_A001","lot_type":4,"point":"1161, 270","asset":"eHorizontal.png","floor":"F1"},
         "rect21":{"tag":"F1_A05_1_N047","lot_type":1,"point":"900, 270","asset":"nHorizontal.png","floor":"F1"},
         "rect22":{"tag":"F1_A09_2_N044","lot_type":1,"point":"804, 270","asset":"nHorizontal.png","floor":"F1"},
@@ -68,8 +68,8 @@
         "rect66":{"tag":"F1_A01_1_N059","lot_type":1,"point":"900, 962","asset":"nHorizontal.png","floor":"F1"},
         "rect67":{"tag":"F1_A13_2_N032","lot_type":1,"point":"804, 962","asset":"nHorizontal.png","floor":"F1"},
         "rect68":{"tag":"F1_A13_1_N029","lot_type":1,"point":"543, 962","asset":"nHorizontal.png","floor":"F1"},
-        "rect69":{"tag":"F1_A01_1_N060","lot_type":3,"point":"1159, 1018","asset":"nHorizontal.png","floor":"F1"},
-        "rect70":{"tag":"F1_A13_2_N031","lot_type":1,"point":"900, 1018","asset":"nHorizontal.png","floor":"F1"},
-        "rect71":{"tag":"F1_A13_1_N030","lot_type":1,"point":"804, 1018","asset":"nHorizontal.png","floor":"F1"}
+        "rect69":{"tag":"F1_A01_1_N060","lot_type":3,"point":"900, 1018","asset":"nHorizontal.png","floor":"F1"},
+        "rect70":{"tag":"F1_A13_2_N031","lot_type":1,"point":"804, 1018","asset":"nHorizontal.png","floor":"F1"},
+        "rect71":{"tag":"F1_A13_1_N030","lot_type":1,"point":"543, 1018","asset":"nHorizontal.png","floor":"F1"}
     }
 }

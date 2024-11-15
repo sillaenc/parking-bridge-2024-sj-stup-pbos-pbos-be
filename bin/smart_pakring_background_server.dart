@@ -105,8 +105,6 @@ void main() async {
     DateTime now = DateTime.now();
     check = now;
   });
-  
-
 
   var handler = Pipeline()
       .addMiddleware(logRequests())
