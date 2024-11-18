@@ -5,10 +5,13 @@ import 'package:http/http.dart' as http;
 Future<void> firstSetting(url) async {
   try {
     final folderPath = 'json_folder/';
-    final files = Directory(folderPath).listSync();
-    var header = {'Content-Type': 'application/json'};
-    print(files);
-    print(url);
+    final directory = Directory(folderPath);
+    if (!directory.existsSync()) {
+      print('디렉토리가 존재하지 않습니다: $folderPath');
+      return;
+    }
+    List<FileSystemEntity> files = directory.listSync();
+    files.sort((a, b) => a.path.toLowerCase().compareTo(b.path.toLowerCase()));
     List<String> filePath = [];
     List<String> fileNames = [];
     for (var file in files) {
@@ -17,6 +20,11 @@ Future<void> firstSetting(url) async {
         filePath.add(file.path);
       }
     }
+
+    var header = {'Content-Type': 'application/json'};
+    print(files);
+    print(url);
+
     var body = {
       "transaction": [
         {
@@ -73,7 +81,6 @@ Future<void> firstSetting(url) async {
             String point = item['point'];
             String asset = item['asset'];
             String floor = item['floor'];
-            var header = {'Content-Type': 'application/json'};
             var body = {
               "transaction": [
                 {
