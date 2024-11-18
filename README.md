@@ -9,3 +9,4 @@
 3. dart backend에 ws4sqllite를 사용해 sqllite의 보안성을 보완하는 목표를 가지는데 의의를 둔다.
 4. 변수명은 일반적으로 lowerCamelCase로 진행했다. 클래스는 UpperCamelCase로 진행했다. sql문은 lowerCamelCase로 진행했다.
 5. 인메모리 DB를 활용하였음. 인메모리 DB 사용으로 인한 부작용은 제작자 입장으로는 현재는 문제 없으나, RaspberryPi로 전환시 파악이 힘들다는 단점이 존재함.
+6. PORT 정보는 env에 존재한다.
