@@ -18,7 +18,7 @@
         "rect16":{"tag":"F1_A09_2_N045","lot_type":1,"point":"291, 214","asset":"nHorizontal.png","floor":"ALL"},
         "rect17":{"tag":"F1_A09_1_D001","lot_type":1,"point":"30, 210","asset":"nHorizontal.png","floor":"ALL"},
         "rect18":{"tag":"F1_A06_2_A003","lot_type":4,"point":"828, 210","asset":"eVertical.png","floor":"ALL"},
-        "rect19":{"tag":"F1_A06_2_A002","lot_type":4,"point":"772, 214","asset":"eVertical.png","floor":"ALL"},
+        "rect19":{"tag":"F1_A06_2_A002","lot_type":4,"point":"772, 210","asset":"eVertical.png","floor":"ALL"},
         "rect20":{"tag":"F1_A05_2_A001","lot_type":4,"point":"648, 270","asset":"eHorizontal.png","floor":"ALL"},
         "rect21":{"tag":"F1_A05_1_N047","lot_type":1,"point":"387, 270","asset":"nHorizontal.png","floor":"ALL"},
         "rect22":{"tag":"F1_A09_2_N044","lot_type":1,"point":"291, 270","asset":"nHorizontal.png","floor":"ALL"},

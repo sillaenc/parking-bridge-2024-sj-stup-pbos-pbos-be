@@ -147,11 +147,12 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(var engineDbaddr, var di
         for (var item in rowDb2) {
           int tag = item['uid'];
           int lot = item['uid'];
+          // print('$item : $tag, $lot');
           processedResult3[tag] = item['lot_type'];
           processedResult[lot] = processedResult[lot] ?? 0;
           processedResult[lot] = item['uid'];
         }
-
+        // print(rowDb2);
         DateTime oneHourBefore = now.subtract(Duration(hours: 1));
         String fromattedTime ="${oneHourBefore.year.toString().padLeft(4, '0')}-${oneHourBefore.month.toString().padLeft(2, '0')}-${oneHourBefore.day.toString().padLeft(2, '0')} ${oneHourBefore.hour.toString().padLeft(2, '0')}";
         print(fromattedTime);
@@ -169,15 +170,16 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(var engineDbaddr, var di
           body: jsonEncode(check),
         );
         var dcCheckDb = jsonDecode(checkDb.body);
+        // print(processedResult3.keys.first);
         var checkVal = dcCheckDb['results'][0]['resultSet'][0]['count'];
         print(checkVal);
         if (checkVal == 0) {
-          for (int i = 1; i <= rowDb2.length; i++) {
+          for (int i = 0; i < rowDb2.length; i++) {
             var uploadProcessedData = {
               'transaction': [
                 {
                   "statement": "#I_processedDB",
-                  "values": { "lot": processedResult[i], "car_type": processedResult3[i], "hour_parking": processedResult2[i], "recorded_hour": fromattedTime }
+                  "values": { "lot": processedResult[processedResult3.keys.first + i], "car_type": processedResult3[processedResult3.keys.first + i], "hour_parking": processedResult2[processedResult3.keys.first + i], "recorded_hour": fromattedTime }
                 }
               ]
             };
@@ -273,16 +275,18 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(var engineDbaddr, var di
           headers: headers,
           body: jsonEncode(check),
         );
+        // print(processedResult3.keys.first);
+        // processedResult3.keys.first + 
         var dcCheckDb = jsonDecode(checkDb.body);
         var checkVal = dcCheckDb['results'][0]['resultSet'][0]['count'];
-        print('processedResult3: $processedResult3');
+        // print('processedResult3: $processedResult3');
         if (checkVal == 0) {
-          for (int i = 1; i <= rowDb2.length; i++) {
+          for (int i = 0; i < rowDb2.length; i++) {
             var uploadProcessedData = {
               'transaction': [
                 {
                   "statement": "#I_PerDay",
-                  "values": { "lot": processedResult[i], "car_type": processedResult3[i], "day_parking": processedResult2[i], "fromattedTime": fromattedTime }
+                  "values": { "lot": processedResult[processedResult3.keys.first + i], "car_type": processedResult3[processedResult3.keys.first + i], "day_parking": processedResult2[processedResult3.keys.first + i], "fromattedTime": fromattedTime }
                 }
               ]
             };
@@ -370,12 +374,12 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(var engineDbaddr, var di
         var checkVal = dcCheckDb['results'][0]['resultSet'][0]['count'];
         print(processedResult3);
         if (checkVal == 0) {
-          for (int i = 1; i <= rowDb2.length; i++) {
+          for (int i = 0; i < rowDb2.length; i++) {
             var uploadProcessedData = {
               'transaction': [
                 {
                   "statement": "#I_PerMonth",
-                  "values": { "lot": processedResult[i], "car_type": processedResult3[i], "month_parking": processedResult2[i], "fromattedTime": fromattedTime }
+                  "values": { "lot": processedResult[processedResult3.keys.first + i], "car_type": processedResult3[processedResult3.keys.first + i], "month_parking": processedResult2[processedResult3.keys.first + i], "fromattedTime": fromattedTime }
                 }
               ]
             };
@@ -467,7 +471,7 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(var engineDbaddr, var di
               'transaction': [
                 {
                   "statement" : "#I_PerYear",
-                  "values": { "lot": processedResult[i], "car_type": processedResult3[i], "year_parking": processedResult2[i], "fromattedTime": fromattedTime }
+                  "values": { "lot": processedResult[processedResult3.keys.first + i], "car_type": processedResult3[processedResult3.keys.first + i], "year_parking": processedResult2[processedResult3.keys.first + i], "fromattedTime": fromattedTime }
                 }
               ]
             };
