@@ -20,6 +20,7 @@ import 'package:dotenv/dotenv.dart';
 import 'routes/statistics_cam_parking_area.dart';
 import 'data/manage_address.dart';
 import 'routes/get_resource.dart';
+import 'routes/graphData.dart';
 
 String formatDateTime(DateTime dateTime) {
   String year = dateTime.year.toString();
@@ -46,6 +47,7 @@ void main() async {
   final settingsCamParkingArea = SettingsCamParkingArea(manageAddress: manageAddress);
   final multipleElectricSigns = MultipleElectricSigns(manageAddress: manageAddress);
   final getResource = GetResource(manageAddress: manageAddress);
+  final graphdata = graphData(manageAddress: manageAddress);
   final router = Router();
 
   manageAddress.displayDbAddr = env['displayDbAddr'];
@@ -64,6 +66,7 @@ void main() async {
   router.mount('/statistics/cam_parking_area', statisticsCamParkingArea.router);
   router.mount('/multiple_electric_signs', multipleElectricSigns.router);
   router.mount('/getResource', getResource.router);
+  router.mount('/graphData', graphdata.router);
 
   firstSetting(url);
   //2 Seconds Per delay - 반복 동작.
