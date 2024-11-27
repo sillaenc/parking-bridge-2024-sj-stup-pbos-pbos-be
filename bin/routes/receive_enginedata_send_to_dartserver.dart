@@ -27,7 +27,6 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(var engineDbaddr, var di
       parkingLotList.removeAt(0); // "start" 제거
       parkingLotList.sort();
       // print(parkingLotList);
-      // print(parkingLotList);
       // int id = resultSet['id'];
 
       // var timestamp = resultSet['timestamp'];
@@ -136,6 +135,7 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(var engineDbaddr, var di
         Map<dynamic, dynamic> processedResult = {};
 
         for (var item in rowDb) {
+          // print(item['lot']);
           int tag = item['lot'];
           var value = item['isParked'];
           processedResult2[tag] = processedResult2[tag] ?? false;
@@ -153,6 +153,7 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(var engineDbaddr, var di
           processedResult[lot] = item['uid'];
         }
         // print(rowDb2);
+        
         DateTime oneHourBefore = now.subtract(Duration(hours: 1));
         String fromattedTime ="${oneHourBefore.year.toString().padLeft(4, '0')}-${oneHourBefore.month.toString().padLeft(2, '0')}-${oneHourBefore.day.toString().padLeft(2, '0')} ${oneHourBefore.hour.toString().padLeft(2, '0')}";
         print(fromattedTime);
