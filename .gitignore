@@ -200,3 +200,5 @@ file/
 
 *.bat
 *.exe
+
+/backup
