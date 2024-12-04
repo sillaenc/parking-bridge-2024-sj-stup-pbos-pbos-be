@@ -2,7 +2,8 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 
-Future<List<dynamic>> receiveEnginedataSendToDartserver(var engineDbaddr, var displayDbAddr, DateTime check) async {
+Future<List<dynamic>> receiveEnginedataSendToDartserver(
+    var engineDbaddr, var displayDbAddr, DateTime check) async {
   print('Sending data to server at: ${DateTime.now()}');
   try {
     String url = engineDbaddr;
@@ -21,23 +22,22 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(var engineDbaddr, var di
     if (response.statusCode == 200) {
       var responseData = jsonDecode(response.body);
       var resultSet = responseData['results'][0]['resultSet'][0];
-      // print(resultSet);
+
       var parkingLot = resultSet['parking_lot'];
       var parkingLotList = parkingLot.split(',');
       parkingLotList.removeAt(0); // "start" 제거
       parkingLotList.sort();
-      // print(parkingLotList);
-      // int id = resultSet['id'];
 
-      // var timestamp = resultSet['timestamp'];
-      // var parkinglot = resultSet['parking_lot'];
-      // print(parkinglot);
       String url2 = displayDbAddr;
       var raw = {
         "transaction": [
           {
             "statement": "#I_Rawdata",
-            "values": { "id": resultSet['id'], "timestamp": resultSet['timestamp'], "parking_lot": resultSet['parking_lot'] }
+            "values": {
+              "id": resultSet['id'],
+              "timestamp": resultSet['timestamp'],
+              "parking_lot": resultSet['parking_lot']
+            }
           }
         ]
       };
@@ -46,6 +46,7 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(var engineDbaddr, var di
         headers: headers,
         body: jsonEncode(raw),
       );
+
       var body2 = {
         "transaction": [
           {"query": "#S_TbLots"}
@@ -58,6 +59,7 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(var engineDbaddr, var di
       );
       var responseData2 = jsonDecode(response2.body);
       var resultSet2 = responseData2['results'][0]['resultSet'];
+
       for (var lot in resultSet2) {
         var tag = lot["tag"];
         if (parkingLotList.contains(tag)) {
@@ -68,156 +70,59 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(var engineDbaddr, var di
       }
 
       DateTime now = DateTime.now();
-      DateTime checks = check.subtract(Duration(seconds: 10));
-      int hour = checks.hour;
-      int day = checks.day;
-      int month = checks.month;
-      int year = checks.year;
-      // String strDay = DateFormat('yyyy-M-dd').format(check);
-      DateTime onedayBefore = now.subtract(Duration(days: 1));
-      String strDay = DateFormat('yyyy-MM-dd').format(onedayBefore);
-      String strMonth = DateFormat('yyyy-MM').format(onedayBefore);
-      String strYear = DateFormat('yyyy').format(onedayBefore);
-      // print('12초빼기 : $checks');
-      // print('지금 시각 : $now');
-      for (int i = 0; i < resultSet2.length; i++) {
-        String url = displayDbAddr;
+
+      int currentHour = now.hour;
+      int currentMinute = now.minute;
+      int currentSecond = now.second;
+      int currentDay = now.day;
+      int currentMonth = now.month;
+      int currentYear = now.year;
+
+      DateTime oneHourBefore = now.subtract(Duration(hours: 1));
+      DateTime oneDayBefore = now.subtract(Duration(days: 1));
+      DateTime oneMonthBefore = DateTime(now.year, now.month - 1, now.day);
+      DateTime oneYearBefore = DateTime(now.year - 1, now.month, now.day);
+
+      String formattedHour = DateFormat('yyyy-MM-dd HH').format(oneHourBefore);
+      String formattedDay = DateFormat('yyyy-MM-dd').format(oneDayBefore);
+      String formattedMonth = DateFormat('yyyy-MM').format(oneMonthBefore);
+      String formattedYear = DateFormat('yyyy').format(oneYearBefore);
+
+      // 각 주차장 상태 업데이트 및 RawData 저장
+      for (var lot in resultSet2) {
         var body3 = {
           "transaction": [
             {
               "statement": "#U_TbLots",
-              "values": { "isUsed": resultSet2[i]['isUsed'], "tag": resultSet2[i]['tag'] }
+              "values": {"isUsed": lot['isUsed'], "tag": lot['tag']}
             },
             {
               "statement": "#I_TbLotStatus",
-              "values": { "lot": resultSet2[i]['uid'], "isParked": resultSet2[i]['isUsed'], "added": resultSet['timestamp'] }
+              "values": {
+                "lot": lot['uid'],
+                "isParked": lot['isUsed'],
+                "added": resultSet['timestamp']
+              }
             }
           ]
         };
         await http.post(
-          Uri.parse(url),
+          Uri.parse(url2),
           headers: headers,
           body: jsonEncode(body3),
         );
       }
 
-      //2초 -> 1시간 단위로 db를 뽑아내는 코드
-      // if (1 ==1) {
-      if (hour != now.hour) {
+      // HTTP 클라이언트 생성
+      var client = http.Client();
+
+      // **시간별 통계 처리 (매시간 0분 0초)**
+      if (currentMinute == 0 && currentSecond == 0) {
         var rowStatus = {
           'transaction': [
             {"query": "#S_TbLotStatus"}
           ]
         };
-        var rowResponse = await http.post(
-          Uri.parse(url2),
-          headers: headers,
-          body: jsonEncode(rowStatus),
-        );
-        var rowResult = jsonDecode(rowResponse.body);
-        var rowDb = rowResult['results'][0]['resultSet'];
-
-        var rowLot = {
-          'transaction': [
-            {"query": "#S_TbLots"}
-          ]
-        };
-        var rowResponse2 = await http.post(
-          Uri.parse(url2),
-          headers: headers,
-          body: jsonEncode(rowLot),
-        );
-        var rowResult2 = jsonDecode(rowResponse2.body);
-        var rowDb2 = rowResult2['results'][0]['resultSet'];
-
-        Map<dynamic, dynamic> processedResult2 = {};
-        Map<dynamic, dynamic> processedResult3 = {};
-        Map<dynamic, dynamic> processedResult = {};
-
-        for (var item in rowDb) {
-          // print(item['lot']);
-          int tag = item['lot'];
-          var value = item['isParked'];
-          processedResult2[tag] = processedResult2[tag] ?? false;
-          if (value == 1) {
-            processedResult2[tag] = true;
-          }
-        }
-
-        for (var item in rowDb2) {
-          int tag = item['uid'];
-          int lot = item['uid'];
-          // print('$item : $tag, $lot');
-          processedResult3[tag] = item['lot_type'];
-          processedResult[lot] = processedResult[lot] ?? 0;
-          processedResult[lot] = item['uid'];
-        }
-        // print(rowDb2);
-        
-        DateTime oneHourBefore = now.subtract(Duration(hours: 1));
-        String fromattedTime ="${oneHourBefore.year.toString().padLeft(4, '0')}-${oneHourBefore.month.toString().padLeft(2, '0')}-${oneHourBefore.day.toString().padLeft(2, '0')} ${oneHourBefore.hour.toString().padLeft(2, '0')}";
-        print(fromattedTime);
-        var check = {
-          'transaction': [
-            {
-              "query": "#S_CountProcessedDb",
-              "values": {"time": fromattedTime}
-            }
-          ]
-        };
-        var checkDb = await http.post(
-          Uri.parse(url2),
-          headers: headers,
-          body: jsonEncode(check),
-        );
-        var dcCheckDb = jsonDecode(checkDb.body);
-        // print(processedResult3.keys.first);
-        var checkVal = dcCheckDb['results'][0]['resultSet'][0]['count'];
-        print(checkVal);
-        if (checkVal == 0) {
-          for (int i = 0; i < rowDb2.length; i++) {
-            var uploadProcessedData = {
-              'transaction': [
-                {
-                  "statement": "#I_processedDB",
-                  "values": { "lot": processedResult[processedResult3.keys.first + i], "car_type": processedResult3[processedResult3.keys.first + i], "hour_parking": processedResult2[processedResult3.keys.first + i], "recorded_hour": fromattedTime }
-                }
-              ]
-            };
-            await http.post(
-              Uri.parse(url2),
-              headers: headers,
-              body: jsonEncode(uploadProcessedData),
-            );
-          }
-        }
-
-        var deleteRawData = {
-          'transaction': [
-            {"statement": "#D_TbLotStatus"}
-          ]
-        };
-        await http.post(
-          Uri.parse(url2),
-          headers: headers,
-          body: jsonEncode(deleteRawData),
-        );
-      }
-
-      //1시간 -> 하루 단위로 db를 뽑아내는 코드
-      // if (1 == 1) {
-      //now.subtract(Duration(days: 1))
-      if (day != now.day) {
-        var rowStatus = {
-          'transaction': [
-            {
-              "query": "#S_ProcessedDB",
-              "values": {'checkdate': '$strDay%'}
-            }
-          ]
-        };
-        var client = http.Client();
-
         var rowResponse = await client.post(
           Uri.parse(url2),
           headers: headers,
@@ -225,7 +130,7 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(var engineDbaddr, var di
         );
         var rowResult = jsonDecode(rowResponse.body);
         var rowDb = rowResult['results'][0]['resultSet'];
-        // print(rowDb);
+
         var rowLot = {
           'transaction': [
             {"query": "#S_TbLots"}
@@ -238,36 +143,31 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(var engineDbaddr, var di
         );
         var rowResult2 = jsonDecode(rowResponse2.body);
         var rowDb2 = rowResult2['results'][0]['resultSet'];
+
         Map<dynamic, dynamic> processedResult2 = {};
+        Map<dynamic, dynamic> processedResult3 = {};
         Map<dynamic, dynamic> processedResult = {};
+
         for (var item in rowDb) {
           int tag = item['lot'];
-          int lot = item['lot'];
-          var value = item['hour_parking'];
+          var value = item['isParked'];
           processedResult2[tag] = processedResult2[tag] ?? false;
           if (value == 1) {
             processedResult2[tag] = true;
           }
-          // else if (value == 0) {
-          //   processedResult2[tag] = false;
-          // }이거 주석인 이유는. 한번이라도 찬 경우는 1로 보기 때문에 0이 아닌 1로 변환함
-          processedResult[lot] = processedResult[lot] ?? 0;
-          processedResult[lot] = item['lot'];
         }
 
-        Map<dynamic, dynamic> processedResult3 = {};
         for (var item in rowDb2) {
           int tag = item['uid'];
           processedResult3[tag] = item['lot_type'];
+          processedResult[tag] = item['uid'];
         }
 
-        DateTime oneDayBefore = now.subtract(Duration(days: 1));
-        String fromattedTime = "${oneDayBefore.year.toString().padLeft(4, '0')}-${oneDayBefore.month.toString().padLeft(2, '0')}-${oneDayBefore.day.toString().padLeft(2, '0')}";
         var check = {
           'transaction': [
             {
-              "query": "#S_CountRecordedDay",
-              "values": {"time": fromattedTime}
+              "query": "#S_CountProcessedDb",
+              "values": {"time": formattedHour}
             }
           ]
         };
@@ -276,18 +176,20 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(var engineDbaddr, var di
           headers: headers,
           body: jsonEncode(check),
         );
-        // print(processedResult3.keys.first);
-        // processedResult3.keys.first + 
         var dcCheckDb = jsonDecode(checkDb.body);
         var checkVal = dcCheckDb['results'][0]['resultSet'][0]['count'];
-        // print('processedResult3: $processedResult3');
         if (checkVal == 0) {
-          for (int i = 0; i < rowDb2.length; i++) {
+          for (var key in processedResult.keys) {
             var uploadProcessedData = {
               'transaction': [
                 {
-                  "statement": "#I_PerDay",
-                  "values": { "lot": processedResult[processedResult3.keys.first + i], "car_type": processedResult3[processedResult3.keys.first + i], "day_parking": processedResult2[processedResult3.keys.first + i], "fromattedTime": fromattedTime }
+                  "statement": "#I_processedDB",
+                  "values": {
+                    "lot": processedResult[key],
+                    "car_type": processedResult3[key],
+                    "hour_parking": processedResult2[key],
+                    "recorded_hour": formattedHour
+                  }
                 }
               ]
             };
@@ -298,22 +200,29 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(var engineDbaddr, var di
             );
           }
         }
-        client.close();
+
+        var deleteRawData = {
+          'transaction': [
+            {"statement": "#D_TbLotStatus"}
+          ]
+        };
+        await client.post(
+          Uri.parse(url2),
+          headers: headers,
+          body: jsonEncode(deleteRawData),
+        );
       }
 
-      //하루 -> 월 단위로 db를 뽑아내는 코드
-      // if (1 == 1) {
-      if (month != now.month) {
+      // **일별 통계 처리 (매일 1시 0분 0초)**
+      if (currentHour == 1 && currentMinute == 0 && currentSecond == 30) {
         var rowStatus = {
           'transaction': [
             {
-              "query": "#S_PerDay",
-              "values": {'checkdate': '$strMonth%'}
+              "query": "#S_ProcessedDB",
+              "values": {'checkdate': '$formattedDay%'}
             }
           ]
         };
-        var client = http.Client();
-
         var rowResponse = await client.post(
           Uri.parse(url2),
           headers: headers,
@@ -321,7 +230,96 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(var engineDbaddr, var di
         );
         var rowResult = jsonDecode(rowResponse.body);
         var rowDb = rowResult['results'][0]['resultSet'];
-        // print(rowDb);
+
+        var rowLot = {
+          'transaction': [
+            {"query": "#S_TbLots"}
+          ]
+        };
+        var rowResponse2 = await client.post(
+          Uri.parse(url2),
+          headers: headers,
+          body: jsonEncode(rowLot),
+        );
+        var rowResult2 = jsonDecode(rowResponse2.body);
+        var rowDb2 = rowResult2['results'][0]['resultSet'];
+
+        Map<dynamic, dynamic> processedResult2 = {};
+        Map<dynamic, dynamic> processedResult = {};
+        for (var item in rowDb) {
+          int tag = item['lot'];
+          int lot = item['lot'];
+          var value = item['hour_parking'];
+          processedResult2[tag] = processedResult2[tag] ?? false;
+          if (value == 1) {
+            processedResult2[tag] = true;
+          }
+          processedResult[lot] = item['lot'];
+        }
+
+        Map<dynamic, dynamic> processedResult3 = {};
+        for (var item in rowDb2) {
+          int tag = item['uid'];
+          processedResult3[tag] = item['lot_type'];
+        }
+
+        var check = {
+          'transaction': [
+            {
+              "query": "#S_CountRecordedDay",
+              "values": {"time": formattedDay}
+            }
+          ]
+        };
+        var checkDb = await client.post(
+          Uri.parse(url2),
+          headers: headers,
+          body: jsonEncode(check),
+        );
+        var dcCheckDb = jsonDecode(checkDb.body);
+        var checkVal = dcCheckDb['results'][0]['resultSet'][0]['count'];
+        if (checkVal == 0) {
+          for (var key in processedResult.keys) {
+            var uploadProcessedData = {
+              'transaction': [
+                {
+                  "statement": "#I_PerDay",
+                  "values": {
+                    "lot": processedResult[key],
+                    "car_type": processedResult3[key],
+                    "day_parking": processedResult2[key],
+                    "fromattedTime": formattedDay
+                  }
+                }
+              ]
+            };
+            await client.post(
+              Uri.parse(url2),
+              headers: headers,
+              body: jsonEncode(uploadProcessedData),
+            );
+          }
+        }
+      }
+
+      // **월별 통계 처리 (매월 2일 0시 0분 0초)**
+      if (currentDay == 1 && currentHour == 0 && currentMinute == 0 && currentSecond == 43) {
+        var rowStatus = {
+          'transaction': [
+            {
+              "query": "#S_PerDay",
+              "values": {'checkdate': '$formattedMonth%'}
+            }
+          ]
+        };
+        var rowResponse = await client.post(
+          Uri.parse(url2),
+          headers: headers,
+          body: jsonEncode(rowStatus),
+        );
+        var rowResult = jsonDecode(rowResponse.body);
+        var rowDb = rowResult['results'][0]['resultSet'];
+
         var rowLot = {
           'transaction': [
             {"query": "#S_TbLots"}
@@ -345,7 +343,6 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(var engineDbaddr, var di
           if (value == 1) {
             processedResult2[tag] = true;
           }
-          processedResult[lot] = processedResult[lot] ?? 0;
           processedResult[lot] = item['lot'];
         }
 
@@ -355,14 +352,11 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(var engineDbaddr, var di
           processedResult3[tag] = item['lot_type'];
         }
 
-        // DateTime oneHourBefore = now.subtract(Duration(days: 30));
-        DateTime oneMonthAgo = DateTime(now.year, now.month - 1, now.day); // 한 달 전 날짜
-        String fromattedTime = "${oneMonthAgo.year}-${oneMonthAgo.month.toString().padLeft(2, '0')}";
         var check = {
           'transaction': [
             {
               "query": "#S_CountPerMonth",
-              "values": {"time": fromattedTime}
+              "values": {"time": formattedMonth}
             }
           ]
         };
@@ -373,14 +367,18 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(var engineDbaddr, var di
         );
         var dcCheckDb = jsonDecode(checkDb.body);
         var checkVal = dcCheckDb['results'][0]['resultSet'][0]['count'];
-        print(processedResult3);
         if (checkVal == 0) {
-          for (int i = 0; i < rowDb2.length; i++) {
+          for (var key in processedResult.keys) {
             var uploadProcessedData = {
               'transaction': [
                 {
                   "statement": "#I_PerMonth",
-                  "values": { "lot": processedResult[processedResult3.keys.first + i], "car_type": processedResult3[processedResult3.keys.first + i], "month_parking": processedResult2[processedResult3.keys.first + i], "fromattedTime": fromattedTime }
+                  "values": {
+                    "lot": processedResult[key],
+                    "car_type": processedResult3[key],
+                    "month_parking": processedResult2[key],
+                    "fromattedTime": formattedMonth
+                  }
                 }
               ]
             };
@@ -391,22 +389,18 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(var engineDbaddr, var di
             );
           }
         }
-        client.close();
       }
 
-      // 월 -> 연 단위로 db를 뽑아내는 코드
-      if (year != now.year) {
-      // if (1 == 1) {
+      // **연간 통계 처리 (매년 1월 1일 0시 0분 0초)**
+      if (currentMonth == 1 && currentDay == 1 && currentHour == 0 && currentMinute == 0 && currentSecond == 55) {
         var rowStatus = {
           'transaction': [
             {
               "query": "#S_PerMonth",
-              "values": {'checkdate': '$strYear%'}
+              "values": {'checkdate': '$formattedYear%'}
             }
           ]
         };
-        var client = http.Client();
-
         var rowResponse = await client.post(
           Uri.parse(url2),
           headers: headers,
@@ -414,7 +408,6 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(var engineDbaddr, var di
         );
         var rowResult = jsonDecode(rowResponse.body);
         var rowDb = rowResult['results'][0]['resultSet'];
-        // print(rowDb);
         var rowLot = {
           'transaction': [
             {"query": "#S_TbLots"}
@@ -438,23 +431,18 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(var engineDbaddr, var di
           if (value == 1) {
             processedResult2[tag] = true;
           }
-          processedResult[lot] = processedResult[lot] ?? 0;
           processedResult[lot] = item['lot'];
         }
-
         Map<dynamic, dynamic> processedResult3 = {};
         for (var item in rowDb2) {
           int tag = item['uid'];
           processedResult3[tag] = item['lot_type'];
-        } 
-        
-        String fromattedTime = "${now.year - 1}";
-        print(fromattedTime);
+        }
         var check = {
           'transaction': [
             {
               "query": "#S_CountPerYear",
-              "values": {"time": fromattedTime}
+              "values": {"time": formattedYear}
             }
           ]
         };
@@ -465,14 +453,18 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(var engineDbaddr, var di
         );
         var dcCheckDb = jsonDecode(checkDb.body);
         var checkVal = dcCheckDb['results'][0]['resultSet'][0]['count'];
-        print(processedResult3);
         if (checkVal == 0) {
-          for (int i = 1; i <= rowDb2.length; i++) {
+          for (var key in processedResult.keys) {
             var uploadProcessedData = {
               'transaction': [
                 {
-                  "statement" : "#I_PerYear",
-                  "values": { "lot": processedResult[processedResult3.keys.first + i], "car_type": processedResult3[processedResult3.keys.first + i], "year_parking": processedResult2[processedResult3.keys.first + i], "fromattedTime": fromattedTime }
+                  "statement": "#I_PerYear",
+                  "values": {
+                    "lot": processedResult[key],
+                    "car_type": processedResult3[key],
+                    "year_parking": processedResult2[key],
+                    "fromattedTime": formattedYear
+                  }
                 }
               ]
             };
@@ -483,12 +475,12 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(var engineDbaddr, var di
             );
           }
         }
-        client.close();
       }
+      client.close();
       return parkingLotList;
-      //return to Main.dart and send that to client
     } else {
-      print('Failed to send data to server. Status code: ${response.statusCode}');
+      print(
+          'Failed to send data to server. Status code: ${response.statusCode}');
     }
   } catch (e) {
     print('Error occurred while sending data to server: $e');
