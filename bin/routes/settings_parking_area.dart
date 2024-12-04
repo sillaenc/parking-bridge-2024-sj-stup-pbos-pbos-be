@@ -235,6 +235,28 @@ class SettingsParkingArea {
       }
     });
 
+    router.post('/ChangeLotType', (Request request) async{
+      var requestBody = await request.readAsString();
+      var requestData = jsonDecode(requestBody);
+      // print(requestData);
+      int lotType = requestData['lot_type'];
+      String point = requestData['point'];
+      var body = {
+          "transaction": [
+            {
+              "statement": "#U_LotType",
+              "values": {"lot": point, "lot_type": lotType}
+            },
+          ]
+        };
+        await http.post(
+          Uri.parse(url!),
+          headers: header,
+          body: jsonEncode(body),
+        );
+
+
+    });
     return router;
   }
 }
