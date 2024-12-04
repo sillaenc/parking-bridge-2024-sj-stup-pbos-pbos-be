@@ -5,13 +5,13 @@ import 'package:http/http.dart' as http;
 
 import '../data/manage_address.dart';
 
-//사용자 관리 setting backend part.
-// 사용자 관리 설정
-// 사용자 생성 기능(기존 활용 가능)
-// password new_password 형식으로 update함.(기존 활용 가능)
-// username update하는 기능
-// userlevel, isActivated update하는 기능.
-// 마지막으로 시작할때, tb_users 전부 response하게 하자.
+/// 사용자 관리 setting backend part.
+/// 사용자 관리 설정
+/// 사용자 생성 기능(기존 활용 가능)
+/// password new_password 형식으로 update함.(기존 활용 가능)
+/// username update하는 기능
+/// userlevel, isActivated update하는 기능.
+/// 마지막으로 시작할때, tb_users 전부 response하게 하자.
 class SettingsCamParkingArea {
   final ManageAddress manageAddress;
   SettingsCamParkingArea({required this.manageAddress});
