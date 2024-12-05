@@ -240,22 +240,22 @@ class SettingsParkingArea {
       var requestData = jsonDecode(requestBody);
       // print(requestData);
       int lotType = requestData['lot_type'];
-      String point = requestData['point'];
+      String changedTag = requestData['changed_tag'];
+      String tag = requestData['tag'];
       var body = {
-          "transaction": [
-            {
-              "statement": "#U_LotType",
-              "values": {"lot": point, "lot_type": lotType}
-            },
-          ]
-        };
-        await http.post(
+        "transaction": [
+          {
+            "statement": "#U_LotType",
+            "values": {"changed_tag": changedTag, "tag":tag, "lot_type": lotType}
+          },
+        ]
+      };
+      await http.post(
           Uri.parse(url!),
           headers: header,
           body: jsonEncode(body),
-        );
-
-
+      );
+      return Response.ok("차종 변경완료");
     });
     return router;
   }
