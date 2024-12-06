@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:shelf/shelf.dart';
 import 'package:shelf_router/shelf_router.dart';
 import 'package:http/http.dart' as http;
-
+import 'package:crypto/crypto.dart';
 import '../data/manage_address.dart';
 
 //사용자 관리 setting backend part.
@@ -118,6 +118,8 @@ class SettingsAccount {
         if(passwd != passwdCheck){
           return Response.badRequest();
         }
+        String newfirstHash = sha256.convert(utf8.encode(newpasswd)).toString();
+        String newsecondHash = sha256.convert(utf8.encode(newfirstHash)).toString(); 
         var passwdcheck ={"transaction": [
             {
               "query": "#S_UserCheck",
@@ -137,14 +139,14 @@ class SettingsAccount {
         print(newpasswd);
         if(pwcorrectcheck.isEmpty){
           return Response.unauthorized("id가 없다고 뜸. 오류 발생. 앱에서는 생기면 안되는 문제");
-        }else if(pwcorrectcheck["passwd"] == newpasswd){
+        }else if(pwcorrectcheck["passwd"] == newsecondHash){
           return Response.unauthorized("기존 비밀번호와 새 비밀번호가 동일합니다.");
         }else{
           var body = {
             "transaction": [
               {
                 "statement": "#U_ChangePassword",
-                "values": {"passwd": newpasswd, "account": account}
+                "values": {"passwd": newsecondHash, "account": account}
               },
             ]
           };
@@ -173,7 +175,9 @@ class SettingsAccount {
         // print(requestData);
         var account = requestData['account'];
         var newpasswd = "0000";
-
+        String firstHash = sha256.convert(utf8.encode(newpasswd)).toString();
+        String secondHash = sha256.convert(utf8.encode(firstHash)).toString();
+        
         var passwdcheck ={"transaction": [
             {
               "query": "#S_UserCheck",
@@ -198,7 +202,7 @@ class SettingsAccount {
             "transaction": [
               {
                 "statement": "#U_ChangePassword",
-                "values": {"passwd": newpasswd, "account": account}
+                "values": {"passwd": secondHash, "account": account}
               },
             ]
           };
@@ -231,6 +235,9 @@ class SettingsAccount {
         var username = requestData['username'];
         int userlevel = requestData['userlevel'];
         int isActivated = requestData['isActivated'];
+        String firstHash = sha256.convert(utf8.encode(passwdCheck)).toString();
+        String secondHash = sha256.convert(utf8.encode(firstHash)).toString();
+        
         var passwdcheck ={"transaction": [
             {
               "query": "#S_UserCheck",
@@ -252,7 +259,7 @@ class SettingsAccount {
               "transaction": [
                 { 
                   "statement": "#I_UserAdd",
-                  "values": {"account": account ,"passwd": passwdCheck, "username": username, "userlevel": userlevel, "isActivated": isActivated }
+                  "values": {"account": account ,"passwd": secondHash, "username": username, "userlevel": userlevel, "isActivated": isActivated }
                 },
               ]
             };
@@ -282,7 +289,8 @@ class SettingsAccount {
         var requestData = jsonDecode(requestBody);
         var account = requestData['account'];
         var passwd = requestData['passwd'];
-
+        String firstHash = sha256.convert(utf8.encode(passwd)).toString();
+        String secondHash = sha256.convert(utf8.encode(firstHash)).toString();
         var passwdcheck ={"transaction": [
             {
               "query": "#S_TbNowUsers",
@@ -298,7 +306,7 @@ class SettingsAccount {
         var dcpwcoreect = jsonDecode(pwcorrect.body);
         var pwcorrectcheck = dcpwcoreect['results'][0]['resultSet'][0];
         print(pwcorrectcheck);
-        if(passwd != pwcorrectcheck['passwd']){
+        if(secondHash != pwcorrectcheck['passwd']){
           return Response.unauthorized("password wrong");
         }//비번 통과해야지 아래 코드가 실행가능.
         var body = {

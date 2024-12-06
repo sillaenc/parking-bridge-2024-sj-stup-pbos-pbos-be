@@ -257,6 +257,36 @@ class SettingsParkingArea {
       );
       return Response.ok("차종 변경완료");
     });
+
+    router.post('/ChangeParked', (Request request) async{
+      try{
+        var requestBody = await request.readAsString();
+        var requestData = jsonDecode(requestBody);
+        // print(requestData);
+        bool parked = requestData['parked'];
+        String tag = requestData['tag'];
+        var body = {
+          "transaction": [
+            {
+              "statement": "#U_Parked",
+              "values": {"parked": parked, "tag":tag}
+            },
+          ]
+        };
+        await http.post(
+            Uri.parse(url!),
+            headers: header,
+            body: jsonEncode(body),
+        );
+        return Response.ok("사용여부 변경완료");
+      }catch (e, stacktrace) {
+        print('에러 발생 - /ChangeParked: $e');
+        print('스택 트레이스: $stacktrace');
+        return Response.internalServerError(body: '/ChangeParked 서버 오류로 실패');
+      } finally {
+        print('/ChangeParked 요청 처리 완료');
+      }
+    });
     return router;
   }
 }
