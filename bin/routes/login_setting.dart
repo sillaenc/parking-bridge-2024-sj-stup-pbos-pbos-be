@@ -4,6 +4,7 @@ import 'package:shelf_router/shelf_router.dart';
 import 'package:http/http.dart' as http;
 import '../routes/confirm_account_list.dart';
 import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
+import 'package:crypto/crypto.dart';
 
 const String _secretKey = 'secret_key_hahaha_bjs';
 
@@ -25,9 +26,11 @@ class LoginSetting {
       var loginCheck = 0;
       var account = loginData['account'];
       var passwd = loginData['passwd'];
-      
-      var loginDataResult = reqLogin(account, passwd, url);
-      var loginDataResult2 = reqLogin2(account, passwd, url);
+      String firstHash = sha256.convert(utf8.encode(passwd)).toString();
+      String secondHash = sha256.convert(utf8.encode(firstHash)).toString();
+
+      var loginDataResult = reqLogin(account, secondHash, url);
+      var loginDataResult2 = reqLogin2(account, secondHash, url);
       var responseLogin = await loginDataResult;
       var responseLogin2 = await loginDataResult2;
       var responseLoginData = jsonDecode(responseLogin.body);
@@ -37,7 +40,7 @@ class LoginSetting {
       for (var entry in resultSet4) {
         if (entry['account'] == account) {
           loginCheck = 1;
-          if (entry['passwd'] == passwd) {
+          if (entry['passwd'] == secondHash) {
             loginCheck = 2;
             token = createJwt(account, 1);
             print('Generated Token: $token');

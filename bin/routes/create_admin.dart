@@ -1,11 +1,10 @@
 // bin/routes/create_admin.dart
 
 import 'dart:convert';
-import 'package:drift/drift.dart';
 import 'package:shelf/shelf.dart';
 import 'package:shelf_router/shelf_router.dart';
 import 'package:http/http.dart' as http;
-
+import 'package:crypto/crypto.dart';//암호화 라이브러리, 이걸로 
 import 'dart:async'; // 타이머 사용을 위한 import 문 추가 // json 파일
 
 import '../routes/confirm_account_list.dart';
@@ -28,7 +27,8 @@ class CreateAdmin {
         var account = requestData['account'];
         var username = requestData['username'];
         var passwd = requestData['passwd'];
-
+        String firstHash = sha256.convert(utf8.encode(passwd)).toString();
+        String secondHash = sha256.convert(utf8.encode(firstHash)).toString();
         var rowLot = {
           'transaction': [
             {"query": "#S_userList"}
@@ -49,7 +49,7 @@ class CreateAdmin {
             return Response.forbidden('id 중복났숑');
           }
         }
-        var responseFuture = reqAccInfo(account, passwd, username, confirmAccountList.manageAddress.displayDbAddr);
+        var responseFuture = reqAccInfo(account, secondHash, username, confirmAccountList.manageAddress.displayDbAddr);
         var response = await responseFuture;
 
         if (response.statusCode == 200) {
