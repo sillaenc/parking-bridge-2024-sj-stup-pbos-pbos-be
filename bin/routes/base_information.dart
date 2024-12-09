@@ -73,6 +73,31 @@ class BaseInformation {
         );
       }
     });
+    router.get('/get', (Request request) async {
+      try{
+        var headers = {'Content-Type': 'application/json'};
+        var body = {
+          "transaction": [
+            {
+              "query": "#get_information"
+            }
+          ]
+        };
+        var responses = await http.post(
+          Uri.parse(url!),
+          headers: headers,
+          body: jsonEncode(body),
+        );
+        var rowResult = jsonDecode(responses.body);
+        var rowDb = rowResult['results'][0]['resultSet'][0];
+        var returndb = jsonEncode(rowDb);
+        return Response.ok(returndb);
+      }catch (e, stacktrace){
+        print('Exception occurred: $e');
+        print('Stacktrace: $stacktrace');
+        return Response.internalServerError(body: 'Internal Server Error: $e');
+      }
+    });
     return router;
   }
 }
