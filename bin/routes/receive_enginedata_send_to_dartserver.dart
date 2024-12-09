@@ -191,16 +191,6 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(var engineDbaddr, var di
           }
         }
 
-        var deleteRawData = {
-          'transaction': [
-            {"statement": "#D_TbLotStatus"}
-          ]
-        };
-        await http.post(
-          Uri.parse(url2),
-          headers: headers,
-          body: jsonEncode(deleteRawData),
-        );
       }
 
       //1시간 -> 하루 단위로 db를 뽑아내는 코드
@@ -297,6 +287,16 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(var engineDbaddr, var di
             );
           }
         }
+        var deleteRawData = {
+          'transaction': [
+            {"statement": "#D_TbLotStatus"}
+          ]
+        };
+        await http.post(
+          Uri.parse(url2),
+          headers: headers,
+          body: jsonEncode(deleteRawData),
+        );
         client.close();
       }
 
