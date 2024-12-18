@@ -91,7 +91,32 @@ class BaseInformation {
         var rowResult = jsonDecode(responses.body);
         var rowDb = rowResult['results'][0]['resultSet'][0];
         var returndb = jsonEncode(rowDb);
-        return Response.ok(returndb);
+        var body3 = { "transaction": [
+          { "query": "#allParkingLot" }
+        ]};
+        var all = await http.post(
+          Uri.parse(url),
+          headers: headers,
+          body: jsonEncode(body3),
+        );
+        var all2 = jsonDecode(all.body);
+        var all3 = all2['results'][0]['resultSet'];
+        var all4 = all3[0]['count'];
+
+        var body4 = { "transaction": [
+            { "query": "#usedParkingLot" }
+          ]};
+        var use = await http.post(
+          Uri.parse(url),
+          headers: headers,
+          body: jsonEncode(body4),
+        );
+        var use2 = jsonDecode(use.body);
+        var use3 = use2['results'][0]['resultSet'];
+        var use4 = use3[0]['count'];
+        var used = {"all": all4, "use": use4, "db":returndb};
+        var usedJson = jsonEncode(used);
+        return Response.ok(usedJson, headers: {'content-type': 'application/json'});
       }catch (e, stacktrace){
         print('Exception occurred: $e');
         print('Stacktrace: $stacktrace');
