@@ -1,6 +1,7 @@
 // bin/main.dart
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'package:shelf/shelf.dart';
 import 'package:shelf/shelf_io.dart';
 import 'package:shelf_router/shelf_router.dart';
@@ -32,11 +33,37 @@ String formatDateTime(DateTime dateTime) {
 
   return "$year-$month-$day $hour";
 }
+
+Future<String?> fetchEngineAddr(http.Client client, String url) async {
+  try {
+    var header = {'Content-Type': 'application/json'};
+    var body = {
+      "transaction": [
+        {"query": "#S_TbDbSetting"}
+      ]
+    };
+    var response = await client.post(
+      Uri.parse(url),
+      headers: header,
+      body: jsonEncode(body),
+    );
+
+    if (response.statusCode == 200) {
+      var engine = jsonDecode(response.body);
+      return engine['results'][0]['resultSet'][0]['engine_db_addr'];
+    } else {
+      print('Failed to fetch engine address. Status code: ${response.statusCode}');
+    }
+  } catch (e, stackTrace) {
+    print('Error fetching engine address: $e');
+    print('StackTrace: $stackTrace');
+  }
+  return null;
+}
+
 void main() async {
-  // 라우터 생성
   var env = DotEnv(includePlatformEnvironment: true)..load();
 
-  // 인스턴스는 메모리 누수의 주범. dart 같이 garbage collector가 제대로 돌아가지 않는 언어인 경우, 함부로 인스턴스 선언을 통해 메모리 누수를 유발하지 말것!! 
   final manageAddress = ManageAddress();
   final confirmAccountList = ConfirmAccountList(manageAddress: manageAddress);
   final createAdmin = CreateAdmin(confirmAccountList: confirmAccountList);
@@ -52,13 +79,13 @@ void main() async {
   final graphdata = graphData(manageAddress: manageAddress);
   final central = Central(manageAddress: manageAddress);
   final baseInformation = BaseInformation(manageAddress: manageAddress);
+
   final router = Router();
 
   manageAddress.displayDbAddr = env['displayDbAddr'];
-  String? url = env['displayDbAddr'];
-  var displayaddr = manageAddress.displayDbAddr;
+  String? url = manageAddress.displayDbAddr;
   DateTime check = DateTime.now();
-  // List enginedData;
+
   router.mount('/confirm_account_list', confirmAccountList.router);
   router.mount('/create_admin', createAdmin.router);
   router.mount('/parking_status', loginMain.router);
@@ -72,47 +99,33 @@ void main() async {
   router.mount('/getResource', getResource.router);
   router.mount('/graphData', graphdata.router);
   router.mount('/central', central.router);
-  router.mount('/base',baseInformation.router);
+  router.mount('/base', baseInformation.router);
 
   firstSetting(url);
-  //2 Seconds Per delay - 반복 동작.
+
+  // http.Client를 재사용하기 위한 인스턴스
+  final client = http.Client();
+
+  bool isProcessing = false; // 타이머 콜백 중복 실행 방지용 플래그
+  
   Timer.periodic(Duration(milliseconds: 2000), (timer) async {
-    var engineaddr;
-    try {
-      var header = {'Content-Type': 'application/json'};
-      var body = {
-        "transaction": [
-          {"query": "#S_TbDbSetting"}
-        ]
-      };
-      var response = await http.post(
-        Uri.parse(url!),
-        headers: header,
-        body: jsonEncode(body),
-      );
-      // print('response : ${response.body}');
-      var engine = jsonDecode(response.body);
-      // print('engine : $engine');
-      engineaddr = engine['results'][0]['resultSet'][0]['engine_db_addr'];
-      manageAddress.engineDbAddr = engineaddr;
-      
-    } catch (e, stackTrace) {
-      print('Error: $e');
-      print('StackTrace: $stackTrace');
+    if (isProcessing) {
+      // 이전 주기 작업이 아직 끝나지 않았다면 이번 주기 건너뛰기, 확인용!!
+      return;
     }
-
-    await receiveEnginedataSendToDartserver(engineaddr, displayaddr, check);
-    // String strRawData;
-    // List enginedData = await receiveEnginedataSendToDartserver(engineaddr, displayaddr, check);
-    // router.get('/getResource', (Request request) async {
-    //   strRawData = 'start,${enginedData.join(',')}';
-    //   return Response.ok(strRawData);
-    // });
-    // strRawData='';
-    // enginedData.clear();
-
-    DateTime now = DateTime.now();
-    check = now;
+    isProcessing = true;
+    try {
+      final engineAddr = await fetchEngineAddr(client, url!);
+      if (engineAddr != null && manageAddress.displayDbAddr != null) {
+        await receiveEnginedataSendToDartserver(engineAddr, manageAddress.displayDbAddr!, check);
+        check = DateTime.now();
+      }
+    } catch (e, stackTrace) {
+      print('Error in periodic task: $e');
+      print('StackTrace: $stackTrace');
+    } finally {
+      isProcessing = false;
+    }
   });
 
   var handler = Pipeline()
@@ -124,19 +137,25 @@ void main() async {
         'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
         'Access-Control-Allow-Headers': 'Origin, Content-Type, X-Auth-Token',
       };
-      // Handle preflight requests
       if (request.method == 'OPTIONS') {
         return Response.ok(null, headers: headers);
       }
-      // Handle other requests
       Response response = await innerHandler(request);
       return response.change(headers: headers);
     };
   }).addHandler(router);
 
-  // 서버 시작
   int? port = int.tryParse(env['PORT']!);
   print('port is $port');
   var server = await serve(handler, '0.0.0.0', port!);
   print('Serving at http://${server.address.host}:${server.port}');
+
+  // 서버 종료 시점에 client 자원 해제
+  // 이 예제에서는 서버가 무기한 동작하므로 SIGTERM 등 잡아서 종료 시 client.close() 처리 가능
+  // ProcessSignal.sigterm.watch().listen((signal) async {
+  //   print('Received $signal, closing http.Client()');
+  //   client.close();
+  //   await server.close();
+  //   exit(0);
+  // });
 }
