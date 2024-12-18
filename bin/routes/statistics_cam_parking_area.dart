@@ -175,6 +175,41 @@ class StatisticsCamParkingArea {
       }
     });
 
+    router.post('/searchgraph', (Request request) async {
+      try {
+        var requestBody = await request.readAsString();
+        var requestData = jsonDecode(requestBody);
+
+        var startDay = requestData['startDay'];
+        var endDay = requestData['endDay'];
+        var url = manageAddress.displayDbAddr;
+        startDay = '$startDay 00:00:00';
+        endDay = '$endDay 23:59:59';
+        print(startDay);
+        print(endDay);
+        var headers = {'Content-Type': 'application/json'};
+        var body = { "transaction": [
+            {"query": "#S_graph" ,
+            "values" : {'startDay': startDay , 'endDay': endDay}}
+          ]};
+        var user = await http.post(
+          Uri.parse(url!),
+          headers: headers,
+          body: jsonEncode(body),
+        );
+        var user2 = jsonDecode(user.body);
+        print(user2);
+        var resultSet = user2['results'][0]['resultSet'];
+        var user3 = jsonEncode(resultSet);
+        print("resultSet : $user3");
+        return Response.ok(user3);
+      } catch (e, stackTrace) {
+        print('Error: $e');
+        print('StackTrace: $stackTrace');
+        return Response.badRequest(body: 'Error: $e');
+      }
+    });
+
     router.get('/oneMonthAll', (Request request) async {
       String? engineurl = manageAddress.engineDbAddr;
       print(engineurl);
@@ -354,7 +389,7 @@ class StatisticsCamParkingArea {
         return Response.badRequest(body: 'Error: $e');
       }
     });
-
+  
     return router;
   }
 
