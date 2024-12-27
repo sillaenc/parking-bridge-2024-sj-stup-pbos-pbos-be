@@ -183,8 +183,8 @@ class StatisticsCamParkingArea {
         var startDay = requestData['startDay'];
         var endDay = requestData['endDay'];
         var url = manageAddress.displayDbAddr;
-        startDay = '$startDay 00:00:00';
-        endDay = '$endDay 23:59:59';
+        startDay = '$startDay 00';
+        endDay = '$endDay 23';
         print(startDay);
         print(endDay);
         var headers = {'Content-Type': 'application/json'};
