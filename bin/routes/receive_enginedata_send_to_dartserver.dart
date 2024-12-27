@@ -47,7 +47,7 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(
         parkingLotList.removeAt(0); // "start" 제거
         parkingLotList.sort();
       }
-
+      
       String url2 = displayDbAddr;
       var raw = {
         "transaction": [
