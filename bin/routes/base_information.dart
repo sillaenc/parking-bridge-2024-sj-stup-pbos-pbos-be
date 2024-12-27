@@ -21,17 +21,17 @@ class BaseInformation {
           print('Error: Request body is null or invalid JSON.');
           return Response(400, body: jsonEncode({'error': 'Invalid JSON in request body'}),  headers: {'Content-Type': 'application/json'});
         }
-        var name = requestData['account'];
-        var address = requestData['username'];
+        var name = requestData['name'];
+        var address = requestData['address'];
         var latitude = requestData['latitude'];
         var longitude = requestData['longitude'];
         var manager = requestData['manager'];
-        var phoneNumber = requestData['phoneNumber'];
+        var phoneNumber = requestData['phonenumber'];
 
         // 필수 필드가 모두 존재하는지 확인
         if (name == null || address == null || latitude == null || longitude == null || manager == null || phoneNumber == null) {
           print('Error: Missing required fields in the request data.');
-          return Response( 400, body: jsonEncode({'error': 'Missing required fields'}),
+          return Response( 400, body: jsonEncode({'error': '뭐 하나 빠드려서 보냈음. 다시 확인 ㄱㄱ'}),
             headers: {'Content-Type': 'application/json'},
           );
         }
@@ -43,7 +43,7 @@ class BaseInformation {
             {
               "statement": "#base",
               "values": {
-                "name": name, "timestamp": address, "latitude": latitude, "longitude": longitude, "manager": manager, "phoneNumber": phoneNumber
+                "name": name, "address": address, "latitude": latitude, "longitude": longitude, "manager": manager, "phoneNumber": phoneNumber
               }
             }
           ]
@@ -88,9 +88,12 @@ class BaseInformation {
           headers: headers,
           body: jsonEncode(body),
         );
-        var rowResult = jsonDecode(responses.body);
+        var responseBody = utf8.decode(responses.bodyBytes);
+        var rowResult = jsonDecode(responseBody);
         var rowDb = rowResult['results'][0]['resultSet'][0];
-        var returndb = jsonEncode(rowDb);
+        var returndb = jsonEncode(rowDb); 
+        var cleanDb = jsonDecode(returndb);
+        // var returndb = jsonEncode(rowDb);
         var body3 = { "transaction": [
           { "query": "#allParkingLot" }
         ]};
@@ -114,7 +117,7 @@ class BaseInformation {
         var use2 = jsonDecode(use.body);
         var use3 = use2['results'][0]['resultSet'];
         var use4 = use3[0]['count'];
-        var used = {"all": all4, "use": use4, "db":returndb};
+        var used = {"all": all4, "use": use4, "db":cleanDb};
         var usedJson = jsonEncode(used);
         return Response.ok(usedJson, headers: {'content-type': 'application/json'});
       }catch (e, stacktrace){
