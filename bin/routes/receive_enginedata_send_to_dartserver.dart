@@ -311,16 +311,16 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(
                 body: jsonEncode(uploadProcessedData),
               );
             }
-            var deleteRawData = {
-              'transaction': [
-                {"statement": "#init_TbLotStatus"}
-              ]
-            };
-            await client.post(
-              Uri.parse(url2),
-              headers: headers,
-              body: jsonEncode(deleteRawData),
-            );
+            // var deleteRawData = {
+            //   'transaction': [
+            //     {"statement": "#init_TbLotStatus"}
+            //   ]
+            // };
+            // await client.post(
+            //   Uri.parse(url2),
+            //   headers: headers,
+            //   body: jsonEncode(deleteRawData),
+            // );
           }
         } finally {
           client.close();
