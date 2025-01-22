@@ -19,7 +19,9 @@ class BaseInformation {
         var requestData = jsonDecode(requestBody);
         if (requestData == null) {
           print('Error: Request body is null or invalid JSON.');
-          return Response(400, body: jsonEncode({'error': 'Invalid JSON in request body'}),  headers: {'Content-Type': 'application/json'});
+          return Response(400,
+              body: jsonEncode({'error': 'Invalid JSON in request body'}),
+              headers: {'Content-Type': 'application/json'});
         }
         var name = requestData['name'];
         var address = requestData['address'];
@@ -29,41 +31,70 @@ class BaseInformation {
         var phoneNumber = requestData['phonenumber'];
 
         // 필수 필드가 모두 존재하는지 확인
-        if (name == null || address == null || latitude == null || longitude == null || manager == null || phoneNumber == null) {
+        if (name == null ||
+            address == null ||
+            latitude == null ||
+            longitude == null ||
+            manager == null ||
+            phoneNumber == null) {
           print('Error: Missing required fields in the request data.');
-          return Response( 400, body: jsonEncode({'error': '뭐 하나 빠드려서 보냈음. 다시 확인 ㄱㄱ'}),
-            headers: {'Content-Type': 'application/json'},
-          );
+          return Response( 400, body: jsonEncode({'error': '뭐 하나 빠드려서 보냈음. 다시 확인 ㄱㄱ'}), headers: {'Content-Type': 'application/json'});
         }
-
+        
         // 요청 바디 구성
         var headers = {'Content-Type': 'application/json'};
-        var body = {
+        var check = {
           "transaction": [
-            {
-              "statement": "#base",
-              "values": {
-                "name": name, "address": address, "latitude": latitude, "longitude": longitude, "manager": manager, "phoneNumber": phoneNumber
-              }
-            }
+            {"query": "#checking"}
           ]
         };
-        var response = await http.post(
+        var all = await http.post(
           Uri.parse(url!),
           headers: headers,
-          body: jsonEncode(body),
+          body: jsonEncode(check),
         );
-        if (response.statusCode != 200) {
-          print('Error: /base query 실행 실패 failed with status code ${response.statusCode}.');
-          print('Response body: ${response.body}');
-          return Response(502, body: jsonEncode({'error': 'Failed to process external request'}),
+        var check2 = jsonDecode(all.body);
+        var check3 = check2['results'][0]['resultSet'];
+        var check4 = check3[0]['count'];
+        if (check4 == 0) {
+          var body = {
+            "transaction": [
+              {
+                "statement": "#base",
+                "values": {"name": name, "address": address, "latitude": latitude, "longitude": longitude, "manager": manager, "phoneNumber": phoneNumber}
+              }
+            ]
+          };
+          var responseP = await http.post(
+            Uri.parse(url),
+            headers: headers,
+            body: jsonEncode(body),
+          );
+          if (responseP.statusCode != 200) {
+            print('Error: /base query 실행 실패 failed with status code ${responseP.statusCode}.');
+            print('Response body: ${responseP.body}');
+            return Response(502, body: jsonEncode({'error': 'Failed to process external request'}), headers: {'Content-Type': 'application/json'});
+          }
+          return Response.ok(
+            jsonEncode({'message': 'Request processed successfully'}),
             headers: {'Content-Type': 'application/json'},
           );
+        } else {
+          var check = {
+            "transaction": [
+              {
+                "statement": "#get_base",
+                "values": {"name": name, "address": address, "latitude": latitude, "longitude": longitude, "manager": manager, "phoneNumber": phoneNumber}
+              }
+            ]
+          };
+          await http.post(
+            Uri.parse(url),
+            headers: headers,
+            body: jsonEncode(check),
+          );
+          return Response.ok("업데이트 완료");
         }
-        return Response.ok(
-          jsonEncode({'message': 'Request processed successfully'}),
-          headers: {'Content-Type': 'application/json'},
-        );
       } catch (e, stacktrace) {
         print('Exception occurred: $e');
         print('Stacktrace: $stacktrace');
@@ -74,13 +105,11 @@ class BaseInformation {
       }
     });
     router.get('/get', (Request request) async {
-      try{
+      try {
         var headers = {'Content-Type': 'application/json'};
         var body = {
           "transaction": [
-            {
-              "query": "#get_information"
-            }
+            {"query": "#get_information"}
           ]
         };
         var responses = await http.post(
@@ -91,12 +120,14 @@ class BaseInformation {
         var responseBody = utf8.decode(responses.bodyBytes);
         var rowResult = jsonDecode(responseBody);
         var rowDb = rowResult['results'][0]['resultSet'][0];
-        var returndb = jsonEncode(rowDb); 
+        var returndb = jsonEncode(rowDb);
         var cleanDb = jsonDecode(returndb);
         // var returndb = jsonEncode(rowDb);
-        var body3 = { "transaction": [
-          { "query": "#allParkingLot" }
-        ]};
+        var body3 = {
+          "transaction": [
+            {"query": "#allParkingLot"}
+          ]
+        };
         var all = await http.post(
           Uri.parse(url),
           headers: headers,
@@ -106,9 +137,11 @@ class BaseInformation {
         var all3 = all2['results'][0]['resultSet'];
         var all4 = all3[0]['count'];
 
-        var body4 = { "transaction": [
-            { "query": "#usedParkingLot" }
-          ]};
+        var body4 = {
+          "transaction": [
+            {"query": "#usedParkingLot"}
+          ]
+        };
         var use = await http.post(
           Uri.parse(url),
           headers: headers,
@@ -117,10 +150,11 @@ class BaseInformation {
         var use2 = jsonDecode(use.body);
         var use3 = use2['results'][0]['resultSet'];
         var use4 = use3[0]['count'];
-        var used = {"all": all4, "use": use4, "db":cleanDb};
+        var used = {"all": all4, "use": use4, "db": cleanDb};
         var usedJson = jsonEncode(used);
-        return Response.ok(usedJson, headers: {'content-type': 'application/json'});
-      }catch (e, stacktrace){
+        return Response.ok(usedJson,
+            headers: {'content-type': 'application/json'});
+      } catch (e, stacktrace) {
         print('Exception occurred: $e');
         print('Stacktrace: $stacktrace');
         return Response.internalServerError(body: 'Internal Server Error: $e');
