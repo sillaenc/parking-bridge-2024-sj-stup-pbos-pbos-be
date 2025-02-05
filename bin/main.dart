@@ -24,6 +24,7 @@ import 'routes/get_resource.dart';
 import 'routes/graphData.dart';
 import 'routes/central.dart';
 import 'routes/base_information.dart';
+import 'routes/led_cal.dart';
 
 String formatDateTime(DateTime dateTime) {
   String year = dateTime.year.toString();
@@ -79,6 +80,8 @@ void main() async {
   final graphdata = graphData(manageAddress: manageAddress);
   final central = Central(manageAddress: manageAddress);
   final baseInformation = BaseInformation(manageAddress: manageAddress);
+  final ledCal = LedCal(manageAddress: manageAddress);
+  
 
   final router = Router();
 
@@ -100,6 +103,7 @@ void main() async {
   router.mount('/graphData', graphdata.router);
   router.mount('/central', central.router);
   router.mount('/base', baseInformation.router);
+  router.mount('/led', ledCal.router);
 
   firstSetting(url);
 
