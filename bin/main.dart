@@ -25,6 +25,7 @@ import 'routes/graphData.dart';
 import 'routes/central.dart';
 import 'routes/base_information.dart';
 import 'routes/led_cal.dart';
+import 'data/db.dart';
 
 String formatDateTime(DateTime dateTime) {
   String year = dateTime.year.toString();
@@ -37,23 +38,13 @@ String formatDateTime(DateTime dateTime) {
 
 Future<String?> fetchEngineAddr(http.Client client, String url) async {
   try {
-    var header = {'Content-Type': 'application/json'};
-    var body = {
-      "transaction": [
-        {"query": "#S_TbDbSetting"}
-      ]
-    };
-    var response = await client.post(
-      Uri.parse(url),
-      headers: header,
-      body: jsonEncode(body),
-    );
-
-    if (response.statusCode == 200) {
-      var engine = jsonDecode(response.body);
-      return engine['results'][0]['resultSet'][0]['engine_db_addr'];
-    } else {
-      print('Failed to fetch engine address. Status code: ${response.statusCode}');
+    var db = await Database.getInstance();
+    var body = await db.query('S_TbDbSetting');
+    if(body.isNotEmpty){
+      var engine = body[0]['engine_db_addr'];
+      return engine;
+    }else{
+      print('Failed to fetch engine address.');
     }
   } catch (e, stackTrace) {
     print('Error fetching engine address: $e');
@@ -66,21 +57,24 @@ void main() async {
   var env = DotEnv(includePlatformEnvironment: true)..load();
 
   final manageAddress = ManageAddress();
-  final confirmAccountList = ConfirmAccountList(manageAddress: manageAddress);
+  
+  final confirmAccountList = ConfirmAccountList();
   final createAdmin = CreateAdmin(confirmAccountList: confirmAccountList);
-  final loginMain = LoginMain(manageAddress: manageAddress);
-  final loginSetting = LoginSetting(confirmAccountList: confirmAccountList);
+  final loginMain = LoginMain();
+  // LoginSetting 생성자는 이제 ManageAddress를 직접 받도록 수정됨
+  final loginSetting = LoginSetting(manageAddress: manageAddress);
   final settingsAccount = SettingsAccount(manageAddress: manageAddress);
   final statisticsCamParkingArea = StatisticsCamParkingArea(manageAddress: manageAddress);
   final settingsDbManagement = SettingsDbManagement(manageAddress: manageAddress);
   final settingsParkingArea = SettingsParkingArea(manageAddress: manageAddress);
+  // settingsCamParkingArea가 중복 선언되지 않도록 한 개만 생성
   final settingsCamParkingArea = SettingsCamParkingArea(manageAddress: manageAddress);
   final multipleElectricSigns = MultipleElectricSigns(manageAddress: manageAddress);
-  final getResource = GetResource(manageAddress: manageAddress);
-  final graphdata = graphData(manageAddress: manageAddress);
-  final central = Central(manageAddress: manageAddress);
+  final getResource = GetResource();
+  final graphData = GraphData();
+  final central = Central();
   final baseInformation = BaseInformation(manageAddress: manageAddress);
-  final ledCal = LedCal(manageAddress: manageAddress);
+  final ledCal = LedCal();
   
 
   final router = Router();
@@ -100,7 +94,7 @@ void main() async {
   router.mount('/statistics/cam_parking_area', statisticsCamParkingArea.router);
   router.mount('/multiple_electric_signs', multipleElectricSigns.router);
   router.mount('/getResource', getResource.router);
-  router.mount('/graphData', graphdata.router);
+  router.mount('/graphData', graphData.router);
   router.mount('/central', central.router);
   router.mount('/base', baseInformation.router);
   router.mount('/led', ledCal.router);

@@ -1,56 +1,41 @@
 import 'dart:convert';
 import 'package:shelf/shelf.dart';
 import 'package:shelf_router/shelf_router.dart';
-import 'package:http/http.dart' as http;
-
-import '../data/manage_address.dart';
+import '../data/db.dart';
 
 class LoginMain {
-  final ManageAddress manageAddress;
-  LoginMain({required this.manageAddress});
-
   Router get router {
     final router = Router();
-    var url = manageAddress.displayDbAddr;
-    var headers = {'Content-Type': 'application/json'};
     router.get('/', (Request request) async {
-      var body = { "transaction": [
-            {"query": "#S_Information" }
-          ]}; 
-        var user = await http.post(
-          Uri.parse(url!),
-          headers: headers,
-          body: jsonEncode(body),
-        );
-        var dcuser = jsonDecode(user.body);
-        var resultSet = dcuser['results'][0]['resultSet'];
-        // print(resultSet);
-        var info = jsonEncode(resultSet);
-      return Response.ok(info);
+      try {
+        final db = await Database.getInstance();
+        // 쿼리 키 "S_Information"로 로그인 관련 정보를 조회
+        List<Map<String, dynamic>> resultSet =
+            await db.query("S_Information");
+        return Response.ok(jsonEncode(resultSet),
+            headers: {'Content-Type': 'application/json'});
+      } catch (e, st) {
+        print('Error in LoginMain: $e');
+        return Response.internalServerError(body: 'Error in LoginMain: $e');
+      }
     });
 
     router.post('/profile', (Request request) async {
-      var requestBody = await request.readAsString();
+      try {
+        var requestBody = await request.readAsString();
         var requestData = jsonDecode(requestBody);
-
         var account = requestData['account'];
-
-        var body = {
-          "transaction": [
-            { "query": "#S_Profile",
-              "values": {"account": account }
-            },
-          ]
-        };
-        var user = await http.post(
-          Uri.parse(url!),
-          headers: headers,
-          body: jsonEncode(body),
-        );
-        var profileuser=jsonDecode(user.body);
-        var resultSet = profileuser['results'][0]['resultSet'];
-        var info = jsonEncode(resultSet);
-        return Response.ok(info);
+        final db = await Database.getInstance();
+        // 쿼리 키 "S_Profile" – 파라미터: account
+        List<Map<String, dynamic>> resultSet =
+            await db.query("S_Profile", {"account": account});
+        return Response.ok(jsonEncode(resultSet),
+            headers: {'Content-Type': 'application/json'});
+      } catch (e, st) {
+        print('Error in LoginMain profile: $e');
+        return Response.internalServerError(
+            body: 'Error in LoginMain profile: $e');
+      }
     });
 
     return router;

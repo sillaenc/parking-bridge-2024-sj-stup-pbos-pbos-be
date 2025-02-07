@@ -1,161 +1,89 @@
 import 'dart:convert';
 import 'package:shelf/shelf.dart';
 import 'package:shelf_router/shelf_router.dart';
-import 'package:http/http.dart' as http;
-
+import '../data/db.dart';
 import '../data/manage_address.dart';
 
-/// 사용자 관리 setting backend part.
-/// 사용자 관리 설정
-/// 사용자 생성 기능(기존 활용 가능)
-/// password new_password 형식으로 update함.(기존 활용 가능)
-/// username update하는 기능
-/// userlevel, isActivated update하는 기능.
-/// 마지막으로 시작할때, tb_users 전부 response하게 하자.
 class SettingsCamParkingArea {
   final ManageAddress manageAddress;
   SettingsCamParkingArea({required this.manageAddress});
+  
   Router get router {
     final router = Router();
-    String? url = manageAddress.displayDbAddr;
-    var headers = {'Content-Type': 'application/json'};
-    //base_return router
+    
+    // GET: 조회 (쿼리 키 "S_TbParkingSurface")
     router.get('/', (Request request) async {
       try {
-        //var headers = {'Content-Type': 'application/json'};
-        Map<String, dynamic> body = {
-          "transaction": [
-            {"query": "#S_TbParkingSurface"},
-          ]
-        };
-        var user = await http.post(
-          Uri.parse(url!),
-          headers: headers,
-          body: jsonEncode(body),
-        );
-        var tableMain = jsonDecode(user.body);
-        var resultSet = tableMain['results'][0]['resultSet'];
-        
-        if(tableMain==null){
+        final db = await Database.getInstance();
+        List<Map<String, dynamic>> resultSet = await db.query("S_TbParkingSurface");
+        if (resultSet == null) {
           return Response.ok('정보 없음');
         }
-        var send = jsonEncode(resultSet);
+        String send = jsonEncode(resultSet);
         print(send);
-        return Response.ok(send);
-      } catch (e, stackTrace) {
-        print('Error: $e');
-        print('StackTrace: $stackTrace');
+        return Response.ok(send, headers: {'Content-Type': 'application/json'});
+      } catch (e, st) {
+        print('Error in SettingsCamParkingArea GET: $e');
         return Response.internalServerError(body: 'Error: $e');
       }
     });
-
+    
+    // POST /updateZone: 수정 (쿼리 "S_TbParkingSurfaceTag" → get uid, then "U_TbParkingSurface")
     router.post('/updateZone', (Request request) async {
       try {
-        // 프런트의 요청의 body를 JSON 형식으로 디코딩하여 데이터 추출
-        var requestBody = await request.readAsString();
-        var requestData = jsonDecode(requestBody);
-        // print(requestData);
+        final requestBody = await request.readAsString();
+        final requestData = jsonDecode(requestBody);
         var beforetag = requestData['beforetag'];
         var tag = requestData['tag'];
         var engineCode = requestData['engine_code'];
         var uri = requestData['uri'];
-
-        var passwdcheck ={"transaction": [
-            {
-              "query": "#S_TbParkingSurfaceTag",
-              "values": {"tag": beforetag}
-            }
-          ]
-        };
-        var pwcorrect = await http.post(
-          Uri.parse(url!),
-          headers: headers,
-          body: jsonEncode(passwdcheck),
-        );
-        // print(pwcorrect.body);
-        var dcpwcoreect = jsonDecode(pwcorrect.body);
-        var uid = dcpwcoreect['results'][0]['resultSet'][0]['uid'].toString();
-
-        var body = {
-          "transaction": [
-            {
-              "statement": "U_TbParkingSurface",
-              "values": {"tag": tag, "engine_code": engineCode, "uri": uri, "uid": uid}
-            },
-          ]
-        };
-        await http.post(
-          Uri.parse(url),
-          headers: headers,
-          body: jsonEncode(body),
-        );
+        final db = await Database.getInstance();
+        List<Map<String, dynamic>> tagResult =
+            await db.query("S_TbParkingSurfaceTag", {"tag": beforetag});
+        if (tagResult.isEmpty) {
+          return Response.internalServerError(body: 'No matching tag found');
+        }
+        var uid = tagResult.first['uid'].toString();
+        await db.query("U_TbParkingSurface", {"tag": tag, "engine_code": engineCode, "uri": uri, "uid": uid});
         return Response.ok("update success");
-      } catch (e, stackTrace) {
-        // 예외 처리
-        print('Error: $e');
-        print('StackTrace: $stackTrace');
+      } catch (e, st) {
+        print('Error in SettingsCamParkingArea updateZone: $e');
         return Response.internalServerError(body: 'Error: $e');
       }
     });
-
+    
+    // POST /insertZone: 삽입 (쿼리 "I_TbParkingSurface")
     router.post('/insertZone', (Request request) async {
-      try{
-        var requestBody = await request.readAsString();
-        var requestData = jsonDecode(requestBody);
-
+      try {
+        final requestBody = await request.readAsString();
+        final requestData = jsonDecode(requestBody);
         var tag = requestData['tag'];
         var engineCode = requestData['engine_code'];
         var uri = requestData['uri'];
-        var body = {
-          "transaction": [
-            { "statement": "#I_TbParkingSurface",
-              "values": {"tag": tag ,"engine_code": engineCode, "uri": uri}
-            },
-          ]
-        };
-        await http.post(
-          Uri.parse(url!),
-          headers: headers,
-          body: jsonEncode(body),
-        );
+        final db = await Database.getInstance();
+        await db.query("I_TbParkingSurface", {"tag": tag, "engine_code": engineCode, "uri": uri});
         return Response.ok("create success");
-      }catch (e, stackTrace) {
-        // 예외 처리
-        print('Error: $e');
-        print('StackTrace: $stackTrace');
+      } catch (e, st) {
+        print('Error in SettingsCamParkingArea insertZone: $e');
         return Response.internalServerError(body: 'Error: $e');
       }
     });
-
+    
+    // POST /deleteZone: 삭제 (쿼리 "D_TbParkingSurface")
     router.post('/deleteZone', (Request request) async {
-      try{
-        var requestBody = await request.readAsString();
-        var requestData = jsonDecode(requestBody);
-
+      try {
+        final requestBody = await request.readAsString();
+        final requestData = jsonDecode(requestBody);
         var tag = requestData['tag'];
-        //var engineCode = requestData['engine_code'];
-
-        var body = {
-          "transaction": [
-            {
-              "statement": "#D_TbParkingSurface",
-              "values": {"tag": tag }
-            },
-          ]
-        };
-        await http.post(
-          Uri.parse(url!),
-          headers: headers,
-          body: jsonEncode(body),
-        );
+        final db = await Database.getInstance();
+        await db.query("D_TbParkingSurface", {"tag": tag});
         return Response.ok("delete success");
-      }catch (e, stackTrace) {
-        // 예외 처리
-        print('Error: $e');
-        print('StackTrace: $stackTrace');
+      } catch (e, st) {
+        print('Error in SettingsCamParkingArea deleteZone: $e');
         return Response.internalServerError(body: 'Error: $e');
       }
     });
+    
     return router;
   }
 }
