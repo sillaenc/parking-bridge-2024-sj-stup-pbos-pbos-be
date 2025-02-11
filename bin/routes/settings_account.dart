@@ -1,172 +1,335 @@
 import 'dart:convert';
 import 'package:shelf/shelf.dart';
 import 'package:shelf_router/shelf_router.dart';
+import 'package:http/http.dart' as http;
 import 'package:crypto/crypto.dart';
-import '../data/db.dart';
 import '../data/manage_address.dart';
 
+//사용자 관리 setting backend part.
+// 사용자 관리 설정
+// 사용자 생성 기능(기존 활용 가능)
+// password new_password 형식으로 update함.(기존 활용 가능)
+// username update하는 기능
+// userlevel, isActivated update하는 기능.
+// 마지막으로 시작할때, tb_users 전부 response하게 하자.
 class SettingsAccount {
   final ManageAddress manageAddress;
   SettingsAccount({required this.manageAddress});
-  
   Router get router {
     final router = Router();
-    
-    // GET: tb_users 조회 (쿼리 키 "S_TbUsers")
+    String? url = manageAddress.displayDbAddr;
+    var headers = {'Content-Type': 'application/json'};
+    //base_return router
     router.get('/', (Request request) async {
       try {
-        final db = await Database.getInstance();
-        List<Map<String, dynamic>> resultSet = await db.query("S_TbUsers");
-        String send = jsonEncode(resultSet);
-        return Response.ok(send, headers: {'Content-Type': 'application/json'});
-      } catch (e, st) {
-        print('Error in SettingsAccount GET: $e');
+        //var headers = {'Content-Type': 'application/json'};
+        Map<String, dynamic> body = {
+          "transaction": [
+            {"query": "#S_TbUsers"},
+          ]
+        };
+        var user = await http.post(
+          Uri.parse(url!),
+          headers: headers,
+          body: jsonEncode(body),
+        );
+        var tableMain = jsonDecode(user.body);
+        var resultSet = tableMain['results'][0]['resultSet'];
+        
+        print('resultSet : $resultSet');
+        var send = jsonEncode(resultSet);
+        print(send);
+        return Response.ok(send);
+      } catch (e, stackTrace) {
+        print('Error: $e');
+        print('StackTrace: $stackTrace');
         return Response.internalServerError(body: 'Error: $e');
       }
     });
-    
-    // POST /updateUser: 사용자 정보 수정 (쿼리 키 "U_TbUsers")
+
     router.post('/updateUser', (Request request) async {
       try {
-        final requestBody = await request.readAsString();
-        final requestData = jsonDecode(requestBody);
+        // 프런트의 요청의 body를 JSON 형식으로 디코딩하여 데이터 추출
+        var requestBody = await request.readAsString();
+        var requestData = jsonDecode(requestBody);
+        // print(requestData);
         var account = requestData['account'];
+        // var newpasswd = requestData['newpasswd'];
+        // var newpasswdCheck = requestData['newpasswdCheck'];
         var username = requestData['username'];
         int userlevel = requestData['userlevel'];
         int isActivated = requestData['isActivated'];
-        final db = await Database.getInstance();
-        await db.query("U_TbUsers", {
-          "username": username,
-          "userlevel": userlevel,
-          "isActivated": isActivated,
-          "account": account
-        });
+
+        var passwdcheck ={"transaction": [
+            {
+              "query": "#S_TbNowUsers",
+              "values": {"account": account}
+            }
+          ]
+        };
+        var pwcorrect = await http.post(
+          Uri.parse(url!),
+          headers: headers,
+          body: jsonEncode(passwdcheck),
+        );
+        // print(pwcorrect.body);
+        var dcpwcoreect = jsonDecode(pwcorrect.body);
+        var pwcorrectcheck = dcpwcoreect['results'][0]['resultSet'][0];
+        print("pwcorrectcheck: $pwcorrectcheck");
+        // if(newpasswd == pwcorrectcheck["passwd"]){
+        //   return Response.forbidden("기존 비밀번호임");
+        // }
+        // if(newpasswd != newpasswdCheck){
+        //   return Response.unauthorized("비밀번호 틀림");
+        // }//비번 통과해야지 아래 코드가 실행가능.
+        var body = {
+          "transaction": [
+            {
+              "statement": "#U_TbUsers",
+              "values": {"username": username, "userlevel": userlevel, "isActivated": isActivated, "account": account}
+            },
+          ]
+        };
+        await http.post(
+          Uri.parse(url),
+          headers: headers,
+          body: jsonEncode(body),
+        );
         return Response.ok("update success");
-      } catch (e, st) {
-        print('Error in SettingsAccount updateUser: $e');
+      } catch (e, stackTrace) {
+        // 예외 처리
+        print('Error: $e');
+        print('StackTrace: $stackTrace');
         return Response.internalServerError(body: 'Error: $e');
       }
     });
-    
-    // POST /changePassword: 비밀번호 변경 (쿼리 키 "S_UserCheck" 후 "U_ChangePassword")
+
     router.post('/changePassword', (Request request) async {
       try {
-        final requestBody = await request.readAsString();
-        final requestData = jsonDecode(requestBody);
+        // 프런트의 요청의 body를 JSON 형식으로 디코딩하여 데이터 추출
+        var requestBody = await request.readAsString();
+        var requestData = jsonDecode(requestBody);
+        // print(requestData);
         var account = requestData['account'];
         var newpasswd = requestData['newpasswd'];
         var passwd = requestData['passwd'];
         var passwdCheck = requestData['passwdCheck'];
-        if (passwd != passwdCheck) {
-          return Response.badRequest(body: "Password confirmation does not match");
+
+        if(passwd != passwdCheck){
+          return Response.badRequest();
         }
         String newfirstHash = sha256.convert(utf8.encode(newpasswd)).toString();
-        String newsecondHash = sha256.convert(utf8.encode(newfirstHash)).toString();
-        
-        final db = await Database.getInstance();
-        List<Map<String, dynamic>> checkResult = await db.query("S_UserCheck", {"account": account});
-        if (checkResult.isEmpty || checkResult.first.isEmpty) {
-          return Response.unauthorized("Account does not exist");
-        }
-        var currentUser = checkResult.first;
-        if (currentUser["passwd"] == newsecondHash) {
-          return Response.unauthorized("New password is same as the old password");
-        } else {
-          await db.query("U_ChangePassword", {"passwd": newsecondHash, "account": account});
+        String newsecondHash = sha256.convert(utf8.encode(newfirstHash)).toString(); 
+        var passwdcheck ={"transaction": [
+            {
+              "query": "#S_UserCheck",
+              "values": {"account": account}
+            }
+          ]
+        };
+        var pwcorrect = await http.post(
+          Uri.parse(url!),
+          headers: headers,
+          body: jsonEncode(passwdcheck),
+        );
+        // print(pwcorrect.body);
+        var dcpwcoreect = jsonDecode(pwcorrect.body);
+        var pwcorrectcheck = dcpwcoreect['results'][0]['resultSet'][0];
+        print(pwcorrectcheck);
+        print(newpasswd);
+        if(pwcorrectcheck.isEmpty){
+          return Response.unauthorized("id가 없다고 뜸. 오류 발생. 앱에서는 생기면 안되는 문제");
+        }else if(pwcorrectcheck["passwd"] == newsecondHash){
+          return Response.unauthorized("기존 비밀번호와 새 비밀번호가 동일합니다.");
+        }else{
+          var body = {
+            "transaction": [
+              {
+                "statement": "#U_ChangePassword",
+                "values": {"passwd": newsecondHash, "account": account}
+              },
+            ]
+          };
+          await http.post(
+            Uri.parse(url),
+            headers: headers,
+            body: jsonEncode(body),
+          );
           return Response.ok("update success");
         }
-      } catch (e, st) {
-        print('Error in SettingsAccount changePassword: $e');
-        return Response.internalServerError(body: 'Error: $e');
+
+      // } catch (e, stackTrace) {
+      } catch (e) {
+        // 예외 처리
+        // print('Error: $e');
+        // print('StackTrace: $stackTrace');
+        // return Response.internalServerError(body: 'Error: $e');
+        return Response.unauthorized("account는 앱에서는 정상적인 상황에서 틀릴 방법이 없음. 오류임");
       }
     });
-    
-    // POST /resetPassword: 비밀번호 초기화 (쿼리 키 "S_UserCheck" 후 "U_ChangePassword")
     router.post('/resetPassword', (Request request) async {
       try {
-        final requestBody = await request.readAsString();
-        final requestData = jsonDecode(requestBody);
+        // 프런트의 요청의 body를 JSON 형식으로 디코딩하여 데이터 추출
+        var requestBody = await request.readAsString();
+        var requestData = jsonDecode(requestBody);
+        // print(requestData);
         var account = requestData['account'];
         var newpasswd = "0000";
         String firstHash = sha256.convert(utf8.encode(newpasswd)).toString();
         String secondHash = sha256.convert(utf8.encode(firstHash)).toString();
         
-        final db = await Database.getInstance();
-        List<Map<String, dynamic>> checkResult = await db.query("S_UserCheck", {"account": account});
-        if (checkResult.isEmpty || checkResult.first.isEmpty) {
-          return Response.unauthorized("Account does not exist");
-        } else {
-          await db.query("U_ChangePassword", {"passwd": secondHash, "account": account});
+        var passwdcheck ={"transaction": [
+            {
+              "query": "#S_UserCheck",
+              "values": {"account": account}
+            }
+          ]
+        };
+        var pwcorrect = await http.post(
+          Uri.parse(url!),
+          headers: headers,
+          body: jsonEncode(passwdcheck),
+        );
+        // print(pwcorrect.body);
+        var dcpwcoreect = jsonDecode(pwcorrect.body);
+        var pwcorrectcheck = dcpwcoreect['results'][0]['resultSet'][0];
+        print(pwcorrectcheck);
+        print(newpasswd);
+        if(pwcorrectcheck.isEmpty){
+          return Response.unauthorized("id가 없다고 뜸. 오류 발생. 앱에서는 생기면 안되는 문제");
+        }else{
+          var body = {
+            "transaction": [
+              {
+                "statement": "#U_ChangePassword",
+                "values": {"passwd": secondHash, "account": account}
+              },
+            ]
+          };
+          await http.post(
+            Uri.parse(url),
+            headers: headers,
+            body: jsonEncode(body),
+          );
           return Response.ok("reset success");
         }
-      } catch (e, st) {
-        print('Error in SettingsAccount resetPassword: $e');
-        return Response.internalServerError(body: 'Error: $e');
+
+      // } catch (e, stackTrace) {
+      } catch (e) {
+        // 예외 처리
+        // print('Error: $e');
+        // print('StackTrace: $stackTrace');
+        // return Response.internalServerError(body: 'Error: $e');
+        return Response.unauthorized("account는 앱에서는 정상적인 상황에서 틀릴 방법이 없음. 오류임");
       }
     });
-    
-    // POST /insertUser: 사용자 등록 (쿼리 키 "S_UserCheck" 후 "I_UserAdd")
+
     router.post('/insertUser', (Request request) async {
-      try {
-        final requestBody = await request.readAsString();
-        final requestData = jsonDecode(requestBody);
+      try{
+        var requestBody = await request.readAsString();
+        var requestData = jsonDecode(requestBody);
+
         var account = requestData['account'];
         var passwd = requestData['passwd'];
         var passwdCheck = requestData['passwdCheck'];
         var username = requestData['username'];
         int userlevel = requestData['userlevel'];
         int isActivated = requestData['isActivated'];
-        if (passwd != passwdCheck) {
-          return Response.unauthorized("Password confirmation does not match");
-        }
         String firstHash = sha256.convert(utf8.encode(passwdCheck)).toString();
         String secondHash = sha256.convert(utf8.encode(firstHash)).toString();
         
-        final db = await Database.getInstance();
-        List<Map<String, dynamic>> checkResult = await db.query("S_UserCheck", {"account": account});
-        if (checkResult.isNotEmpty && checkResult.first.isNotEmpty) {
-          return Response.unauthorized("ID already exists");
+        var passwdcheck ={"transaction": [
+            {
+              "query": "#S_UserCheck",
+              "values": {"account": account}
+            }
+          ]
+        };
+        var accountCorrect = await http.post(
+          Uri.parse(url!),
+          headers: headers,
+          body: jsonEncode(passwdcheck),
+        );
+        var accorrect = jsonDecode(accountCorrect.body);
+        if (accorrect.isEmpty || accorrect['results'].isEmpty || accorrect['results'][0]['resultSet'].isEmpty) {
+          if(passwd != passwdCheck){
+            return Response.unauthorized("비밀번호 확인 요망");
+          }else{
+            var body = {
+              "transaction": [
+                { 
+                  "statement": "#I_UserAdd",
+                  "values": {"account": account ,"passwd": secondHash, "username": username, "userlevel": userlevel, "isActivated": isActivated }
+                },
+              ]
+            };
+            await http.post(
+              Uri.parse(url),
+              headers: headers,
+              body: jsonEncode(body),
+            );
+            return Response.ok("create success");
+          }
+          // return '계정이 존재하지 않습니다.';
         } else {
-          await db.query("I_UserAdd", {
-            "account": account,
-            "passwd": secondHash,
-            "username": username,
-            "userlevel": userlevel,
-            "isActivated": isActivated
-          });
-          return Response.ok("create success");
+          return Response.unauthorized("id 중복");
         }
-      } catch (e, st) {
-        print('Error in SettingsAccount insertUser: $e');
+
+      }catch (e, stackTrace) {
+        // 예외 처리
+        print('Error: $e');
+        print('StackTrace: $stackTrace');
         return Response.internalServerError(body: 'Error: $e');
       }
     });
-    
-    // POST /deleteUser: 사용자 삭제 (쿼리 키 "S_TbNowUsers" 후 "D_TbUsers")
+
     router.post('/deleteUser', (Request request) async {
-      try {
-        final requestBody = await request.readAsString();
-        final requestData = jsonDecode(requestBody);
+      try{
+        var requestBody = await request.readAsString();
+        var requestData = jsonDecode(requestBody);
         var account = requestData['account'];
         var passwd = requestData['passwd'];
         String firstHash = sha256.convert(utf8.encode(passwd)).toString();
         String secondHash = sha256.convert(utf8.encode(firstHash)).toString();
-        
-        final db = await Database.getInstance();
-        List<Map<String, dynamic>> nowUser = await db.query("S_TbNowUsers", {"account": account});
-        if (nowUser.isEmpty ||
-            nowUser.first.isEmpty ||
-            secondHash != nowUser.first['passwd']) {
+        var passwdcheck ={"transaction": [
+            {
+              "query": "#S_TbNowUsers",
+              "values": {"account": account}
+            }
+          ]
+        };
+        var pwcorrect = await http.post(
+          Uri.parse(url!),
+          headers: headers,
+          body: jsonEncode(passwdcheck),
+        );
+        var dcpwcoreect = jsonDecode(pwcorrect.body);
+        var pwcorrectcheck = dcpwcoreect['results'][0]['resultSet'][0];
+        print(pwcorrectcheck);
+        if(secondHash != pwcorrectcheck['passwd']){
           return Response.unauthorized("password wrong");
-        }
-        await db.query("D_TbUsers", {"account": account});
+        }//비번 통과해야지 아래 코드가 실행가능.
+        var body = {
+          "transaction": [
+            { 
+              "statement": "#D_TbUsers",
+              "values": {"account": account }
+            },
+          ]
+        };
+        await http.post(
+          Uri.parse(url),
+          headers: headers,
+          body: jsonEncode(body),
+        );
         return Response.ok("delete success");
-      } catch (e, st) {
-        print('Error in SettingsAccount deleteUser: $e');
+      }catch (e, stackTrace) {
+        // 예외 처리
+        print('Error: $e');
+        print('StackTrace: $stackTrace');
         return Response.internalServerError(body: 'Error: $e');
       }
     });
-    
     return router;
   }
 }
