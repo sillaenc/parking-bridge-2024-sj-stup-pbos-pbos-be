@@ -39,7 +39,8 @@ Future<Map<String, dynamic>?> fetchEngineData(String engineDbAddr) async {
 
 /// 엔진 DB(ws4sqlite)와 디스플레이 DB(PostgreSQL)를 연계하여 데이터를 처리하는 함수
 Future<List<dynamic>> receiveEnginedataSendToDartserver(
-    String engineDbAddr, String displayDbAddr, DateTime check) async {
+    //String engineDbAddr, String displayDbAddr, DateTime check) async {
+    String engineDbAddr, DateTime check) async {
   print('Sending data to server at: ${DateTime.now()}');
 
   // 날짜/시간 포맷 함수
@@ -113,9 +114,11 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(
   }
   
   // --- 시간 단위 처리 (한 시간 전 데이터 기록) ---
-  if (previousCheck.hour != now.hour) {
+  // if (previousCheck.hour != now.hour) {
+  if (1==1) {
     var timeRange = calculateTimeRange(now);
     String formattedStartTime = formatDateTime(timeRange["start_time"]!);
+    print(formattedStartTime);
     String formattedEndTime = formatDateTime(timeRange["end_time"]!);
 
     // 한 시간 범위 내 TbLotStatus 기록 조회 (S_TbLotStatus 쿼리)
@@ -128,6 +131,7 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(
 
     // 각 lot별 주차 여부 집계 (한 번이라도 1이면 true)
     Map<int, bool> parkingStatus = {};
+    
     for (var item in lotStatus) {
       int lotId = item['lot'];
       int isParked = item['isParked'];

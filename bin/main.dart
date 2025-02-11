@@ -105,7 +105,7 @@ void main() async {
   final client = http.Client();
 
   bool isProcessing = false; // 타이머 콜백 중복 실행 방지용 플래그
-  
+  final urls = env['displayDbAddr'];
   Timer.periodic(Duration(milliseconds: 2000), (timer) async {
     if (isProcessing) {
       // 이전 주기 작업이 아직 끝나지 않았다면 이번 주기 건너뛰기, 확인용!!
@@ -115,9 +115,12 @@ void main() async {
     try {
       final engineAddr = await fetchEngineAddr(client, url!);
       if (engineAddr != null && manageAddress.displayDbAddr != null) {
-        await receiveEnginedataSendToDartserver(engineAddr, manageAddress.displayDbAddr!, check);
+        await receiveEnginedataSendToDartserver(engineAddr, check);
+        //await receiveEnginedataSendToDartserver(engineAddr, manageAddress.displayDbAddr!, check);
         check = DateTime.now();
       }
+      // final engineAddr = Uri.parse(urls!);
+      // await receiveEnginedataSendToDartserver(engineAddr as String, check);
     } catch (e, stackTrace) {
       print('Error in periodic task: $e');
       print('StackTrace: $stackTrace');

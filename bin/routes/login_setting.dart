@@ -22,20 +22,19 @@ class LoginSetting {
       try {
         // 요청 본문 읽기 및 파싱
         var requestBody = await request.readAsString();
+        print(requestBody);
         var loginData = jsonDecode(requestBody);
         int loginCheck = 0;
         var account = loginData['account'];
         var passwd = loginData['passwd'];
         String firstHash = sha256.convert(utf8.encode(passwd)).toString();
         String secondHash = sha256.convert(utf8.encode(firstHash)).toString();
-
+        print(secondHash);
         // PostgreSQL DB 연결 및 로그인 쿼리 실행
         final db = await Database.getInstance();
-        List<Map<String, dynamic>> loginResult1 =
-            await db.query("S_ReqLogin", {"account": account, "passwd": secondHash});
-        List<Map<String, dynamic>> loginResult2 =
-            await db.query("S_ReqLogin2", {"account": account, "passwd": secondHash});
-
+        List<Map<String, dynamic>> loginResult1 = await db.query("S_ReqLogin", {"account": account, "passwd": secondHash});
+        List<Map<String, dynamic>> loginResult2 = await db.query("S_ReqLogin2", {"account": account, "passwd": secondHash});
+        
         String token = "";
         for (var entry in loginResult1) {
           if (entry['account'] == account) {
@@ -49,7 +48,7 @@ class LoginSetting {
         }
         // token 정보를 담은 리스트를 List<Map<String, dynamic>>로 선언 (타입 일치)
         List<Map<String, dynamic>> tokenList = [{'token': token}];
-
+        print(loginCheck);
         if (loginCheck == 2) {
           return Response.ok(
             jsonEncode(loginResult2 + tokenList),
@@ -69,7 +68,7 @@ class LoginSetting {
           return Response.internalServerError(
               body: '아이디 혹은 비밀번호가 틀렸습니다');
         }
-      } catch (e, st) {
+      } catch (e) {
         print('Error in LoginSetting POST: $e');
         return Response.internalServerError(body: 'Error in LoginSetting POST: $e');
       }

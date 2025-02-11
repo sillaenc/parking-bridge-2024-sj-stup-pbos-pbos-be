@@ -11,7 +11,8 @@ class GetResource {
         // PostgreSQL 방식으로 처리하는 receiveEnginedataSendToDartserver() 함수 호출
         // (엔진 DB, 디스플레이 DB 모두 PostgreSQL로 전환되었다고 가정)
         List<dynamic> parkingLotList =
-            await receiveEnginedataSendToDartserver("engineDbKey", "displayDbKey", DateTime.now());
+            await receiveEnginedataSendToDartserver("engineDbKey", DateTime.now());
+            // await receiveEnginedataSendToDartserver("engineDbKey", "displayDbKey", DateTime.now());
         String strRawData = 'start,${parkingLotList.join(',')}';
         return Response.ok(strRawData,
             headers: {'Content-Type': 'application/json'});
