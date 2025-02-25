@@ -1,7 +1,6 @@
 // bin/main.dart
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 import 'package:shelf/shelf.dart';
 import 'package:shelf/shelf_io.dart';
 import 'package:shelf_router/shelf_router.dart';
@@ -24,6 +23,7 @@ import 'routes/get_resource.dart';
 import 'routes/graphData.dart';
 import 'routes/central.dart';
 import 'routes/base_information.dart';
+import 'routes/billboard.dart';
 
 String formatDateTime(DateTime dateTime) {
   String year = dateTime.year.toString();
@@ -79,6 +79,7 @@ void main() async {
   final graphdata = graphData(manageAddress: manageAddress);
   final central = Central(manageAddress: manageAddress);
   final baseInformation = BaseInformation(manageAddress: manageAddress);
+  final billBoard = BillBoard(manageAddress: manageAddress);
 
   final router = Router();
 
@@ -100,6 +101,7 @@ void main() async {
   router.mount('/graphData', graphdata.router);
   router.mount('/central', central.router);
   router.mount('/base', baseInformation.router);
+  router.mount('/billboard',billBoard.router);
 
   firstSetting(url);
 
@@ -116,6 +118,7 @@ void main() async {
     isProcessing = true;
     try {
       final engineAddr = await fetchEngineAddr(client, url!);
+      // print(engineAddr);
       if (engineAddr != null && manageAddress.displayDbAddr != null) {
         await receiveEnginedataSendToDartserver(engineAddr, manageAddress.displayDbAddr!, check);
         check = DateTime.now();
