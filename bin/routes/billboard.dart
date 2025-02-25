@@ -10,13 +10,13 @@ class BillBoard {
   BillBoard({required this.manageAddress});
   Router get router {
     final router = Router();
-    router.get('/', (Request request) async {
+    router.get('/F1', (Request request) async {
       try {
         var url = manageAddress.displayDbAddr;
         var headers = {'Content-Type': 'application/json'};
         var body = {
           "transaction": [
-            {"query": "#board_get"}
+            {"query": "#F1"}
           ]
         };
         var count = await http.post(
@@ -29,20 +29,45 @@ class BillBoard {
         var resultSet = get['results'][0]['resultSet'];
         print(resultSet);
 
-        // var formattedResult = resultSet.map((entry) {
-        //   String color = entry['tag_count'] == entry['isUsed_count'] ? "green" : "red";
-        //   String camera = entry['camera'].substring(entry['camera'].length - 3); // 뒤쪽 3자리 추출
-        //   return {
-        //     "camera": camera,
-        //     "color": color,
-        //   };
-        // }).toList();
-
-        // 처리 결과 출력 (디버깅 용도)
-        // print("Formatted Result: $formattedResult");
-
-        // // JSON 형식으로 변환하여 반환
-        // return Response.ok(jsonEncode(formattedResult));
+        var body2 = {
+          "transaction": [
+            {"query": "#F2_ALL"}
+          ]
+        };
+        var count2 = await http.post(
+          Uri.parse(url),
+          headers: headers,
+          body: jsonEncode(body2),
+        );
+        var get2 = jsonDecode(count2.body);
+        // print(get);
+        var resultSet2 = get2['results'][0]['resultSet'];
+        print(resultSet2);
+        return Response.ok(jsonEncode(resultSet + resultSet2));
+      } catch (e, stackTrace) {
+        print('Error: $e');
+        print('StackTrace: $stackTrace');
+        return Response.badRequest(body: 'Error: $e');
+      }
+    });
+    router.get('/B1', (Request request) async {
+      try {
+        var url = manageAddress.displayDbAddr;
+        var headers = {'Content-Type': 'application/json'};
+        var body = {
+          "transaction": [
+            {"query": "#F2"}
+          ]
+        };
+        var count = await http.post(
+          Uri.parse(url!),
+          headers: headers,
+          body: jsonEncode(body),
+        );
+        var get = jsonDecode(count.body);
+        // print(get);
+        var resultSet = get['results'][0]['resultSet'];
+        print(resultSet);
         return Response.ok(jsonEncode(resultSet));
       } catch (e, stackTrace) {
         print('Error: $e');
