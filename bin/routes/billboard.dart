@@ -25,9 +25,7 @@ class BillBoard {
           body: jsonEncode(body),
         );
         var get = jsonDecode(count.body);
-        // print(get);
         var resultSet = get['results'][0]['resultSet'];
-        print(resultSet);
 
         var body2 = {
           "transaction": [
@@ -40,9 +38,18 @@ class BillBoard {
           body: jsonEncode(body2),
         );
         var get2 = jsonDecode(count2.body);
-        // print(get);
         var resultSet2 = get2['results'][0]['resultSet'];
-        print(resultSet2);
+
+        // {"F2": 0} 형식의 데이터를 {"lot_type": "F2", "count": 0}로 변환
+        if (resultSet2 is List) {
+          resultSet2 = resultSet2.map((e) {
+            if (e.containsKey("F2")) {
+              return {"lot_type": "F2", "count": e["F2"]};
+            }
+            return e;
+          }).toList();
+        }
+
         return Response.ok(jsonEncode(resultSet + resultSet2));
       } catch (e, stackTrace) {
         print('Error: $e');
@@ -67,7 +74,7 @@ class BillBoard {
         var get = jsonDecode(count.body);
         // print(get);
         var resultSet = get['results'][0]['resultSet'];
-        print(resultSet);
+        // print(resultSet);
         return Response.ok(jsonEncode(resultSet));
       } catch (e, stackTrace) {
         print('Error: $e');
