@@ -24,6 +24,7 @@ import 'routes/graphData.dart';
 import 'routes/central.dart';
 import 'routes/base_information.dart';
 import 'routes/billboard.dart';
+import 'routes/display.dart';
 
 String formatDateTime(DateTime dateTime) {
   String year = dateTime.year.toString();
@@ -80,6 +81,7 @@ void main() async {
   final central = Central(manageAddress: manageAddress);
   final baseInformation = BaseInformation(manageAddress: manageAddress);
   final billBoard = BillBoard(manageAddress: manageAddress);
+  final display = Display(manageAddress: manageAddress);
 
   final router = Router();
 
@@ -102,6 +104,7 @@ void main() async {
   router.mount('/central', central.router);
   router.mount('/base', baseInformation.router);
   router.mount('/billboard',billBoard.router);
+  router.mount('/display',display.router);
 
   firstSetting(url);
 
