@@ -1,6 +1,4 @@
 import 'dart:convert';
-
-import 'package:drift/drift.dart';
 import 'package:shelf/shelf.dart';
 import 'package:shelf_router/shelf_router.dart';
 import '../data/manage_address.dart';
@@ -11,44 +9,6 @@ class BillBoard {
   BillBoard({required this.manageAddress});
   Router get router {
     final router = Router();
-    // 노 터치.. v2 는 실험용
-    router.post('/F1/v2', (Request request) async {
-      var payload = await request.readAsString();
-      final Map<String, dynamic> data = jsonDecode(payload);
-      final String lotType = data['lot_type'];
-      final List<int> numbers =
-          lotType.split('+').map((s) => int.parse(s.trim())).toList();
-      try {
-        var url = manageAddress.displayDbAddr;
-        var headers = {'Content-Type': 'application/json'};
-        int totalCount = 0;
-        for (final number in numbers) {
-          var body = {
-            "transaction": [
-              {
-                "query": "#F1/v2",
-                "values": {"lot_type": number}
-              }
-            ]
-          };
-          var response = await http.post(
-            Uri.parse(url!),
-            headers: headers,
-            body: jsonEncode(body),
-          );
-          var decoded = jsonDecode(response.body);
-          int resultSet = decoded['results'][0]['resultSet'][0]['count'];
-          // print("resultSet = $resultSet");
-          totalCount += resultSet;
-        }
-        return Response.ok(jsonEncode(totalCount));
-      } catch (e, stackTrace) {
-        print('Error: $e');
-        print('StackTrace: $stackTrace');
-        return Response.badRequest(body: 'Error: $e');
-      }
-    });
-
     router.post('/', (Request request) async {
       try {
         var payload = await request.readAsString();
