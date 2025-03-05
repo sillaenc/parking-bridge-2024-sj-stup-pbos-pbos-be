@@ -67,11 +67,11 @@
         "rect65":{"tag":"F1_A01_1_N058","lot_type":1,"point":"909, 906","asset":"nHorizontal.png","floor":"F1"},
         "rect66":{"tag":"F1_A13_2_N033","lot_type":1,"point":"813, 906","asset":"nHorizontal.png","floor":"F1"},
         "rect67":{"tag":"F1_A13_1_N028","lot_type":1,"point":"552, 906","asset":"nHorizontal.png","floor":"F1"},
-        "rect68":{"tag":"F1_A01_2_L001","lot_type":1,"point":"1168, 962","asset":"lHorizontal.png","floor":"F1"},
+        "rect68":{"tag":"F1_A01_2_L001","lot_type":3,"point":"1168, 962","asset":"lHorizontal.png","floor":"F1"},
         "rect69":{"tag":"F1_A01_1_N059","lot_type":1,"point":"909, 962","asset":"nHorizontal.png","floor":"F1"},
         "rect70":{"tag":"F1_A13_2_N032","lot_type":1,"point":"813, 962","asset":"nHorizontal.png","floor":"F1"},
         "rect71":{"tag":"F1_A13_1_N029","lot_type":1,"point":"552, 962","asset":"nHorizontal.png","floor":"F1"},
-        "rect72":{"tag":"F1_A01_1_N060","lot_type":3,"point":"909, 1018","asset":"nHorizontal.png","floor":"F1"},
+        "rect72":{"tag":"F1_A01_1_N060","lot_type":1,"point":"909, 1018","asset":"nHorizontal.png","floor":"F1"},
         "rect73":{"tag":"F1_A13_2_N031","lot_type":1,"point":"813, 1018","asset":"nHorizontal.png","floor":"F1"},
         "rect74":{"tag":"F1_A13_1_N030","lot_type":1,"point":"552, 1018","asset":"nHorizontal.png","floor":"F1"}
     }

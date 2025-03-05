@@ -25,6 +25,8 @@ import 'routes/central.dart';
 import 'routes/base_information.dart';
 import 'routes/billboard.dart';
 import 'routes/display.dart';
+import 'routes/settings.dart';
+import 'routes/isalive.dart';
 
 String formatDateTime(DateTime dateTime) {
   String year = dateTime.year.toString();
@@ -82,6 +84,8 @@ void main() async {
   final baseInformation = BaseInformation(manageAddress: manageAddress);
   final billBoard = BillBoard(manageAddress: manageAddress);
   final display = Display(manageAddress: manageAddress);
+  final settings = Settings(manageAddress: manageAddress);
+  final isalive = Isalive(manageAddress: manageAddress);
 
   final router = Router();
 
@@ -105,7 +109,9 @@ void main() async {
   router.mount('/base', baseInformation.router);
   router.mount('/billboard',billBoard.router);
   router.mount('/display',display.router);
-
+  router.mount('/settings', settings.router);
+  router.mount('/isalive', isalive.router);
+  
   firstSetting(url);
 
   // http.Client를 재사용하기 위한 인스턴스
