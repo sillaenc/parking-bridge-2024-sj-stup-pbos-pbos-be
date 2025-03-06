@@ -50,9 +50,9 @@ class Isalive {
         // 그렇지 않으면 기존 내용 뒤에 쉼표와 새로운 URL을 추가
         String newValue;
         if (inner.isEmpty) {
-          newValue = "{'${newUrl}'}";
+          newValue = "{'$newUrl'}";
         } else {
-          newValue = "{${inner},'${newUrl}'}";
+          newValue = "{$inner,'$newUrl'}";
         }
 
         // upsert 쿼리로 새로운 값 저장
