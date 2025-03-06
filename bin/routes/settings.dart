@@ -19,14 +19,16 @@ class Settings {
         var key = input['key'];
         var value = jsonEncode(input['value']);
         var body = {
-            "transaction": [
-              {
-                "query": "#upsert_settings",
+          "transaction": [
+            {
+              "query": "#upsert_settings",
                 "values": {"key": key, "value": value}
-              }
-            ]
-          };
-        var response = await http.post(
+            }
+          ]
+        };
+
+        // DB 서버에 POST 요청
+        final response = await http.post(
           Uri.parse(url!),
           headers: headers,
           body: jsonEncode(body),
@@ -39,25 +41,25 @@ class Settings {
         return Response.badRequest(body: 'Error: $e');
       }
     });
-    router.get('/get', (Request request) async{
+    router.post('/get', (Request request) async{
       try {
         var payload = await request.readAsString();
         var input = jsonDecode(payload);
         var check = input['key'];
         var body = {
-            "transaction": [
-              {
-                "query": "#get_settings",
+          "transaction": [
+            {
+              "query": "#get_settings",
                 "values": {"key": check}
-              }
-            ]
-          };
+            }
+          ]
+        };
         var result = await http.post(
           Uri.parse(url!),
           headers: headers,
           body: jsonEncode(body),
         );
-        var decodedresult = jsonDecode(result.body);
+        var decodedresult = jsonDecode(utf8.decode(result.bodyBytes));
         var resultSet = decodedresult['results'][0]['resultSet'][0];
         print(resultSet);
         return Response.ok(jsonEncode(resultSet), headers: {'Content-Type': 'application/json'});
