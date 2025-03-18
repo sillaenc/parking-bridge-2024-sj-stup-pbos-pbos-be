@@ -1,4 +1,4 @@
-// bin/main.dart
+/// bin/main.dart
 import 'dart:async';
 import 'dart:convert';
 import 'package:shelf/shelf.dart';
@@ -27,6 +27,7 @@ import 'routes/billboard.dart';
 import 'routes/display.dart';
 import 'routes/settings.dart';
 import 'routes/isalive.dart';
+import 'routes/pabi.dart';
 
 String formatDateTime(DateTime dateTime) {
   String year = dateTime.year.toString();
@@ -86,10 +87,13 @@ void main() async {
   final display = Display(manageAddress: manageAddress);
   final settings = Settings(manageAddress: manageAddress);
   final isalive = Isalive(manageAddress: manageAddress);
-
+  final pabi = Pabi(manageAddress: manageAddress);
+  // final pabi = Pabi();
   final router = Router();
 
   manageAddress.displayDbAddr = env['displayDbAddr'];
+  manageAddress.displayDbLPR = env['displayDbLPR'];
+
   String? url = manageAddress.displayDbAddr;
   DateTime check = DateTime.now();
 
@@ -111,6 +115,7 @@ void main() async {
   router.mount('/display',display.router);
   router.mount('/settings', settings.router);
   router.mount('/isalive', isalive.router);
+  router.mount('/pabi', pabi.router);
   
   firstSetting(url);
 
@@ -129,7 +134,7 @@ void main() async {
       final engineAddr = await fetchEngineAddr(client, url!);
       // print(engineAddr);
       if (engineAddr != null && manageAddress.displayDbAddr != null) {
-        await receiveEnginedataSendToDartserver(engineAddr, manageAddress.displayDbAddr!, check);
+        await receiveEnginedataSendToDartserver(engineAddr, manageAddress.displayDbAddr!,manageAddress.displayDbLPR, check);
         check = DateTime.now();
       }
     } catch (e, stackTrace) {

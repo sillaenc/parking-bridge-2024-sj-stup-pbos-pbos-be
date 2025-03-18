@@ -7,7 +7,7 @@ class GetResource {
   final ManageAddress manageAddress;
   GetResource({required this.manageAddress});
   
-  Future<List<dynamic>> getParkingLotList(var engineDbaddr, var displayDbAddr, DateTime check) async {
+  Future<List<dynamic>> getParkingLotList(var engineDbaddr, var displayDbAddr, var displayDbLPR, DateTime check) async {
     
     // engineDbaddr 또는 displayDbAddr가 null 이거나 빈 문자열이라면 에러 처리
     if ((engineDbaddr == null || engineDbaddr.toString().trim().isEmpty) && (manageAddress.engineDbAddr == null || manageAddress.engineDbAddr!.trim().isEmpty)) {
@@ -18,7 +18,7 @@ class GetResource {
     }
 
     // 두 값이 유효하다고 가정하고 receiveEnginedataSendToDartserver 호출
-    List<dynamic> parkingLotList = await receiveEnginedataSendToDartserver(engineDbaddr, displayDbAddr, check);
+    List<dynamic> parkingLotList = await receiveEnginedataSendToDartserver(engineDbaddr, displayDbAddr, displayDbLPR, check);
     return parkingLotList;
   }
 
@@ -36,7 +36,7 @@ class GetResource {
         // }
 
         // 정상 값이 있다면 함수 호출
-        List<dynamic> parkingLotList = await getParkingLotList(manageAddress.engineDbAddr, manageAddress.displayDbAddr, DateTime.now());
+        List<dynamic> parkingLotList = await getParkingLotList(manageAddress.engineDbAddr, manageAddress.displayDbAddr, manageAddress.displayDbLPR, DateTime.now());
         String strRawData = 'start,${parkingLotList.join(',')}';
         return Response.ok(strRawData);
       } catch (e, stack) {

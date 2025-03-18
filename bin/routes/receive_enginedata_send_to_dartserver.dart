@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 
 Future<List<dynamic>> receiveEnginedataSendToDartserver(
-    var engineDbaddr, var displayDbAddr, DateTime check) async {
+    var engineDbaddr, var displayDbAddr, var displayDbLPR, DateTime check) async {
   print('Sending data to server at: ${DateTime.now()}');
 
   String formatDateTime(DateTime dateTime) {
@@ -115,6 +115,37 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(
             {
               "statement": "#I_TbLotStatus",
               "values": {"lot": lotData['uid'], "isParked": lotData['isUsed'], "added": resultSet['timestamp']}
+            }
+          ]
+        };
+        await http.post(
+          Uri.parse(url),
+          headers: headers,
+          body: jsonEncode(body3),
+        );
+      }
+      // lpr 데이터 tb_lots upsert하기
+      var body3 = {
+        "transaction": [
+          {"query": "SELECT slot_name, plate_number, entry_time FROM parking_records;"}
+        ]
+      };
+      var url3=displayDbLPR;
+      var response3 = await http.post(
+        Uri.parse(url3),
+        headers: headers,
+        body: jsonEncode(body3),
+      );
+      var responseData3 = jsonDecode(response3.body);
+      var resultSet3 = responseData3['results'][0]['resultSet'];
+      
+      for (var lotData in resultSet3) {
+        String url = displayDbAddr;
+        var body3 = {
+          "transaction": [
+            {
+              "statement": "#update_plate",
+              "values": {"plate": lotData['plate_number'], "startTime": lotData['entry_time'], "slot_name": lotData['slot_name']}
             }
           ]
         };
