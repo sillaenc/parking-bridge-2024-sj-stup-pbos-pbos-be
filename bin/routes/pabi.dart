@@ -1,8 +1,6 @@
 /// Parking Area Vehicle Information.dart
 /// 
-
 import 'dart:convert';
-
 import 'package:shelf/shelf.dart';
 import 'package:shelf_router/shelf_router.dart';
 import '../data/manage_address.dart';
@@ -28,8 +26,8 @@ class Pabi {
         var getBody = {
           "transaction": [
             {
-              "query": "#get_area",
-              "values": {"slot_name":key}
+              "query": "#get_plate",
+              "values": {"tag":key}
             }
           ]
         };
@@ -38,12 +36,20 @@ class Pabi {
           headers: headers,
           body: jsonEncode(getBody),
         );
-        var decodedGet = jsonDecode(getResponse.body);
+        var utf8decodebody = utf8.decode(getResponse.bodyBytes);
+        var decodedGet = jsonDecode(utf8decodebody);
         print('decodedGet : $decodedGet');
         /// 해당 구역(tag)에서 추출.
         var currentValue = decodedGet['results'][0]['resultSet'][0];
-
-        return Response(currentValue);
+        if(currentValue.isNotEmpty){
+          return Response.ok(
+            jsonEncode(currentValue),
+            headers: {'Content-Type': 'application/json'},
+          );
+        }else{
+          return Response.ok('없어');
+        }
+        
       } catch (e, stackTrace) {
         print('Error: $e');
         print('StackTrace: $stackTrace');
@@ -55,14 +61,15 @@ class Pabi {
       try {
         var payload = await request.readAsString();
         var input = jsonDecode(payload);
-        var key = input['car_num'];
+        var key = input['plate'];
+        var key2 = '%$key';
 
         // 기존 데이터 조회를 위해 GET 쿼리 실행
         var getBody = {
           "transaction": [
             {
-              "query": "#get_car_num",
-              "values":{"car_num":key}
+              "query": "#get_tag",
+              "values":{"plate":key2}
             }
           ]
         };
@@ -71,11 +78,20 @@ class Pabi {
           headers: headers,
           body: jsonEncode(getBody),
         );
-        var decodedGet = jsonDecode(getResponse.body);
+        var utf8decodebody = utf8.decode(getResponse.bodyBytes);
+        var decodedGet = jsonDecode(utf8decodebody);
+        print(decodedGet);
         /// 해당 구역(tag)에서 추출.
-        var currentValue = decodedGet['results'][0]['resultSet'][0];
-
-        return Response(currentValue);
+        var resultSet = decodedGet['results'][0]['resultSet'];
+        if(resultSet.isNotEmpty){
+          // var currentValue = resultSet[0];
+          return Response.ok(
+            jsonEncode(resultSet),  // JSON 문자열로 변환
+            headers: {'Content-Type': 'application/json'},  // JSON 응답 설정
+          );
+        }else{
+          return Response.ok('없어');
+        }
       } catch (e, stackTrace) {
         print('Error: $e');
         print('StackTrace: $stackTrace');
