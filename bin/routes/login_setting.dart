@@ -79,7 +79,9 @@ class LoginSetting {
       var response3 = await response3Future;
       var response2 = await response2Future;
       if(response1.statusCode == 200 && response2.statusCode == 200 && response3.statusCode == 200){
-          var responseData3 = jsonDecode(response3.body);
+          var utf8decodebody = utf8.decode(response3.bodyBytes);
+          var responseData3 = jsonDecode(utf8decodebody);
+          // var responseData3 = jsonDecode(response3.body);
           var resultSet3 = responseData3['results'][0]['resultSet'];
           var responseData2 = jsonDecode(response2.body);
           var resultSet2 = responseData2['results'][0]['resultSet'];
