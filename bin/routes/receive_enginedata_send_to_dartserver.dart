@@ -128,6 +128,7 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(
       var body3 = {
         "transaction": [
           {"query": "SELECT slot_name, plate_number, entry_time FROM parking_records;"}
+          // {"query": "#S_parking"}
         ]
       };
       var url3=displayDbLPR;
@@ -136,7 +137,8 @@ Future<List<dynamic>> receiveEnginedataSendToDartserver(
         headers: headers,
         body: jsonEncode(body3),
       );
-      var responseData3 = jsonDecode(response3.body);
+      var utf8decodebody = utf8.decode(response3.bodyBytes);
+      var responseData3 = jsonDecode(utf8decodebody);
       var resultSet3 = responseData3['results'][0]['resultSet'];
       
       for (var lotData in resultSet3) {
