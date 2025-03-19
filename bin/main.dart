@@ -124,7 +124,7 @@ void main() async {
 
   bool isProcessing = false; // 타이머 콜백 중복 실행 방지용 플래그
   
-  Timer.periodic(Duration(milliseconds: 2000), (timer) async {
+  Timer.periodic(Duration(milliseconds: 4000), (timer) async {
     if (isProcessing) {
       // 이전 주기 작업이 아직 끝나지 않았다면 이번 주기 건너뛰기, 확인용!!
       return;
