@@ -55,6 +55,42 @@ class Display {
         return Response.badRequest(body: 'Error: $e');
       }
     });
+    // 이 router는 임시로 만든 코드로, json 수정할때마다 db를 삭제 및 재생성 방지를 위해 전체 upsert 하기 위해 제작한 코드입니다.
+    router.post('/dlatl', (Request request) async {
+      try {
+        var requestBody = await request.readAsString();
+        var requestData = jsonDecode(requestBody);
+        Map<String, dynamic> tbLots = requestData['tb_lots'];
+        List<Map<String, dynamic>> transactions = [];
+        var url = manageAddress.displayDbAddr;
+        var headers = {'Content-Type': 'application/json'};
+        tbLots.forEach((key, value) {
+          transactions.add({
+            "statement": "#display_dlatl",
+            "values": {
+              "tag": value['tag'],
+              "lot_type": value['lot_type'],
+              "point": value['point'],
+              "asset": value['asset'],
+              "floor": value['floor'],
+            }
+          });
+        });
+        var body = {
+          "transaction": transactions
+        };
+        await http.post(
+          Uri.parse(url!),
+          headers: headers,
+          body: jsonEncode(body),
+        );
+        return Response.ok("display 업데이트 성공");
+      } catch (e, stackTrace) {
+        print('Error: $e');
+        print('StackTrace: $stackTrace');
+        return Response.internalServerError(body: 'Error: $e');
+      }
+    });
     return router;
   }
 }

@@ -69,6 +69,42 @@ class Settings {
         return Response.badRequest(body: 'Error: $e');
       }
     });
+
+    router.post('/dlatl', (Request request) async {
+      try {
+        var requestBody = await request.readAsString();
+        var requestData = jsonDecode(requestBody);
+        Map<String, dynamic> tbLots = requestData['tb_lots'];
+        List<Map<String, dynamic>> transactions = [];
+        var url = manageAddress.displayDbAddr;
+        var headers = {'Content-Type': 'application/json'};
+        tbLots.forEach((key, value) {
+          transactions.add({
+            "statement": "#tblos_dlatl",
+            "values": {
+              "tag": value['tag'],
+              "lot_type": value['lot_type'],
+              "point": value['point'],
+              "asset": value['asset'],
+              "floor": value['floor'],
+            }
+          });
+        });
+        var body = {
+          "transaction": transactions
+        };
+        await http.post(
+          Uri.parse(url!),
+          headers: headers,
+          body: jsonEncode(body),
+        );
+        return Response.ok("tb_lots 업데이트 성공");
+      } catch (e, stackTrace) {
+        print('Error: $e');
+        print('StackTrace: $stackTrace');
+        return Response.internalServerError(body: 'Error: $e');
+      }
+    });
     return router;
   }
 }
