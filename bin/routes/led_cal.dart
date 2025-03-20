@@ -29,7 +29,7 @@ class LedCal {
         var resultSet = get['results'][0]['resultSet'];
         print(resultSet);
         var formattedResult = resultSet.map((entry) {
-          String color = entry['tag_count'] == entry['isUsed_count'] ? "green" : "red";
+          String color = entry['tag_count'] == entry['isUsed_count'] ? "red" : "green";
           String camera = entry['camera'].substring(entry['camera'].length - 3); // 뒤쪽 3자리 추출
           return {
             "camera": camera,
