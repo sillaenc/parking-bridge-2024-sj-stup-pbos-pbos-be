@@ -29,6 +29,7 @@ import 'routes/settings.dart';
 import 'routes/isalive.dart';
 import 'routes/pabi.dart';
 import 'routes/led_cal.dart';
+import 'routes/ping.dart';
 
 String formatDateTime(DateTime dateTime) {
   String year = dateTime.year.toString();
@@ -90,7 +91,7 @@ void main() async {
   final isalive = Isalive(manageAddress: manageAddress);
   final pabi = Pabi(manageAddress: manageAddress);
   final ledCal = LedCal(manageAddress: manageAddress);
-  // final pabi = Pabi();
+  final ping = Ping(manageAddress: manageAddress);
   final router = Router();
 
   manageAddress.displayDbAddr = env['displayDbAddr'];
@@ -119,7 +120,8 @@ void main() async {
   router.mount('/isalive', isalive.router);
   router.mount('/pabi', pabi.router);
   router.mount('/led_cal', ledCal.router);
-  
+  router.mount('/ping', ping.router);
+
   firstSetting(url);
 
   // http.Client를 재사용하기 위한 인스턴스
