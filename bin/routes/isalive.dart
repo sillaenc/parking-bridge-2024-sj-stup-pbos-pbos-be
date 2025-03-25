@@ -136,6 +136,11 @@ class Isalive {
       }
     });
 
+    // 서버 살아있는지 확인하는 api.
+    router.get('/isalive', (Request request) async {
+      return Response.ok("1");
+    });
+
     return router;
   }
 }
