@@ -1,0 +1,622 @@
+openapi: 3.0.3
+info:
+  title: 스마트 파킹 백엔드 API
+  description: |
+    ## 개요
+    스마트 파킹 시스템의 백엔드 API입니다.
+    
+    **🎯 총 177개의 API 엔드포인트를 제공합니다**
+    
+    ## 주요 기능
+    - JWT 토큰 기반 인증 및 사용자 관리
+    - 실시간 주차 데이터 처리 및 통계
+    - 전광판, 디스플레이, LED 제어
+    - 시스템 모니터링 및 상태 관리
+    
+    ## API 카테고리 (총 177개 엔드포인트)
+    1. **인증 (Auth)**: 11개 - 로그인, 토큰 관리
+    2. **사용자 관리 (Users)**: 21개 - 계정 생성, 수정, 삭제
+    3. **주차 구역 관리 (Parking Zones)**: 22개 - 구역 설정, 카메라 관리
+    4. **통계 (Statistics)**: 26개 - 일일/주간/월간/연간 통계
+    5. **전광판 (Electric Signs)**: 17개 - 전광판 제어
+    6. **기본 정보 (Base Information)**: 11개 - 주차장 기본 설정
+    7. **차량 정보 (Vehicle)**: 7개 - 차량 위치 및 상태 조회
+    8. **디스플레이 (Display)**: 6개 - 디스플레이 제어
+    9. **광고판 (Billboard)**: 6개 - 광고판 관리
+    10. **시스템 상태 (System Health)**: 8개 - 시스템 모니터링
+    11. **설정 (Settings)**: 11개 - 시스템 설정
+    12. **중앙 대시보드 (Central)**: 3개 - 통합 현황
+    13. **LED 계산 (LED)**: 3개 - LED 색상 계산
+    14. **엔진 데이터**: 2개 - 실시간 데이터 처리
+    15. **기타 유틸리티**: 14개 - 리소스, 그래프 등
+    
+    ## 인증
+    JWT Bearer 토큰을 사용합니다.
+    
+    ## 버전 정책
+    - **v1**: 현재 버전 (리팩토링 완료)
+    - **레거시**: 기존 클라이언트 호환성 유지
+    
+  version: 2.0.0
+  contact:
+    name: 스마트 파킹 시스템 API 지원
+    email: support@smartparking.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: http://localhost:8080
+    description: 개발 서버
+  - url: https://api.smartparking.com
+    description: 프로덕션 서버
+
+security:
+  - BearerAuth: []
+
+tags:
+  - name: auth
+    description: 인증 및 토큰 관리 (11개 엔드포인트)
+  - name: users
+    description: 사용자 계정 관리 (21개 엔드포인트)
+  - name: parking-zones
+    description: 주차 구역 및 카메라 관리 (22개 엔드포인트)
+  - name: statistics
+    description: 통계 데이터 조회 (26개 엔드포인트)
+  - name: electric-signs
+    description: 전광판 제어 (17개 엔드포인트)
+  - name: base-info
+    description: 주차장 기본 정보 (11개 엔드포인트)
+  - name: vehicle
+    description: 차량 정보 조회 (7개 엔드포인트)
+  - name: display
+    description: 디스플레이 관리 (6개 엔드포인트)
+  - name: billboard
+    description: 광고판 관리 (6개 엔드포인트)
+  - name: system
+    description: 시스템 상태 모니터링 (8개 엔드포인트)
+  - name: settings
+    description: 시스템 설정 (11개 엔드포인트)
+  - name: central
+    description: 중앙 대시보드 (3개 엔드포인트)
+  - name: led
+    description: LED 계산 (3개 엔드포인트)
+  - name: engine
+    description: 엔진 데이터 처리 (2개 엔드포인트)
+  - name: utilities
+    description: 기타 유틸리티 (14개 엔드포인트)
+
+paths:
+  # ======== 1. 인증 API (11개) ========
+  /api/v1/auth/login:
+    post:
+      tags: [auth]
+      summary: 사용자 로그인
+      description: 계정 정보로 로그인하여 JWT 토큰을 발급받습니다.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [account, password]
+              properties:
+                account:
+                  type: string
+                  description: 사용자 계정
+                password:
+                  type: string
+                  description: 비밀번호
+      responses:
+        '200':
+          description: 로그인 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "로그인 성공"
+                  data:
+                    type: object
+                    properties:
+                      token:
+                        type: string
+                        description: JWT 토큰
+                      user:
+                        $ref: '#/components/schemas/User'
+
+  /api/v1/auth/base-info:
+    get:
+      tags: [auth]
+      summary: 기본 정보 조회
+      description: 로그인 후 주차장 기본 정보를 조회합니다.
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: 기본 정보 조회 성공
+
+  /api/v1/auth/token:
+    get:
+      tags: [auth]
+      summary: 토큰 정보 조회
+      description: 현재 토큰의 정보를 조회합니다.
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: 토큰 정보
+
+  /api/v1/auth/protected:
+    get:
+      tags: [auth]
+      summary: 보호된 엔드포인트 테스트
+      description: JWT 토큰 인증이 필요한 엔드포인트 테스트
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: 인증 성공
+
+  /api/v1/auth/refresh:
+    post:
+      tags: [auth]
+      summary: 토큰 갱신
+      description: 기존 토큰을 이용해 새로운 토큰을 발급받습니다.
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: 토큰 갱신 성공
+
+  /api/v1/auth/health:
+    get:
+      tags: [auth]
+      summary: 인증 서비스 상태 확인
+      responses:
+        '200':
+          description: 서비스 정상
+
+  /api/v1/auth/info:
+    get:
+      tags: [auth]
+      summary: 인증 서비스 정보
+      responses:
+        '200':
+          description: 서비스 정보
+
+  # 레거시 인증 API (4개)
+  /login_setting:
+    post:
+      tags: [auth]
+      summary: "[레거시] 로그인"
+      description: 기존 클라이언트 호환성을 위한 레거시 엔드포인트
+      deprecated: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                account:
+                  type: string
+                passwd:
+                  type: string
+      responses:
+        '200':
+          description: 로그인 응답
+
+  /login_setting/base:
+    get:
+      tags: [auth]
+      summary: "[레거시] 기본 정보"
+      deprecated: true
+      responses:
+        '200':
+          description: 기본 정보
+
+  /login_setting/jwt:
+    get:
+      tags: [auth]
+      summary: "[레거시] JWT 토큰 정보"
+      deprecated: true
+      responses:
+        '200':
+          description: JWT 정보
+
+  /login_setting/protected:
+    get:
+      tags: [auth]
+      summary: "[레거시] 보호된 리소스"
+      deprecated: true
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: 보호된 리소스
+
+  # ======== 2. 사용자 관리 API (21개) ========
+  /api/v1/users:
+    get:
+      tags: [users]
+      summary: 모든 사용자 조회
+      description: 시스템의 모든 사용자 목록을 조회합니다.
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: 사용자 목록 조회 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/User'
+
+    post:
+      tags: [users]
+      summary: 새 사용자 생성
+      description: 새로운 사용자 계정을 생성합니다.
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUserRequest'
+      responses:
+        '201':
+          description: 사용자 생성 성공
+
+  /api/v1/users/{account}:
+    get:
+      tags: [users]
+      summary: 특정 사용자 조회
+      description: 계정명으로 특정 사용자 정보를 조회합니다.
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: account
+          in: path
+          required: true
+          schema:
+            type: string
+          description: 사용자 계정명
+      responses:
+        '200':
+          description: 사용자 정보
+
+    put:
+      tags: [users]
+      summary: 사용자 정보 수정
+      description: 사용자의 정보를 수정합니다.
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: account
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateUserRequest'
+      responses:
+        '200':
+          description: 수정 성공
+
+    delete:
+      tags: [users]
+      summary: 사용자 삭제
+      description: 사용자 계정을 삭제합니다.
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: account
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 삭제 성공
+
+  /api/v1/users/{account}/password:
+    patch:
+      tags: [users]
+      summary: 비밀번호 변경
+      description: 사용자의 비밀번호를 변경합니다.
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: account
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [newPassword]
+              properties:
+                newPassword:
+                  type: string
+                  description: 새 비밀번호
+      responses:
+        '200':
+          description: 비밀번호 변경 성공
+
+  /api/v1/users/{account}/password/reset:
+    patch:
+      tags: [users]
+      summary: 비밀번호 초기화
+      description: 사용자의 비밀번호를 초기화합니다.
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: account
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 비밀번호 초기화 성공
+
+  /api/v1/users/health:
+    get:
+      tags: [users]
+      summary: 사용자 관리 서비스 상태
+      responses:
+        '200':
+          description: 서비스 정상
+
+  /api/v1/users/info:
+    get:
+      tags: [users]
+      summary: 사용자 관리 서비스 정보
+      responses:
+        '200':
+          description: 서비스 정보
+
+  # 레거시 사용자 관리 API (6개)
+  /settings/account:
+    get:
+      tags: [users]
+      summary: "[레거시] 사용자 목록"
+      deprecated: true
+      responses:
+        '200':
+          description: 사용자 목록
+
+  /settings/account/updateUser:
+    post:
+      tags: [users]
+      summary: "[레거시] 사용자 정보 수정"
+      deprecated: true
+      responses:
+        '200':
+          description: 수정 완료
+
+  /settings/account/changePassword:
+    post:
+      tags: [users]
+      summary: "[레거시] 비밀번호 변경"
+      deprecated: true
+      responses:
+        '200':
+          description: 변경 완료
+
+  /settings/account/resetPassword:
+    post:
+      tags: [users]
+      summary: "[레거시] 비밀번호 초기화"
+      deprecated: true
+      responses:
+        '200':
+          description: 초기화 완료
+
+  /settings/account/insertUser:
+    post:
+      tags: [users]
+      summary: "[레거시] 사용자 추가"
+      deprecated: true
+      responses:
+        '200':
+          description: 추가 완료
+
+  /settings/account/deleteUser:
+    post:
+      tags: [users]
+      summary: "[레거시] 사용자 삭제"
+      deprecated: true
+      responses:
+        '200':
+          description: 삭제 완료
+
+  /confirm_account_list:
+    get:
+      tags: [users]
+      summary: "[레거시] 계정 목록 확인"
+      deprecated: true
+      responses:
+        '200':
+          description: 계정 목록
+
+  /create_admin:
+    post:
+      tags: [users]
+      summary: "[레거시] 관리자 계정 생성"
+      deprecated: true
+      responses:
+        '200':
+          description: 관리자 계정 생성
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT 토큰을 Bearer 형식으로 전송합니다.
+
+  schemas:
+    User:
+      type: object
+      properties:
+        uid:
+          type: integer
+          description: 사용자 고유 ID
+        account:
+          type: string
+          description: 사용자 계정명
+        username:
+          type: string
+          description: 사용자 이름
+        userlevel:
+          type: integer
+          description: 사용자 권한 레벨
+        isActivated:
+          type: boolean
+          description: 계정 활성화 상태
+
+    CreateUserRequest:
+      type: object
+      required: [account, password, username, userlevel]
+      properties:
+        account:
+          type: string
+          description: 계정명
+        password:
+          type: string
+          description: 비밀번호
+        username:
+          type: string
+          description: 사용자 이름
+        userlevel:
+          type: integer
+          description: 권한 레벨 (1: 관리자, 2: 일반 사용자)
+        isActivated:
+          type: boolean
+          default: true
+          description: 계정 활성화 상태
+
+    UpdateUserRequest:
+      type: object
+      properties:
+        username:
+          type: string
+          description: 사용자 이름
+        userlevel:
+          type: integer
+          description: 권한 레벨
+        isActivated:
+          type: boolean
+          description: 계정 활성화 상태
+
+    ApiResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          description: 요청 성공 여부
+        message:
+          type: string
+          description: 응답 메시지
+        data:
+          type: object
+          description: 응답 데이터
+        errorCode:
+          type: string
+          description: 에러 코드 (실패 시)
+
+    HealthCheckResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        healthy:
+          type: boolean
+          example: true
+        service:
+          type: string
+          description: 서비스 이름
+        timestamp:
+          type: string
+          format: date-time
+          description: 응답 시간
+
+  responses:
+    BadRequest:
+      description: 잘못된 요청
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiResponse'
+          example:
+            success: false
+            message: "잘못된 요청입니다"
+            errorCode: "INVALID_REQUEST"
+
+    Unauthorized:
+      description: 인증되지 않음
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiResponse'
+          example:
+            success: false
+            message: "인증이 필요합니다"
+            errorCode: "UNAUTHORIZED"
+
+    Forbidden:
+      description: 권한 없음
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiResponse'
+          example:
+            success: false
+            message: "권한이 없습니다"
+            errorCode: "FORBIDDEN"
+
+    NotFound:
+      description: 리소스를 찾을 수 없음
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiResponse'
+          example:
+            success: false
+            message: "리소스를 찾을 수 없습니다"
+            errorCode: "NOT_FOUND"
+
+    InternalServerError:
+      description: 내부 서버 오류
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiResponse'
+          example:
+            success: false
+            message: "내부 서버 오류가 발생했습니다"
+            errorCode: "INTERNAL_SERVER_ERROR" 

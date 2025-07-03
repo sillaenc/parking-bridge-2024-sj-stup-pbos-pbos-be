@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>스마트 파킹 API 문서</title>
+  <link rel="stylesheet" type="text/css" href="https://unpkg.com/swagger-ui-dist@4.15.5/swagger-ui.css" />
+  <style>
+    html {
+      box-sizing: border-box;
+      overflow: -moz-scrollbars-vertical;
+      overflow-y: scroll;
+    }
+    *, *:before, *:after {
+      box-sizing: inherit;
+    }
+    body {
+      margin:0;
+      background: #fafafa;
+    }
+    .swagger-ui .topbar {
+      background-color: #1976d2;
+    }
+    .swagger-ui .topbar .download-url-wrapper .select-label {
+      color: white;
+    }
+    .swagger-ui .topbar .download-url-wrapper input[type=text] {
+      border: 2px solid #ffffff;
+    }
+    .swagger-ui .info .title {
+      color: #1976d2;
+    }
+  </style>
+</head>
+<body>
+  <div id="swagger-ui"></div>
+  <script src="https://unpkg.com/swagger-ui-dist@4.15.5/swagger-ui-bundle.js"></script>
+  <script src="https://unpkg.com/swagger-ui-dist@4.15.5/swagger-ui-standalone-preset.js"></script>
+  <script>
+    window.onload = function() {
+      // Build a system
+      const ui = SwaggerUIBundle({
+        url: '/swagger.yaml',
+        dom_id: '#swagger-ui',
+        deepLinking: true,
+        presets: [
+          SwaggerUIBundle.presets.apis,
+          SwaggerUIStandalonePreset
+        ],
+        plugins: [
+          SwaggerUIBundle.plugins.DownloadUrl
+        ],
+        layout: "StandaloneLayout",
+        validatorUrl: null, // 유효성 검사 비활성화
+        docExpansion: "list", // API 목록을 리스트 형태로 표시
+        defaultModelsExpandDepth: 1, // 모델 확장 깊이
+        defaultModelExpandDepth: 1,
+        showExtensions: true,
+        showCommonExtensions: true,
+        tryItOutEnabled: true, // Try it out 버튼 활성화
+        requestInterceptor: function(request) {
+          // 요청 인터셉터 - JWT 토큰 자동 추가 등에 사용 가능
+          console.log('Request:', request);
+          return request;
+        },
+        responseInterceptor: function(response) {
+          // 응답 인터셉터 - 응답 로깅 등에 사용 가능
+          console.log('Response:', response);
+          return response;
+        },
+        onComplete: function(swaggerApi, swaggerUi) {
+          console.log('Swagger UI 로드 완료');
+          
+          // 기본 JWT 토큰 설정 (개발용)
+          const authButton = document.querySelector('.authorize');
+          if (authButton) {
+            console.log('인증 버튼을 찾았습니다.');
+          }
+        },
+        persistAuthorization: true, // 새로고침 시에도 인증 정보 유지
+        filter: true, // 검색 필터 활성화
+        syntaxHighlight: {
+          activate: true,
+          theme: "agate"
+        }
+      });
+      
+      // 개발 모드에서 콘솔에 유용한 정보 출력
+      console.log(`
+========================================
+🚀 스마트 파킹 API 문서가 로드되었습니다!
+========================================
+
+📋 사용 가능한 API 카테고리:
+  • 인증 - 사용자 로그인 및 권한 관리
+  • 중앙 대시보드 - 주차장 전체 현황
+  • 차량 정보 - 차량 및 주차 공간 조회
+  • 전광판 - 전광판 디스플레이 관리
+  • 디스플레이 - 디스플레이 정보 관리
+  • LED 계산 - LED 표시등 색상 계산
+  • 시스템 상태 - 시스템 모니터링
+
+🔑 인증 정보:
+  Bearer 토큰을 사용합니다.
+  우측 상단의 'Authorize' 버튼을 클릭하여
+  JWT 토큰을 입력하세요.
+
+💡 팁:
+  • 각 API의 'Try it out' 버튼으로 실제 테스트 가능
+  • 리팩토링된 15개 API가 모두 포함됨
+  • 레거시 API와의 호환성 유지
+      `);
+    };
+  </script>
+</body>
+</html> 

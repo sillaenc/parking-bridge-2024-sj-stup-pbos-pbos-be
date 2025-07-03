@@ -1,0 +1,387 @@
+import 'dart:io';
+import 'package:shelf/shelf.dart';
+import 'package:shelf_router/shelf_router.dart';
+import '../data/manage_address.dart';
+import '../routes/first_setting.dart';
+
+// 모든 라우트 클래스들 import
+import 'engine_data.dart';
+import 'confirm_account_list.dart';
+import 'create_admin.dart';
+import 'login_main.dart';
+import 'login_setting.dart'; // TODO: 레거시 호환성용, 향후 제거 예정
+import 'auth_api.dart'; // 새로운 인증 API
+import 'settings_account.dart';
+import 'user_management_api.dart';
+import 'statistics_cam_parking_area.dart';
+import 'statistics_api.dart';
+import 'settings_db_management.dart';
+import 'settings_parking_area.dart';
+import 'parking_zone_management_api.dart';
+import 'settings_cam_parking_area.dart';
+import 'camera_parking_api.dart';
+import 'get_resource.dart';
+import 'graphData.dart';
+import 'central.dart';
+import 'base_information.dart'; // TODO: 레거시 호환성용, 향후 제거 예정
+import 'base_information_api.dart'; // 새로운 주차장 기본 정보 API
+import 'multiple_electric_signs.dart'; // TODO: 레거시 호환성용, 향후 제거 예정
+import 'electric_sign_api.dart'; // 새로운 전광판 API
+import 'billboard.dart';
+import 'display.dart';
+import 'settings.dart';
+import 'isalive.dart';
+import 'pabi.dart';
+import 'led_cal.dart';
+import 'ping.dart';
+import 'error.dart';
+
+// 새로 리팩토링된 API들 import
+import 'central_dashboard_api.dart';
+import 'vehicle_info_api.dart';
+import 'billboard_api.dart';
+import 'display_api.dart';
+import 'led_calculation_api.dart';
+import 'system_health_api.dart';
+
+/// OpenAPI 3.0 스타일의 라우터 설정을 관리하는 클래스
+/// 모든 API 엔드포인트를 /api/v1/ 형태로 체계적으로 구성
+class RouterConfig {
+  static const String API_PREFIX = '/api/v1';
+
+  final ManageAddress _manageAddress;
+  late final Router _router;
+
+  RouterConfig({required ManageAddress manageAddress})
+      : _manageAddress = manageAddress {
+    _router = Router();
+    _configureRoutes();
+  }
+
+  /// 모든 라우트를 설정하는 메인 함수
+  void _configureRoutes() {
+    _configureAuthRoutes();
+    _configureUserRoutes();
+    _configureSettingsRoutes();
+    _configureStatisticsRoutes();
+    _configureParkingRoutes();
+    _configureSystemRoutes();
+    _configureMonitoringRoutes();
+    _configureResourceRoutes();
+    _configureRefactoredApiRoutes(); // 새로 리팩토링된 API들
+    _configureSwaggerRoutes(); // Swagger 문서 서빙
+    _configureLegacyRoutes(); // 기존 경로 호환성을 위해 임시 유지
+
+    // 초기 설정 실행
+    _initializeSettings();
+  }
+
+  /// 인증 관련 라우트 설정
+  void _configureAuthRoutes() {
+    final confirmAccountList =
+        ConfirmAccountList(manageAddress: _manageAddress);
+    final loginMain = LoginMain(manageAddress: _manageAddress);
+
+    // 새로운 RESTful 인증 API (리팩토링됨)
+    final authApi = AuthApi(manageAddress: _manageAddress);
+
+    // 레거시 호환성용 (기존 클라이언트 지원)
+    final loginSetting = LoginSetting(confirmAccountList: confirmAccountList);
+
+    // 새로운 RESTful API 라우트
+    _router.mount('$API_PREFIX/auth', authApi.router);
+
+    // 기존 API 라우트 (호환성 유지)
+    _router.mount('$API_PREFIX/auth/accounts/check', confirmAccountList.router);
+    _router.mount('$API_PREFIX/auth/legacy', authApi.legacyRouter);
+    _router.mount('$API_PREFIX/auth/status', loginMain.router);
+  }
+
+  /// 사용자 관리 라우트 설정
+  void _configureUserRoutes() {
+    final createAdmin = CreateAdmin(
+        confirmAccountList: ConfirmAccountList(manageAddress: _manageAddress));
+
+    // 새로운 RESTful 사용자 관리 API (리팩토링됨)
+    final userManagementApi = UserManagementApi(manageAddress: _manageAddress);
+    final legacyUserApi = LegacyUserApi(manageAddress: _manageAddress);
+
+    // RESTful API 라우트
+    _router.mount('$API_PREFIX/users', userManagementApi.router);
+    _router.mount('$API_PREFIX/users/admin', createAdmin.router);
+
+    // 레거시 호환성 라우트 (기존 클라이언트 지원용)
+    _router.mount('$API_PREFIX/users/legacy', legacyUserApi.router);
+  }
+
+  /// 설정 관리 라우트 설정
+  void _configureSettingsRoutes() {
+    final settingsDbManagement =
+        SettingsDbManagement(manageAddress: _manageAddress);
+    final settings = Settings(manageAddress: _manageAddress);
+
+    // 새로운 RESTful 주차 구역 관리 API (리팩토링됨)
+    final parkingZoneManagementApi =
+        ParkingZoneManagementApi(manageAddress: _manageAddress);
+    final legacyParkingZoneApi =
+        LegacyParkingZoneApi(manageAddress: _manageAddress);
+
+    // 새로운 RESTful 카메라 주차 표면 관리 API (리팩토링됨)
+    final cameraParkingApi = CameraParkingAPI(manageAddress: _manageAddress);
+
+    _router.mount('$API_PREFIX/settings/database', settingsDbManagement.router);
+    _router.mount(
+        '$API_PREFIX/settings/parking-zones', parkingZoneManagementApi.router);
+    _router.mount(
+        '$API_PREFIX/settings/camera-parking', cameraParkingApi.router);
+    _router.mount('$API_PREFIX/settings/general', settings.router);
+
+    // 레거시 호환성 라우트 (기존 클라이언트 지원용)
+    _router.mount('$API_PREFIX/settings/parking-zones/legacy',
+        legacyParkingZoneApi.router);
+  }
+
+  /// 통계 관련 라우트 설정
+  void _configureStatisticsRoutes() {
+    // 새로운 RESTful 통계 API (리팩토링됨)
+    final statisticsApi = StatisticsApi(manageAddress: _manageAddress);
+    _router.mount('$API_PREFIX/statistics', statisticsApi.router);
+
+    // 기존 통계 라우트 (레거시 - 호환성 유지)
+    final statisticsCamParkingArea =
+        StatisticsCamParkingArea(manageAddress: _manageAddress);
+    final graphDataInstance = graphData(manageAddress: _manageAddress);
+
+    _router.mount('$API_PREFIX/statistics/parking-areas',
+        statisticsCamParkingArea.router);
+    _router.mount('$API_PREFIX/statistics/graphs', graphDataInstance.router);
+  }
+
+  /// 주차 관련 라우트 설정
+  void _configureParkingRoutes() {
+    // 엔진 데이터 처리 (리팩토링된 새 버전)
+    final engineDataRoutes = EngineDataRoutes(manageAddress: _manageAddress);
+    _router.mount('$API_PREFIX/engine/data', engineDataRoutes.router);
+
+    // 새로운 RESTful 주차장 기본 정보 API (리팩토링됨)
+    final baseInformationApi =
+        BaseInformationApi(manageAddress: _manageAddress);
+
+    // 새로운 RESTful 전광판 API (리팩토링됨)
+    final electricSignApi = ElectricSignApi(manageAddress: _manageAddress);
+
+    final central = Central(manageAddress: _manageAddress);
+    final pabi = Pabi(manageAddress: _manageAddress);
+
+    // 새로운 RESTful API 라우트
+    _router.mount('$API_PREFIX/parking/information', baseInformationApi.router);
+    _router.mount('$API_PREFIX/parking/electric-signs', electricSignApi.router);
+
+    // 레거시 호환성 라우트 (기존 클라이언트 지원용)
+    _router.mount('$API_PREFIX/parking/information/legacy',
+        baseInformationApi.legacyRouter);
+    _router.mount('$API_PREFIX/parking/electric-signs/legacy',
+        electricSignApi.legacyRouter);
+
+    _router.mount('$API_PREFIX/parking/central', central.router);
+    _router.mount('$API_PREFIX/parking/pabi', pabi.router);
+  }
+
+  /// 시스템 관련 라우트 설정
+  void _configureSystemRoutes() {
+    final billBoard = BillBoard(manageAddress: _manageAddress);
+    final display = Display(manageAddress: _manageAddress);
+    final ledCal = LedCal(manageAddress: _manageAddress);
+
+    _router.mount('$API_PREFIX/system/billboard', billBoard.router);
+    _router.mount('$API_PREFIX/system/display', display.router);
+    _router.mount('$API_PREFIX/system/led-calendar', ledCal.router);
+  }
+
+  /// 모니터링 관련 라우트 설정
+  void _configureMonitoringRoutes() {
+    final isalive = Isalive(manageAddress: _manageAddress);
+    final ping = Ping(manageAddress: _manageAddress);
+    final error = Error(manageAddress: _manageAddress);
+
+    _router.mount('$API_PREFIX/monitoring/health', isalive.router);
+    _router.mount('$API_PREFIX/monitoring/ping', ping.router);
+    _router.mount('$API_PREFIX/monitoring/errors', error.router);
+  }
+
+  /// 리소스 관련 라우트 설정
+  void _configureResourceRoutes() {
+    final getResource = GetResource(manageAddress: _manageAddress);
+
+    _router.mount('$API_PREFIX/resources', getResource.router);
+  }
+
+  /// 새로 리팩토링된 API 라우트 설정 (OpenAPI 3.0 표준)
+  void _configureRefactoredApiRoutes() {
+    // 15단계 리팩토링으로 새로 생성된 RESTful API들
+
+    // 10단계: central_dashboard_api.dart (중앙 대시보드)
+    final centralDashboardApi =
+        CentralDashboardApi(manageAddress: _manageAddress);
+    _router.mount('$API_PREFIX/central', centralDashboardApi.router);
+
+    // 11단계: vehicle_info_api.dart (차량 정보)
+    final vehicleInfoApi = VehicleInfoApi(manageAddress: _manageAddress);
+    _router.mount('$API_PREFIX/vehicle', vehicleInfoApi.router);
+
+    // 12단계: billboard_api.dart (전광판)
+    final billboardApi = BillboardApi(manageAddress: _manageAddress);
+    _router.mount('$API_PREFIX/billboard', billboardApi.router);
+
+    // 13단계: display_api.dart (디스플레이)
+    final displayApi = DisplayApi(manageAddress: _manageAddress);
+    _router.mount('$API_PREFIX/display', displayApi.router);
+
+    // 14단계: led_calculation_api.dart (LED 계산)
+    final ledCalculationApi = LedCalculationApi(manageAddress: _manageAddress);
+    _router.mount('$API_PREFIX/led', ledCalculationApi.router);
+
+    // 15단계: system_health_api.dart (시스템 상태)
+    final systemHealthApi = SystemHealthApi(manageAddress: _manageAddress);
+    _router.mount('$API_PREFIX/system', systemHealthApi.router);
+
+    print('✅ 새로 리팩토링된 RESTful API들이 추가되었습니다:');
+    print('   ├── $API_PREFIX/central/* (중앙 대시보드)');
+    print('   ├── $API_PREFIX/vehicle/* (차량 정보)');
+    print('   ├── $API_PREFIX/billboard/* (전광판)');
+    print('   ├── $API_PREFIX/display/* (디스플레이)');
+    print('   ├── $API_PREFIX/led/* (LED 계산)');
+    print('   └── $API_PREFIX/system/* (시스템 상태)');
+  }
+
+  /// Swagger UI 및 API 문서 라우트 설정
+  void _configureSwaggerRoutes() {
+    // 기본 Swagger UI - 완전한 177개 API 문서 UI로 변경
+    _router.get('/docs', (Request request) {
+      return _serveStaticFile('swagger-ui-complete.html', 'text/html');
+    });
+
+    // API 문서 접근을 위한 별칭
+    _router.get('/api-docs', (Request request) {
+      return _serveStaticFile('swagger-ui-complete.html', 'text/html');
+    });
+
+    // 완전한 177개 API 문서 UI (별칭 유지)
+    _router.get('/docs-complete', (Request request) {
+      return _serveStaticFile('swagger-ui-complete.html', 'text/html');
+    });
+
+    // OpenAPI 스펙 YAML 파일 서빙 (기본 - 주요 API)
+    _router.get('/swagger.yaml', (Request request) {
+      return _serveStaticFile('swagger.yaml', 'application/x-yaml');
+    });
+
+    // 완전한 177개 API 문서 서빙
+    _router.get('/swagger-complete.yaml', (Request request) {
+      return _serveStaticFile('swagger_complete.yaml', 'application/x-yaml');
+    });
+
+    // OpenAPI 스펙 JSON 형태로도 제공 (향후 추가 가능)
+    _router.get('/openapi.json', (Request request) {
+      return Response.ok(
+        '{"message": "JSON 형식은 추후 제공 예정입니다. /swagger.yaml을 사용해주세요."}',
+        headers: {'Content-Type': 'application/json'},
+      );
+    });
+
+    print('📚 Swagger 문서가 다음 경로에서 제공됩니다:');
+    print('   • 기본 Swagger UI (177개 API): http://localhost:8080/docs');
+    print('   • 완전한 API UI (별칭): http://localhost:8080/docs-complete');
+    print('   • API 문서: http://localhost:8080/api-docs');
+    print('   • 기본 OpenAPI 스펙: http://localhost:8080/swagger.yaml');
+    print('   • 완전한 177개 API 스펙: http://localhost:8080/swagger-complete.yaml');
+  }
+
+  /// 정적 파일 서빙 헬퍼 메서드
+  Response _serveStaticFile(String fileName, String contentType) {
+    try {
+      // 프로젝트 루트에서 파일 읽기
+      final file = File(fileName);
+      if (!file.existsSync()) {
+        return Response.notFound('파일을 찾을 수 없습니다: $fileName');
+      }
+
+      final content = file.readAsStringSync();
+      return Response.ok(
+        content,
+        headers: {
+          'Content-Type': contentType,
+          'Cache-Control': 'public, max-age=3600', // 1시간 캐시
+        },
+      );
+    } catch (e) {
+      print('❌ 정적 파일 서빙 오류: $e');
+      return Response.internalServerError(
+        body: '파일을 읽는 중 오류가 발생했습니다: $e',
+      );
+    }
+  }
+
+  /// 기존 경로 호환성을 위한 임시 라우트 (단계적 마이그레이션용)
+  void _configureLegacyRoutes() {
+    // TODO: 클라이언트 마이그레이션 완료 후 제거 예정
+    final confirmAccountList =
+        ConfirmAccountList(manageAddress: _manageAddress);
+    final createAdmin = CreateAdmin(confirmAccountList: confirmAccountList);
+    final loginMain = LoginMain(manageAddress: _manageAddress);
+    final loginSetting = LoginSetting(confirmAccountList: confirmAccountList);
+    final settingsAccount = SettingsAccount(manageAddress: _manageAddress);
+    final settingsParkingArea =
+        SettingsParkingArea(manageAddress: _manageAddress);
+    final settingsCamParkingArea =
+        SettingsCamParkingArea(manageAddress: _manageAddress);
+    final baseInformation = BaseInformation(manageAddress: _manageAddress);
+    final multipleElectricSigns =
+        MultipleElectricSigns(manageAddress: _manageAddress);
+
+    // 기존 경로들을 임시로 유지 (Deprecated)
+    _router.mount('/confirm_account_list', confirmAccountList.router);
+    _router.mount('/create_admin', createAdmin.router);
+    _router.mount('/parking_status', loginMain.router);
+    _router.mount('/login_setting', loginSetting.router);
+    _router.mount('/settings_account', settingsAccount.router);
+    _router.mount('/settings_parking_area', settingsParkingArea.router);
+    _router.mount('/settings_cam_parking_area', settingsCamParkingArea.router);
+    _router.mount('/base_information', baseInformation.router);
+    _router.mount('/multiple_electric_signs', multipleElectricSigns.router);
+
+    print('⚠️  레거시 라우트가 활성화되었습니다. 향후 버전에서 제거될 예정입니다.');
+  }
+
+  /// 초기 설정 실행
+  void _initializeSettings() {
+    final displayDbAddr = _manageAddress.displayDbAddr;
+    if (displayDbAddr != null) {
+      firstSetting(displayDbAddr);
+      print('✅ 초기 설정이 완료되었습니다.');
+    } else {
+      print('⚠️  Display DB 주소가 설정되지 않아 초기 설정을 건너뛰었습니다.');
+    }
+  }
+
+  /// 설정된 라우터 반환
+  Router get router => _router;
+
+  /// API 정보 출력 (개발용)
+  void printApiInfo() {
+    print('\n🚀 API Server Information:');
+    print('   API Version: v1');
+    print('   Base Path: $API_PREFIX');
+    print('   Available Endpoints:');
+    print('   ├── Auth: $API_PREFIX/auth/* (리팩토링됨)');
+    print('   ├── Users: $API_PREFIX/users/* (리팩토링됨)');
+    print('   ├── Engine: $API_PREFIX/engine/* (리팩토링됨)');
+    print('   ├── Settings: $API_PREFIX/settings/* (일부 리팩토링됨)');
+    print('   ├── Statistics: $API_PREFIX/statistics/* (리팩토링됨)');
+    print('   ├── Parking: $API_PREFIX/parking/* (일부 리팩토링됨)');
+    print('   ├── System: $API_PREFIX/system/*');
+    print('   ├── Monitoring: $API_PREFIX/monitoring/*');
+    print('   └── Resources: $API_PREFIX/resources/*');
+    print('');
+  }
+}

@@ -1,0 +1,272 @@
+import 'dart:convert';
+import 'package:shelf/shelf.dart';
+import 'package:shelf_router/shelf_router.dart';
+import 'package:http/http.dart' as http;
+import '../routes/confirm_account_list.dart';
+import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
+import 'package:crypto/crypto.dart';
+
+const String _secretKey = 'secret_key_hahaha_bjs';
+
+class LoginSetting {
+  final ConfirmAccountList confirmAccountList;
+
+  LoginSetting({required this.confirmAccountList});
+  //var account="";var passwd="";
+
+  Router get router {
+    final router = Router();
+    var token;
+    var listtoken;
+    String? url = confirmAccountList.manageAddress.displayDbAddr;
+    var headers = { 'Content-Type': 'application/json' };
+    router.post('/', (Request request) async {
+      var requestBody = await request.readAsString();
+      var loginData = jsonDecode(requestBody);
+      var loginCheck = 0;
+      var account = loginData['account'];
+      var passwd = loginData['passwd'];
+      String firstHash = sha256.convert(utf8.encode(passwd)).toString();
+      String secondHash = sha256.convert(utf8.encode(firstHash)).toString();
+
+      var loginDataResult = reqLogin(account, secondHash, url);
+      var loginDataResult2 = reqLogin2(account, secondHash, url);
+      var responseLogin = await loginDataResult;
+      var responseLogin2 = await loginDataResult2;
+      var responseLoginData = jsonDecode(responseLogin.body);
+      var responseLoginData2 = jsonDecode(responseLogin2.body);  
+      var resultSet4 = responseLoginData['results'][0]['resultSet'];
+      var resultSet7 = responseLoginData2['results'][0]['resultSet'];
+      for (var entry in resultSet4) {
+        if (entry['account'] == account) {
+          loginCheck = 1;
+          if (entry['passwd'] == secondHash) {
+            loginCheck = 2;
+            token = createJwt(account, 1);
+            print('Generated Token: $token');
+          }
+        }
+      }
+      listtoken = [{'token': token}];      
+      // 서버로부터의 응답 확인s
+      if (loginCheck == 2) {        
+        var headers = {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*', // 허용할 오리진 설정
+          'Access-Control-Allow-Methods':
+              'GET, POST, PUT, DELETE, OPTIONS', // 허용할 메서드 설정
+          'Access-Control-Allow-Headers':
+              'Origin, Content-Type, X-Auth-Token' // 허용할 헤더 설정
+        };
+        return Response.ok(
+            jsonEncode(resultSet7 + listtoken),
+            headers: headers);
+      } else if (loginCheck == 0) {
+        print('아이디 틀렸습니다.');
+        return Response.internalServerError(body: '아이디 혹은 비밀번호가 틀렸습니다.');
+      } else if (loginCheck == 1) {
+        print('비밀번호? 틀렸습니다.');
+        return Response.internalServerError(body: '아이디 혹은 비밀번호가 틀렸습니다');
+      }
+    });
+
+    router.get('/base', (Request request) async{
+      var response1Future = reqToPixel(url);
+      var response3Future = reqLotInfo(url);
+      var response2Future = reqLotType(url);
+
+      var response1 = await response1Future;
+      var response3 = await response3Future;
+      var response2 = await response2Future;
+      if(response1.statusCode == 200 && response2.statusCode == 200 && response3.statusCode == 200){
+          var utf8decodebody = utf8.decode(response3.bodyBytes);
+          var responseData3 = jsonDecode(utf8decodebody);
+          // var responseData3 = jsonDecode(response3.body);
+          var resultSet3 = responseData3['results'][0]['resultSet'];
+          var responseData2 = jsonDecode(response2.body);
+          var resultSet2 = responseData2['results'][0]['resultSet'];
+
+          var check = List<dynamic>.filled(resultSet2.length, 0);
+          for (int i = 0; i < resultSet3.length; i++) {
+            check[resultSet3[i]['lot_type'] - 1]++;
+          }
+          // Map<int, int> map = {
+          //   for (var index in List.generate(check.length, (index) => index + 1))
+          //     index: check[index - 1]
+          // };
+          var responseData1 = jsonDecode(response1.body);
+          // print('responseData4 : $responseLoginData');
+          var resultSet1 = responseData1['results'][0]['resultSet'];
+
+          for(int i=1;i<=check.length;i++){
+          // print(check[i-1]);
+          if(check[i-1]==0){
+            var body6 = { "transaction": [
+              {
+                "statement": "#U_IsUsed",
+                "values": {"isUsed": 0, "uid": i}
+              }
+            ]};
+            await http.post(
+              Uri.parse(url!),
+              headers: headers,
+              body: jsonEncode(body6),
+            );
+          }else{
+            var body6 = { "transaction": [
+              {"statement": "#U_IsUsed",
+              "values": {"isUsed": 1, "uid": i}
+              }
+            ]};
+              await http.post(
+                Uri.parse(url!),
+                headers: headers,
+                body: jsonEncode(body6),
+              );
+            }
+          }
+          var body7 = { "transaction": [
+              {"query": "#S_LotType" }
+            ]};
+          var lotType = await http.post(
+            Uri.parse(url!),
+            headers: headers,
+            body: jsonEncode(body7),
+          );
+          var dcLotType = jsonDecode(utf8.decode(lotType.bodyBytes));
+          var resultSet7 = dcLotType['results'][0]['resultSet'];
+          // print("resultSet7 : $resultSet7");
+          return Response.ok(
+            jsonEncode(check + resultSet1 + resultSet7 + resultSet3),
+            headers: headers);
+        }
+    });
+
+    router.get('/jwt', (Request request) async{
+      return Response.ok(jsonEncode({'token': token}), headers: {
+        'Content-Type': 'application/json',
+      });
+    });
+
+    router.get('/protected', (Request request) async {
+    final authorizationHeader = request.headers['Authorization'];
+    if (authorizationHeader != null && authorizationHeader.startsWith('Bearer ')) {
+      final token = authorizationHeader.substring('Bearer '.length);
+      if (verifyJwt(token)) {
+        return Response.ok('Access granted to protected resource.');
+      } else {
+        return Response.forbidden('Invalid token.');
+      }
+    } else {
+      return Response.forbidden('Authorization header missing.');
+    }
+  });
+    return router;
+  }
+  String createJwt(String username, int hours) {
+    final jwt = JWT(
+      {
+        'account': username,
+        'iat': DateTime.now().millisecondsSinceEpoch ~/ 1000,
+        'exp': DateTime.now().add(Duration(hours: hours)).millisecondsSinceEpoch ~/ 1000, // 만료 시간 추가
+      },
+    );
+    return jwt.sign(SecretKey(_secretKey));
+  }
+  
+  bool verifyJwt(String token) {
+    try {
+      // final jwt = JWT.verify(token, SecretKey(_secretKey));
+      return true; // 유효한 토큰
+    } catch (e) {
+      return false; // 유효하지 않은 토큰
+    }
+  }
+  // 서버로 요청 보내는 함수
+  //사진 크기 요청..?
+  Future<http.Response> reqToPixel(var displayDbAddr) async {
+    String url = displayDbAddr;
+    Map<String, String> headers = {'Content-Type': 'application/json'};
+    Map<String, dynamic> body = {
+      "transaction": [
+        {"query": "#S_TotalPixel"}
+      ]
+    };
+    return await http.post(
+      Uri.parse(url),
+      headers: headers,
+      body: jsonEncode(body),
+    );
+  }
+
+  // 서버로 요청 보내는 함수
+  // 좌표 요청
+  Future<http.Response> reqLotInfo(var displayDbAddr) async {
+    String url = displayDbAddr;
+    Map<String, String> headers = {'Content-Type': 'application/json'};
+    Map<String, dynamic> body = {
+      "transaction": [
+        {"query": "#S_LotInfo"}
+      ]
+    };
+    return await http.post(
+      Uri.parse(url),
+      headers: headers,
+      body: jsonEncode(body),
+    );
+  }
+
+  // 서버로 요청 보내는 함수
+  Future<http.Response> reqLotType(var displayDbAddr) async {
+    String url = displayDbAddr;
+    Map<String, String> headers = {'Content-Type': 'application/json'};
+    Map<String, dynamic> body = {
+      "transaction": [
+        {"query": "#S_LotType"}
+      ]
+    };
+    return await http.post(
+      Uri.parse(url),
+      headers: headers,
+      body: jsonEncode(body),
+    );
+  }
+
+  Future<http.Response> reqLogin(
+      var account, var passwd, var displayDbAddr) async {
+    String url = displayDbAddr;
+    Map<String, String> headers = {'Content-Type': 'application/json'};
+    Map<String, dynamic> body = {
+      "transaction": [
+        {
+          "query": "#S_ReqLogin",
+          "values": {"account": account, "passwd": passwd}
+        }
+      ]
+    };
+    return await http.post(
+      Uri.parse(url),
+      headers: headers,
+      body: jsonEncode(body),
+    );
+  }
+
+  Future<http.Response> reqLogin2(
+      var account, var passwd, var displayDbAddr) async {
+    String url = displayDbAddr;
+    Map<String, String> headers = {'Content-Type': 'application/json'};
+    Map<String, dynamic> body = {
+      "transaction": [
+        {
+          "query": "#S_ReqLogin2",
+          "values": {"account": account, "passwd": passwd}
+        }
+      ]
+    };
+    return await http.post(
+      Uri.parse(url),
+      headers: headers,
+      body: jsonEncode(body),
+    );
+  }
+}
