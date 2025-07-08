@@ -256,7 +256,7 @@ class RouterConfig {
 
   /// Swagger UI 및 API 문서 라우트 설정
   void _configureSwaggerRoutes() {
-    // 기본 Swagger UI - 완전한 177개 API 문서 UI로 변경
+    // 기본 Swagger UI - 완전한 137개 API 문서 UI로 변경
     _router.get('/docs', (Request request) {
       return _serveStaticFile('swagger-ui-complete.html', 'text/html');
     });
@@ -266,7 +266,7 @@ class RouterConfig {
       return _serveStaticFile('swagger-ui-complete.html', 'text/html');
     });
 
-    // 완전한 177개 API 문서 UI (별칭 유지)
+    // 완전한 137개 API 문서 UI (별칭 유지)
     _router.get('/docs-complete', (Request request) {
       return _serveStaticFile('swagger-ui-complete.html', 'text/html');
     });
@@ -276,7 +276,7 @@ class RouterConfig {
       return _serveStaticFile('swagger.yaml', 'application/x-yaml');
     });
 
-    // 완전한 177개 API 문서 서빙
+    // 완전한 137개 API 문서 서빙
     _router.get('/swagger-complete.yaml', (Request request) {
       return _serveStaticFile('swagger_complete.yaml', 'application/x-yaml');
     });
@@ -290,11 +290,11 @@ class RouterConfig {
     });
 
     print('📚 Swagger 문서가 다음 경로에서 제공됩니다:');
-    print('   • 기본 Swagger UI (177개 API): http://localhost:8080/docs');
+    print('   • 기본 Swagger UI (137개 API): http://localhost:8080/docs');
     print('   • 완전한 API UI (별칭): http://localhost:8080/docs-complete');
     print('   • API 문서: http://localhost:8080/api-docs');
     print('   • 기본 OpenAPI 스펙: http://localhost:8080/swagger.yaml');
-    print('   • 완전한 177개 API 스펙: http://localhost:8080/swagger-complete.yaml');
+    print('   • 완전한 137개 API 스펙: http://localhost:8080/swagger-complete.yaml');
   }
 
   /// 정적 파일 서빙 헬퍼 메서드
@@ -311,7 +311,9 @@ class RouterConfig {
         content,
         headers: {
           'Content-Type': contentType,
-          'Cache-Control': 'public, max-age=3600', // 1시간 캐시
+          'Cache-Control': 'no-cache, no-store, must-revalidate', // 캐시 무효화
+          'Pragma': 'no-cache',
+          'Expires': '0',
         },
       );
     } catch (e) {
