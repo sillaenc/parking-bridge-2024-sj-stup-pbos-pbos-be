@@ -246,50 +246,13 @@ paths:
     post:
       tags: [users]
       summary: 새 사용자 생성
-      description: 새로운 사용자 계정을 생성합니다. 모든 필드가 필수입니다.
-      operationId: createUser
+      description: 새로운 사용자 계정을 생성합니다
       requestBody:
         required: true
-        description: 사용자 생성을 위한 정보
         content:
           application/json:
             schema:
               type: object
-              properties:
-                account:
-                  type: string
-                  description: 계정 ID (고유값)
-                  example: "newuser"
-                  minLength: 3
-                  maxLength: 50
-                passwd:
-                  type: string
-                  description: 비밀번호
-                  example: "password123"
-                  minLength: 6
-                passwdCheck:
-                  type: string
-                  description: 비밀번호 확인 (passwd와 동일해야 함)
-                  example: "password123"
-                  minLength: 6
-                username:
-                  type: string
-                  description: 사용자 이름
-                  example: "홍길동"
-                  minLength: 1
-                  maxLength: 100
-                userlevel:
-                  type: integer
-                  description: 사용자 레벨 (1=일반사용자, 2=관리자)
-                  example: 1
-                  minimum: 1
-                  maximum: 2
-                isActivated:
-                  type: integer
-                  description: 활성화 상태 (0=비활성, 1=활성)
-                  example: 1
-                  minimum: 0
-                  maximum: 1
               required:
                 - account
                 - passwd
@@ -297,7 +260,25 @@ paths:
                 - username
                 - userlevel
                 - isActivated
-              additionalProperties: false
+              properties:
+                account:
+                  type: string
+                  example: "newuser"
+                passwd:
+                  type: string
+                  example: "password123"
+                passwdCheck:
+                  type: string
+                  example: "password123"
+                username:
+                  type: string
+                  example: "홍길동"
+                userlevel:
+                  type: integer
+                  example: 1
+                isActivated:
+                  type: integer
+                  example: 1
       responses:
         '201':
           description: 사용자 생성 성공

@@ -11,6 +11,7 @@ import 'dart:io';
 import 'package:shelf/shelf.dart';
 import 'package:shelf/shelf_io.dart';
 import 'package:shelf_router/shelf_router.dart';
+import 'package:dotenv/dotenv.dart';
 
 // 분리된 모듈들 import
 import 'config/server_config.dart';
@@ -24,6 +25,10 @@ void main() async {
   print('🚀 스마트 파킹 백엔드 서버를 시작합니다...\n');
 
   try {
+    // 0. .env 파일 로드 (환경변수 설정)
+    final env = DotEnv(includePlatformEnvironment: true)..load();
+    print('📋 환경변수 로드 완료');
+
     // 1. 서버 설정 초기화
     final serverConfig = ServerConfig();
     await serverConfig.initialize();

@@ -139,8 +139,7 @@ class RouterConfig {
     // 새로운 RESTful API 라우트
     _router.mount(
         '$API_PREFIX/settings/database', databaseManagementApi.router);
-    _router.mount(
-        '$API_PREFIX/files', parkingZoneManagementApi.router);
+    _router.mount('$API_PREFIX/files', parkingZoneManagementApi.router);
     _router.mount(
         '$API_PREFIX/settings/camera-parking', cameraParkingApi.router);
     _router.mount('$API_PREFIX/settings/general', settings.router);
@@ -148,8 +147,7 @@ class RouterConfig {
     // 레거시 호환성 라우트 (기존 클라이언트 지원용)
     _router.mount(
         '$API_PREFIX/settings/database/legacy', settingsDbManagement.router);
-    _router.mount('$API_PREFIX/files/legacy',
-        legacyParkingZoneApi.router);
+    _router.mount('$API_PREFIX/files/legacy', legacyParkingZoneApi.router);
   }
 
   /// 통계 관련 라우트 설정
