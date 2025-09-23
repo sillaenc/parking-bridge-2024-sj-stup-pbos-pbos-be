@@ -24,6 +24,92 @@
 
 ---
 
+## ✅ 정확한 API 엔드포인트 (Postman 사용)
+
+### 🔐 인증 & 사용자 관리
+```
+POST   /api/v1/auth/login              # 로그인
+GET    /api/v1/auth/health             # 인증 서비스 상태
+GET    /api/v1/auth/base-info          # 주차장 기본 정보
+GET    /api/v1/users                   # 사용자 목록 조회
+POST   /api/v1/users                   # 사용자 생성
+GET    /api/v1/users/health            # 사용자 서비스 상태
+```
+
+### 📁 파일 & 주차 구역 관리
+```
+GET    /api/v1/files                   # 모든 주차 구역 조회
+POST   /api/v1/files                   # 파일 업로드 및 주차 구역 생성
+GET    /api/v1/files/{name}            # 특정 주차 구역 조회
+PUT    /api/v1/files/{name}            # 파일 업데이트
+DELETE /api/v1/files/{name}            # 파일 삭제
+GET    /api/v1/files/list              # 파일 시스템 파일 목록
+POST   /api/v1/files/sync              # 수동 파일시스템 동기화
+GET    /api/v1/files/health            # 파일 서비스 상태
+```
+
+### ⚙️ 설정 관리
+```
+GET    /api/v1/settings/database/config    # DB 설정 조회
+GET    /api/v1/settings/database/health    # DB 서비스 상태
+PUT    /api/v1/settings/database/engine    # 엔진 DB 설정 업데이트
+PUT    /api/v1/settings/database/display   # 디스플레이 DB 설정 업데이트
+POST   /api/v1/settings/general             # 설정 키-값 저장
+```
+
+### 🏢 주차장 정보 & 전광판
+```
+GET    /api/v1/parking/information          # 주차장 기본 정보 조회
+GET    /api/v1/parking/information/statistics  # 주차장 통계 정보
+GET    /api/v1/parking/information/health   # 주차장 정보 서비스 상태
+GET    /api/v1/parking/electric-signs       # 모든 전광판 조회
+GET    /api/v1/parking/electric-signs/health # 전광판 서비스 상태
+```
+
+### 🎛️ 대시보드 & 디스플레이
+```
+GET    /api/v1/central/dashboard        # 중앙 대시보드 데이터
+GET    /api/v1/central/health           # 중앙 서비스 상태
+GET    /api/v1/central/info             # 중앙 서비스 정보
+GET    /api/v1/display                  # 디스플레이 API 정보
+GET    /api/v1/display/health           # 디스플레이 서비스 상태
+GET    /api/v1/display/info?floors=B1,F1 # 층별 디스플레이 정보
+```
+
+### 📊 통계 & 분석
+```
+GET    /api/v1/statistics/health        # 통계 서비스 상태
+GET    /api/v1/statistics/parking       # 주차 통계 조회
+GET    /api/v1/statistics/camera-parking # 카메라 주차 통계
+```
+
+### 🚙 차량 & 전광판
+```
+GET    /api/v1/vehicle/health           # 차량 서비스 상태
+GET    /api/v1/billboard                # 전광판 API 정보
+GET    /api/v1/billboard/health         # 전광판 서비스 상태
+GET    /api/v1/billboard/info           # 전광판 서비스 정보
+GET    /api/v1/billboard/floor/B1       # 층별 주차 정보 (전광판용)
+```
+
+### 🔧 시스템 & 모니터링
+```
+GET    /api/v1/system/health            # 시스템 전체 상태
+GET    /api/v1/monitoring/health        # 모니터링 서비스 상태
+GET    /api/v1/monitoring/ping          # 데이터베이스 생존 확인
+GET    /api/v1/led/health              # LED 계산 서비스 상태
+```
+
+### 🗄️ 리소스 & 엔진
+```
+GET    /api/v1/resources/health         # 리소스 서비스 상태
+GET    /api/v1/resources/usage          # 리소스 사용량 조회
+GET    /api/v1/engine/data/health       # 엔진 데이터 서비스 상태
+POST   /api/v1/engine/data              # 엔진 데이터 처리
+```
+
+---
+
 ## 🗂️ API Categories Overview
 
 | Category | Base Path | Description | Status |
@@ -31,7 +117,7 @@
 | **Authentication** | `/api/v1/auth/*` | 사용자 인증, JWT 토큰 관리 | ✅ Refactored |
 | **User Management** | `/api/v1/users/*` | 사용자 CRUD 관리 | ✅ Refactored |
 | **Settings** | `/api/v1/settings/*` | 시스템 설정 관리 | ✅ Refactored |
-| **Parking Management** | `/api/v1/settings/parking-zones/*` | 주차구역, 파일 관리 | ✅ Refactored |
+| **File Management** | `/api/v1/files/*` | 파일 업로드/관리, 주차구역 | ✅ Refactored |
 | **Database Management** | `/api/v1/settings/database/*` | DB 설정 관리 | ✅ Refactored |
 | **Engine Data** | `/api/v1/engine/*` | 엔진 데이터 처리 | ✅ Refactored |
 | **Parking Information** | `/api/v1/parking/information/*` | 주차장 기본 정보 | ✅ Refactored |
@@ -273,11 +359,11 @@ Legacy 호환성을 위한 기존 사용자 관리 API들
 
 ---
 
-## 🚗 Parking Zone Management APIs
+## 📁 File Management APIs
 
-### Parking Zone File Management
+### File Management & Parking Zone
 
-#### GET `/api/v1/settings/parking-zones`
+#### GET `/api/v1/files`
 모든 주차 구역 조회
 
 **Response:**
@@ -293,10 +379,10 @@ Legacy 호환성을 위한 기존 사용자 관리 API들
 }
 ```
 
-#### GET `/api/v1/settings/parking-zones/{name}`
+#### GET `/api/v1/files/{name}`
 특정 주차 구역 조회
 
-#### POST `/api/v1/settings/parking-zones`
+#### POST `/api/v1/files`
 파일 업로드 및 주차 구역 생성
 
 **Request:** `multipart/form-data`
@@ -324,26 +410,26 @@ Legacy 호환성을 위한 기존 사용자 관리 API들
 }
 ```
 
-#### PUT `/api/v1/settings/parking-zones/{name}`
+#### PUT `/api/v1/files/{name}`
 파일 업데이트 및 주차 구역 업데이트
 
-#### DELETE `/api/v1/settings/parking-zones/{name}`
+#### DELETE `/api/v1/files/{name}`
 파일 삭제 및 주차 구역 삭제
 
 ### Parking Lot Management
 
-#### PATCH `/api/v1/settings/parking-zones/lots/{tag}/type`
+#### PATCH `/api/v1/files/lots/{tag}/type`
 주차 공간 유형 변경
 
-#### PATCH `/api/v1/settings/parking-zones/lots/{tag}/status`
+#### PATCH `/api/v1/files/lots/{tag}/status`
 주차 상태 변경
 
 ### File System Management
 
-#### GET `/api/v1/settings/parking-zones/files`
+#### GET `/api/v1/files/files`
 파일 시스템 파일 목록 조회
 
-#### POST `/api/v1/settings/parking-zones/sync`
+#### POST `/api/v1/files/sync`
 수동 파일시스템 동기화
 
 **Response:**
@@ -365,13 +451,13 @@ Legacy 호환성을 위한 기존 사용자 관리 API들
 }
 ```
 
-#### GET `/api/v1/settings/parking-zones/filesystem-health`
+#### GET `/api/v1/files/filesystem-health`
 파일시스템 상태 확인
 
-#### GET `/api/v1/settings/parking-zones/health`
+#### GET `/api/v1/files/health`
 서비스 상태 확인
 
-#### GET `/api/v1/settings/parking-zones/info`
+#### GET `/api/v1/files/info`
 서비스 정보 조회
 
 ---
@@ -1057,14 +1143,17 @@ LED 서비스 정보
 
 ### Database Management
 
-#### GET `/api/v1/database/status`
-데이터베이스 상태 확인
+#### GET `/api/v1/settings/database/config`
+현재 데이터베이스 설정 조회
 
-#### POST `/api/v1/database/backup`
-데이터베이스 백업
+#### PUT `/api/v1/settings/database/engine`
+엔진 DB 설정 업데이트
 
-#### POST `/api/v1/database/restore`
-데이터베이스 복원
+#### PUT `/api/v1/settings/database/display`
+디스플레이 DB 설정 업데이트
+
+#### GET `/api/v1/settings/database/health`
+데이터베이스 서비스 상태 확인
 
 ### Resource Management
 
@@ -1158,7 +1247,7 @@ curl -X POST http://localhost:8080/api/v1/auth/login \
 ### 2. File Upload
 ```bash
 # Upload parking zone file
-curl -X POST http://localhost:8080/api/v1/settings/parking-zones \
+curl -X POST http://localhost:8080/api/v1/files \
   -H "Authorization: Bearer <token>" \
   -F "file=@parking_layout.jpg" \
   -F "filename=parking_layout.jpg"
@@ -1302,7 +1391,7 @@ curl -X GET http://localhost:8080/api/v1/users \
 
 **주차 구역 이미지 업로드:**
 ```bash
-curl -X POST http://localhost:8080/api/v1/settings/parking-zones \
+curl -X POST http://localhost:8080/api/v1/files \
   -H "Authorization: Bearer <jwt_token>" \
   -F "file=@parking_layout.jpg" \
   -F "filename=parking_layout.jpg"
@@ -1310,7 +1399,7 @@ curl -X POST http://localhost:8080/api/v1/settings/parking-zones \
 
 **대용량 비디오 파일 업로드:**
 ```bash
-curl -X POST http://localhost:8080/api/v1/settings/parking-zones \
+curl -X POST http://localhost:8080/api/v1/files \
   -H "Authorization: Bearer <jwt_token>" \
   -F "file=@security_camera.mp4" \
   -F "filename=security_camera.mp4"
@@ -1320,7 +1409,7 @@ curl -X POST http://localhost:8080/api/v1/settings/parking-zones \
 
 **수동 동기화 실행:**
 ```bash
-curl -X POST http://localhost:8080/api/v1/settings/parking-zones/sync \
+curl -X POST http://localhost:8080/api/v1/files/sync \
   -H "Authorization: Bearer <jwt_token>"
 ```
 
