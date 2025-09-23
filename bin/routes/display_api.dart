@@ -18,6 +18,9 @@ class DisplayApi {
   Router get router {
     final router = Router();
 
+    // GET /api/v1/display - 디스플레이 API 기본 정보
+    router.get('/', _getApiInfo);
+
     // GET /api/v1/display/info?floors={floors} - 층별 디스플레이 정보 조회
     router.get('/info', _getDisplayInfo);
 
@@ -31,6 +34,31 @@ class DisplayApi {
     router.get('/health', _getServiceHealth);
 
     return router;
+  }
+
+  /// API 기본 정보 제공
+  Future<Response> _getApiInfo(Request request) async {
+    return Response.ok(
+      jsonEncode({
+        'success': true,
+        'service': 'Display API',
+        'version': '1.0.0',
+        'description': '디스플레이 정보 조회 및 관리 API',
+        'endpoints': {
+          'GET /': 'API 기본 정보',
+          'GET /info?floors=B1,F1': '층별 디스플레이 정보 조회',
+          'POST /info': '디스플레이 정보 조회 (POST 방식)',
+          'POST /bulk-update': '대량 디스플레이 업데이트',
+          'GET /health': '서비스 상태 확인'
+        },
+        'examples': {
+          'get_display_info': '/api/v1/display/info?floors=B1,F1',
+          'check_health': '/api/v1/display/health'
+        },
+        'timestamp': DateTime.now().toIso8601String(),
+      }),
+      headers: {'Content-Type': 'application/json'},
+    );
   }
 
   /// GET 방식으로 디스플레이 정보 조회
