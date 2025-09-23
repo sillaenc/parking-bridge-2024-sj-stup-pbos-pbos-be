@@ -140,7 +140,7 @@ class RouterConfig {
     _router.mount(
         '$API_PREFIX/settings/database', databaseManagementApi.router);
     _router.mount(
-        '$API_PREFIX/settings/parking-zones', parkingZoneManagementApi.router);
+        '$API_PREFIX/files', parkingZoneManagementApi.router);
     _router.mount(
         '$API_PREFIX/settings/camera-parking', cameraParkingApi.router);
     _router.mount('$API_PREFIX/settings/general', settings.router);
@@ -148,7 +148,7 @@ class RouterConfig {
     // 레거시 호환성 라우트 (기존 클라이언트 지원용)
     _router.mount(
         '$API_PREFIX/settings/database/legacy', settingsDbManagement.router);
-    _router.mount('$API_PREFIX/settings/parking-zones/legacy',
+    _router.mount('$API_PREFIX/files/legacy',
         legacyParkingZoneApi.router);
   }
 

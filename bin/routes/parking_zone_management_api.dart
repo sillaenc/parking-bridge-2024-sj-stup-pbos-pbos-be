@@ -16,40 +16,40 @@ class ParkingZoneManagementApi {
   Router get router {
     final router = Router();
 
-    // GET /api/v1/settings/parking-zones - 모든 주차 구역 조회
+    // GET /api/v1/files - 모든 주차 구역 조회
     router.get('/', _getAllParkingZones);
 
-    // GET /api/v1/settings/parking-zones/{name} - 특정 주차 구역 조회
+    // GET /api/v1/files/{name} - 특정 주차 구역 조회
     router.get('/<name>', _getParkingZoneByName);
 
-    // POST /api/v1/settings/parking-zones - 파일 업로드 및 주차 구역 생성
+    // POST /api/v1/files - 파일 업로드 및 주차 구역 생성
     router.post('/', _uploadFile);
 
-    // PUT /api/v1/settings/parking-zones/{name} - 파일 업데이트 및 주차 구역 업데이트
+    // PUT /api/v1/files/{name} - 파일 업데이트 및 주차 구역 업데이트
     router.put('/<name>', _updateFile);
 
-    // DELETE /api/v1/settings/parking-zones/{name} - 파일 삭제 및 주차 구역 삭제
+    // DELETE /api/v1/files/{name} - 파일 삭제 및 주차 구역 삭제
     router.delete('/<name>', _deleteFile);
 
-    // PATCH /api/v1/settings/parking-zones/lots/{tag}/type - 주차 공간 유형 변경
+    // PATCH /api/v1/files/lots/{tag}/type - 주차 공간 유형 변경
     router.patch('/lots/<tag>/type', _changeLotType);
 
-    // PATCH /api/v1/settings/parking-zones/lots/{tag}/status - 주차 상태 변경
+    // PATCH /api/v1/files/lots/{tag}/status - 주차 상태 변경
     router.patch('/lots/<tag>/status', _changeParkingStatus);
 
-    // GET /api/v1/settings/parking-zones/files - 파일 시스템 파일 목록 조회
-    router.get('/files', _getAllFiles);
+    // GET /api/v1/files/list - 파일 시스템 파일 목록 조회
+    router.get('/list', _getAllFiles);
 
-    // POST /api/v1/settings/parking-zones/sync - 수동 파일시스템 동기화
+    // POST /api/v1/files/sync - 수동 파일시스템 동기화
     router.post('/sync', _syncFileSystem);
 
-    // GET /api/v1/settings/parking-zones/filesystem-health - 파일시스템 상태 확인
-    router.get('/filesystem-health', _checkFileSystemHealth);
+    // GET /api/v1/files/health - 파일시스템 상태 확인
+    router.get('/health', _checkFileSystemHealth);
 
-    // GET /api/v1/settings/parking-zones/health - 서비스 상태 확인
-    router.get('/health', _getServiceHealth);
+    // GET /api/v1/files/service-health - 서비스 상태 확인
+    router.get('/service-health', _getServiceHealth);
 
-    // GET /api/v1/settings/parking-zones/info - 서비스 정보
+    // GET /api/v1/files/info - 서비스 정보
     router.get('/info', _getServiceInfo);
 
     return router;
