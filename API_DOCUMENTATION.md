@@ -152,8 +152,8 @@ Authorization: Bearer <jwt_token>
 **Request Body:**
 ```json
 {
-  "username": "admin",
-  "password": "password123"
+  "account": "admin",
+  "passwd": "password123"
 }
 ```
 
@@ -252,24 +252,81 @@ Authorization: Bearer <jwt_token>
 **Request Body:**
 ```json
 {
-  "username": "newuser",
-  "email": "user@example.com",
-  "password": "password123",
-  "role": "user"
+  "account": "newuser",
+  "passwd": "password123",
+  "passwdCheck": "password123",
+  "username": "새로운 사용자",
+  "userlevel": 1,
+  "isActivated": 1
 }
 ```
 
 #### PUT `/api/v1/users/{account}`
 사용자 정보 업데이트
 
+**Request Body:**
+```json
+{
+  "username": "수정된 사용자명",
+  "userlevel": 2,
+  "isActivated": 1
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "User updated successfully",
+  "data": {
+    "account": "testuser",
+    "username": "수정된 사용자명",
+    "userlevel": 2,
+    "isActivated": 1
+  }
+}
+```
+
 #### PATCH `/api/v1/users/{account}/password`
 비밀번호 변경
+
+**Request Body:**
+```json
+{
+  "passwd": "currentPassword123",
+  "passwdCheck": "currentPassword123",
+  "newpasswd": "newPassword123"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Password changed successfully"
+}
+```
 
 #### PATCH `/api/v1/users/{account}/password/reset`
 비밀번호 리셋
 
 #### DELETE `/api/v1/users/{account}`
 사용자 삭제
+
+**Request Body:**
+```json
+{
+  "passwd": "password123"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "User deleted successfully"
+}
+```
 
 #### GET `/api/v1/users/health`
 사용자 서비스 상태 확인
@@ -339,14 +396,82 @@ Legacy 호환성을 위한 기존 사용자 관리 API들
 #### GET `/api/v1/settings/database/config`
 현재 데이터베이스 설정 조회
 
+**Response:**
+```json
+{
+  "success": true,
+  "message": "데이터베이스 설정을 성공적으로 조회했습니다.",
+  "data": {
+    "engineDb": "http://localhost:12321/engine_db",
+    "displayDb": "http://localhost:12321/display_db"
+  }
+}
+```
+
 #### PUT `/api/v1/settings/database/engine`
 엔진 DB 설정 업데이트
+
+**Request Body:**
+```json
+{
+  "engineDb": "http://localhost:12321/engine_db"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "엔진 데이터베이스 설정이 업데이트되었습니다.",
+  "data": {
+    "engineDb": "http://localhost:12321/engine_db"
+  }
+}
+```
 
 #### PUT `/api/v1/settings/database/display`
 디스플레이 DB 설정 업데이트
 
+**Request Body:**
+```json
+{
+  "displayDb": "http://localhost:12321/display_db"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "디스플레이 데이터베이스 설정이 업데이트되었습니다.",
+  "data": {
+    "displayDb": "http://localhost:12321/display_db"
+  }
+}
+```
+
 #### PUT `/api/v1/settings/database/config`
 전체 데이터베이스 설정 업데이트
+
+**Request Body:**
+```json
+{
+  "engineDb": "http://localhost:12321/engine_db",
+  "displayDb": "http://localhost:12321/display_db"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "데이터베이스 설정이 업데이트되었습니다.",
+  "data": {
+    "engineDb": "http://localhost:12321/engine_db",
+    "displayDb": "http://localhost:12321/display_db"
+  }
+}
+```
 
 #### POST `/api/v1/settings/database/test-connection`
 데이터베이스 연결 테스트
@@ -370,6 +495,7 @@ Legacy 호환성을 위한 기존 사용자 관리 API들
 ```json
 {
   "success": true,
+  "message": "Parking zones retrieved successfully",
   "data": [
     {
       "parking_name": "zone1",
@@ -402,10 +528,8 @@ Legacy 호환성을 위한 기존 사용자 관리 API들
   "success": true,
   "message": "File uploaded successfully",
   "data": {
-    "filename": "parking_layout.jpg",
-    "fileSize": 2048576,
-    "fileType": "image",
-    "uploadedAt": "2025-09-23T13:00:00Z"
+    "parking_name": "parking_layout.jpg",
+    "file_address": "file/parking_layout.jpg"
   }
 }
 ```
@@ -415,6 +539,14 @@ Legacy 호환성을 위한 기존 사용자 관리 API들
 
 #### DELETE `/api/v1/files/{name}`
 파일 삭제 및 주차 구역 삭제
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "File deleted successfully"
+}
+```
 
 ### Parking Lot Management
 
@@ -426,7 +558,7 @@ Legacy 호환성을 위한 기존 사용자 관리 API들
 
 ### File System Management
 
-#### GET `/api/v1/files/files`
+#### GET `/api/v1/files/list`
 파일 시스템 파일 목록 조회
 
 #### POST `/api/v1/files/sync`
@@ -451,11 +583,8 @@ Legacy 호환성을 위한 기존 사용자 관리 API들
 }
 ```
 
-#### GET `/api/v1/files/filesystem-health`
-파일시스템 상태 확인
-
 #### GET `/api/v1/files/health`
-서비스 상태 확인
+파일시스템 상태 확인
 
 #### GET `/api/v1/files/info`
 서비스 정보 조회
