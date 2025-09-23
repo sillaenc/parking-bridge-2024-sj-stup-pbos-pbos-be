@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
+import 'package:dotenv/dotenv.dart';
 
 import '../models/auth_models.dart';
 
@@ -8,15 +9,30 @@ class JwtService {
   late final String _secretKey;
 
   /// JWT 서비스 생성자
-  /// 환경변수에서 시크릿 키를 읽어오거나 기본값 사용
+  /// 환경변수 또는 .env 파일에서 시크릿 키를 읽어오거나 기본값 사용
   JwtService() {
-    _secretKey = Platform.environment[AuthConstants.jwtSecretKeyEnvName] ??
-        AuthConstants.defaultJwtSecretKey;
+    // 1. 먼저 환경변수에서 확인
+    String? secretKey = Platform.environment[AuthConstants.jwtSecretKeyEnvName];
+    
+    // 2. 환경변수에 없으면 .env 파일에서 확인
+    if (secretKey == null) {
+      try {
+        final env = DotEnv(includePlatformEnvironment: true)..load();
+        secretKey = env[AuthConstants.jwtSecretKeyEnvName];
+      } catch (e) {
+        // .env 파일이 없거나 로드할 수 없는 경우 무시
+      }
+    }
+    
+    // 3. 최종적으로 기본값 사용
+    _secretKey = secretKey ?? AuthConstants.defaultJwtSecretKey;
 
     // 운영 환경에서 기본 키를 사용하는 경우 경고
     if (_secretKey == AuthConstants.defaultJwtSecretKey) {
       print(
           '⚠️  Warning: Using default JWT secret key. Set ${AuthConstants.jwtSecretKeyEnvName} environment variable for production.');
+    } else {
+      print('🔐 Custom JWT secret key loaded successfully');
     }
   }
 
