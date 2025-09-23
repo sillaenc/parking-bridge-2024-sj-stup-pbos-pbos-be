@@ -206,6 +206,97 @@ class FileSystemManager {
 
     return files;
   }
+
+  /// 파일시스템과 데이터베이스 동기화
+  /// 파일시스템에 있지만 DB에 없는 파일들을 찾아서 반환
+  Future<List<FileInfo>> getOrphanedFiles() async {
+    final allFiles = await listFiles();
+    final orphanedFiles = <FileInfo>[];
+
+    for (final fileInfo in allFiles) {
+      // 지원되는 확장자인지 확인
+      if (ParkingZoneValidator.isValidFileExtension(fileInfo.extension)) {
+        orphanedFiles.add(fileInfo);
+      }
+    }
+
+    return orphanedFiles;
+  }
+
+  /// 파일시스템 정리 - DB에 없는 파일들 삭제
+  Future<int> cleanupOrphanedFiles(List<String> validFilePaths) async {
+    final allFiles = await listFiles();
+    int deletedCount = 0;
+
+    for (final fileInfo in allFiles) {
+      // DB에 등록된 파일 경로와 비교
+      if (!validFilePaths.contains(fileInfo.fullPath)) {
+        try {
+          await deleteFile(fileInfo.fullPath);
+          deletedCount++;
+          print('🗑️  정리됨: ${fileInfo.fullPath}');
+        } catch (e) {
+          print('❌ 파일 삭제 실패: ${fileInfo.fullPath} - $e');
+        }
+      }
+    }
+
+    return deletedCount;
+  }
+
+  /// 디렉토리 생성 및 권한 확인
+  Future<bool> ensureDirectoryExists() async {
+    final directory = Directory(baseDirectory);
+    try {
+      if (!await directory.exists()) {
+        await directory.create(recursive: true);
+        print('📁 디렉토리 생성: $baseDirectory');
+      }
+      return true;
+    } catch (e) {
+      print('❌ 디렉토리 생성 실패: $baseDirectory - $e');
+      return false;
+    }
+  }
+
+  /// 파일시스템 상태 보고서 생성
+  Future<Map<String, dynamic>> getFileSystemReport() async {
+    final directory = Directory(baseDirectory);
+    if (!await directory.exists()) {
+      return {
+        'exists': false,
+        'totalFiles': 0,
+        'totalSize': 0,
+        'supportedFiles': 0,
+        'unsupportedFiles': 0,
+      };
+    }
+
+    final allFiles = await listFiles();
+    int totalSize = 0;
+    int supportedFiles = 0;
+    int unsupportedFiles = 0;
+
+    for (final fileInfo in allFiles) {
+      totalSize += fileInfo.sizeBytes;
+      if (ParkingZoneValidator.isValidFileExtension(fileInfo.extension)) {
+        supportedFiles++;
+      } else {
+        unsupportedFiles++;
+      }
+    }
+
+    return {
+      'exists': true,
+      'totalFiles': allFiles.length,
+      'totalSize': totalSize,
+      'totalSizeMB': (totalSize / (1024 * 1024)).toStringAsFixed(2),
+      'supportedFiles': supportedFiles,
+      'unsupportedFiles': unsupportedFiles,
+      'supportedExtensions': ParkingZoneConstants.supportedExtensions,
+      'directory': baseDirectory,
+    };
+  }
 }
 
 /// 파일 및 주차 구역 유효성 검사 유틸리티

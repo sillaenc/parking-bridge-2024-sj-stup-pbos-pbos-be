@@ -2,30 +2,38 @@ openapi: 3.0.3
 info:
   title: 스마트 파킹 백엔드 API - 완전판
   description: |
-    ## 🎯 **137개 전체 API 엔드포인트 완전 문서**
+    ## 🎯 **149개 전체 API 엔드포인트 완전 문서**
     
     ### 📊 카테고리별 API 분포
     - **인증 (Auth)**: 17개 - 로그인, 토큰 관리, 레거시 호환 (최상위 경로 포함)
     - **사용자 관리 (Users)**: 11개 - 계정 생성, 수정, 삭제, 관리자 생성 (최상위 경로 포함)
-    - **주차 구역 (Parking Zones)**: 21개 - 구역 및 카메라 관리, 차량 정보 (최상위 경로 포함)
+    - **주차 구역 (Parking Zones)**: 25개 - 구역, 파일 관리(500MB 지원), 동기화, 카메라 관리, 차량 정보 (최상위 경로 포함)
     - **통계 (Statistics)**: 26개 - 일일/주간/월간/연간 통계 분석, 그래프 데이터, 레거시 통계 API
     - **전광판 (Electric Signs)**: 10개 - 전광판 제어 및 관리 (최상위 경로 포함)
     - **기본 정보 (Base Info)**: 8개 - 주차장 기본 설정 (최상위 경로 포함)
-    - **설정 (Settings)**: 4개 - 시스템 설정 관리 (최상위 경로 포함)
-    - **시스템 상태 (System)**: 9개 - 모니터링 및 상태 확인
+    - **설정 (Settings)**: 11개 - 데이터베이스 관리, 시스템 설정 (최상위 경로 포함)
+    - **시스템 상태 (System)**: 11개 - 모니터링 및 상태 확인 (완전 리팩토링됨)
     - **차량 정보 (Vehicle)**: 5개 - 차량 위치 및 상태
     - **디스플레이 (Display)**: 6개 - 디스플레이 제어 (신규 + 레거시)
     - **광고판 (Billboard)**: 6개 - 광고판 관리 (신규 + 레거시)
     - **중앙 대시보드 (Central)**: 3개 - 통합 현황 (신규 + 레거시)
     - **LED 계산 (LED)**: 4개 - LED 색상 계산 (신규 + 레거시)
     - **엔진 데이터**: 6개 - 실시간 데이터 처리
-    - **기타 (Utilities)**: 1개 - 리소스 관리
+    - **리소스 관리 (Resources)**: 7개 - 주차장 리소스 관리 (완전 리팩토링됨)
+    - **기타 (Utilities)**: 3개 - 그래프 데이터 등
     
     ## 🔧 기술 스택
     - **백엔드**: Dart (shelf 프레임워크)
     - **데이터베이스**: SQLite (ws4sqlite 통신)
     - **인증**: JWT Bearer Token
+    - **파일 관리**: Local File System (최대 500MB 지원)
     - **아키텍처**: 3계층 구조 (모델-서비스-API)
+    
+    ## 📁 파일 관리 기능
+    - **지원 형식**: 이미지, 비디오, 문서, 데이터, 압축 파일 (25+ 확장자)
+    - **최대 크기**: 500MB per file
+    - **동기화**: 파일시스템-DB 양방향 동기화
+    - **메타데이터**: 파일 크기, 타입, 카테고리, MIME 타입 관리
     
   version: 2.1.0
   contact:
@@ -46,7 +54,7 @@ tags:
   - name: users
     description: 사용자 계정 관리 (11개 엔드포인트) - 관리자 생성, 최상위 경로 포함
   - name: parking-zones
-    description: 주차 구역 및 카메라 관리 (21개 엔드포인트) - 차량 정보, 최상위 경로 포함
+    description: 주차 구역, 파일 관리, 동기화 (25개 엔드포인트) - 500MB 파일 지원, 25+ 확장자, 파일시스템 동기화, 카메라 관리, 차량 정보
   - name: statistics
     description: 통계 데이터 분석 (26개 엔드포인트) - 그래프 데이터, 레거시 통계 API 포함
   - name: electric-signs
@@ -64,13 +72,13 @@ tags:
   - name: led
     description: LED 계산 (4개 엔드포인트) - 신규/레거시 API
   - name: system
-    description: 시스템 모니터링 (9개 엔드포인트) - 상태 확인
+    description: 시스템 모니터링 (11개 엔드포인트) - 완전 리팩토링된 모니터링 API
   - name: settings
-    description: 시스템 설정 (4개 엔드포인트) - 일괄 업데이트, 최상위 경로 포함
+    description: 시스템 설정 (11개 엔드포인트) - 데이터베이스 관리, 일괄 업데이트 포함
   - name: engine
     description: 엔진 데이터 처리 (6개 엔드포인트)
   - name: utilities
-    description: 기타 유틸리티 (1개 엔드포인트) - 리소스 관리
+    description: 리소스 관리 및 유틸리티 (10개 엔드포인트) - 주차장 리소스, 그래프 데이터
 
 paths:
   # ======== 1. 인증 API (11개) ========
@@ -251,12 +259,77 @@ paths:
       responses:
         '200':
           description: 주차 구역 목록
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        parking_name:
+                          type: string
+                        file_address:
+                          type: string
     post:
       tags: [parking-zones]
-      summary: 새 주차 구역 생성
+      summary: 파일 업로드 및 주차 구역 생성 (최대 500MB 지원)
+      description: |
+        지원되는 파일 형식:
+        - **이미지**: jpg, jpeg, png, gif, bmp, webp, tiff, ico
+        - **비디오**: mp4, avi, mov, wmv, flv, webm, mkv, mpg, mpeg, m4v, 3gp
+        - **문서**: pdf, doc, docx, xls, xlsx, ppt, pptx, txt, csv
+        - **데이터**: json, xml, yaml, yml
+        - **압축**: zip, rar, 7z, tar, gz
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: 업로드할 파일 (최대 500MB)
+                filename:
+                  type: string
+                  description: 파일명 (확장자 포함)
+              required:
+                - file
+                - filename
       responses:
         '201':
-          description: 주차 구역 생성 성공
+          description: 파일 업로드 및 주차 구역 생성 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      filename:
+                        type: string
+                      fileSize:
+                        type: integer
+                      fileType:
+                        type: string
+                      uploadedAt:
+                        type: string
+                        format: date-time
+        '400':
+          description: 잘못된 요청 (파일 형식 미지원 등)
+        '413':
+          description: 파일 크기 초과 (500MB 제한)
 
   /api/v1/settings/parking-zones/{name}:
     get:
@@ -273,16 +346,41 @@ paths:
           description: 주차 구역 정보
     put:
       tags: [parking-zones]
-      summary: 주차 구역 수정
+      summary: 파일 업데이트 및 주차 구역 업데이트
       parameters:
         - name: name
           in: path
           required: true
           schema:
             type: string
+          description: 업데이트할 주차 구역명
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: 새로운 파일 (최대 500MB)
+              required:
+                - file
       responses:
         '200':
-          description: 수정 완료
+          description: 파일 업데이트 및 주차 구역 수정 완료
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+        '404':
+          description: 주차 구역을 찾을 수 없음
     delete:
       tags: [parking-zones]
       summary: 주차 구역 삭제
@@ -328,9 +426,127 @@ paths:
     get:
       tags: [parking-zones]
       summary: 파일 시스템 파일 목록 조회
+      description: 실제 파일 시스템에 존재하는 모든 파일들을 조회합니다
       responses:
         '200':
-          description: 파일 목록
+          description: 파일 시스템 파일 목록
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        filename:
+                          type: string
+                        fullPath:
+                          type: string
+                        sizeBytes:
+                          type: integer
+                        extension:
+                          type: string
+                        lastModified:
+                          type: string
+                          format: date-time
+
+  /api/v1/settings/parking-zones/sync:
+    post:
+      tags: [parking-zones]
+      summary: 수동 파일시스템 동기화
+      description: |
+        파일시스템과 데이터베이스 간의 수동 동기화를 실행합니다:
+        - 파일시스템에 없는 DB 레코드 정리 (고아 레코드 삭제)
+        - DB에 없는 파일시스템 파일들을 DB에 추가
+      responses:
+        '200':
+          description: 동기화 완료
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      totalFiles:
+                        type: integer
+                        description: 총 파일 수
+                      totalSize:
+                        type: integer
+                        description: 총 파일 크기 (bytes)
+                      totalSizeMB:
+                        type: string
+                        description: 총 파일 크기 (MB)
+                      supportedFiles:
+                        type: integer
+                        description: 지원되는 파일 수
+                      unsupportedFiles:
+                        type: integer
+                        description: 지원되지 않는 파일 수
+                      syncDurationMs:
+                        type: integer
+                        description: 동기화 소요 시간 (밀리초)
+                      syncedAt:
+                        type: string
+                        format: date-time
+                        description: 동기화 완료 시간
+                      totalParkingZones:
+                        type: integer
+                        description: 총 주차구역 수
+                      status:
+                        type: string
+                        enum: [completed, failed, partial]
+                        description: 동기화 상태
+
+  /api/v1/settings/parking-zones/filesystem-health:
+    get:
+      tags: [parking-zones]
+      summary: 파일시스템 상태 확인
+      description: 파일시스템과 데이터베이스 간의 일관성 상태를 확인합니다
+      responses:
+        '200':
+          description: 파일시스템 상태 정보
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      status:
+                        type: string
+                        enum: [healthy, warning, error]
+                      filesystemFiles:
+                        type: integer
+                        description: 파일시스템 파일 수
+                      databaseRecords:
+                        type: integer
+                        description: 데이터베이스 레코드 수
+                      syncRequired:
+                        type: boolean
+                        description: 동기화 필요 여부
+                      orphanedFiles:
+                        type: integer
+                        description: 고아 파일 수
+                      missingFiles:
+                        type: integer
+                        description: 누락된 파일 수
+                      lastSyncAt:
+                        type: string
+                        format: date-time
+                        description: 마지막 동기화 시간
 
   /api/v1/settings/parking-zones/health:
     get:
@@ -415,6 +631,206 @@ paths:
       responses:
         '200':
           description: 서비스 정보
+
+  # ======== 데이터베이스 관리 API (7개) ========
+  /api/v1/settings/database/config:
+    get:
+      tags: [settings]
+      summary: 데이터베이스 설정 조회
+      description: 현재 엔진 DB 및 디스플레이 DB 설정을 조회합니다.
+      responses:
+        '200':
+          description: 데이터베이스 설정 조회 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      engineDb:
+                        type: string
+                        description: 엔진 DB URL
+                      displayDb:
+                        type: string
+                        description: 디스플레이 DB URL
+                      displayDbLPR:
+                        type: string
+                        description: 디스플레이 DB LPR URL
+        '503':
+          description: 데이터베이스 주소가 설정되지 않음
+    put:
+      tags: [settings]
+      summary: 전체 데이터베이스 설정 업데이트
+      description: 엔진 DB 및 디스플레이 DB 설정을 일괄 업데이트합니다.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                engineDb:
+                  type: string
+                  description: 엔진 DB URL
+                displayDb:
+                  type: string
+                  description: 디스플레이 DB URL
+      responses:
+        '200':
+          description: 데이터베이스 설정 업데이트 성공
+        '400':
+          description: 잘못된 요청 데이터
+        '503':
+          description: 데이터베이스 연결 실패
+
+  /api/v1/settings/database/engine:
+    put:
+      tags: [settings]
+      summary: 엔진 DB 설정 업데이트
+      description: 엔진 데이터베이스 URL을 업데이트합니다.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [engineDb]
+              properties:
+                engineDb:
+                  type: string
+                  description: 새로운 엔진 DB URL
+                  example: "http://localhost:8081"
+      responses:
+        '200':
+          description: 엔진 DB 설정 업데이트 성공
+        '400':
+          description: 잘못된 요청 데이터 또는 유효하지 않은 URL
+        '503':
+          description: 데이터베이스 연결 실패
+
+  /api/v1/settings/database/display:
+    put:
+      tags: [settings]
+      summary: 디스플레이 DB 설정 업데이트
+      description: 디스플레이 데이터베이스 URL을 업데이트합니다.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [displayDb]
+              properties:
+                displayDb:
+                  type: string
+                  description: 새로운 디스플레이 DB URL
+                  example: "http://localhost:8082"
+      responses:
+        '200':
+          description: 디스플레이 DB 설정 업데이트 성공
+        '400':
+          description: 잘못된 요청 데이터 또는 유효하지 않은 URL
+        '503':
+          description: 데이터베이스 연결 실패
+
+  /api/v1/settings/database/test-connection:
+    post:
+      tags: [settings]
+      summary: 데이터베이스 연결 테스트
+      description: 현재 또는 지정된 데이터베이스 설정으로 연결 테스트를 수행합니다.
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                engineDb:
+                  type: string
+                  description: 테스트할 엔진 DB URL (선택사항)
+                displayDb:
+                  type: string
+                  description: 테스트할 디스플레이 DB URL (선택사항)
+      responses:
+        '200':
+          description: 연결 테스트 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      engineDb:
+                        type: object
+                        properties:
+                          healthy:
+                            type: boolean
+                          response_time_ms:
+                            type: integer
+                      displayDb:
+                        type: object
+                        properties:
+                          healthy:
+                            type: boolean
+                          response_time_ms:
+                            type: integer
+        '503':
+          description: 연결 테스트 실패
+
+  /api/v1/settings/database/health:
+    get:
+      tags: [settings]
+      summary: 데이터베이스 관리 서비스 상태 확인
+      description: 데이터베이스 관리 서비스의 현재 상태를 확인합니다.
+      responses:
+        '200':
+          description: 서비스 상태 조회 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  healthy:
+                    type: boolean
+                  service:
+                    type: string
+                    example: "database_management"
+
+  /api/v1/settings/database/info:
+    get:
+      tags: [settings]
+      summary: 데이터베이스 관리 서비스 정보
+      description: 데이터베이스 관리 서비스의 정보와 사용 가능한 엔드포인트를 조회합니다.
+      responses:
+        '200':
+          description: 서비스 정보 조회 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  service:
+                    type: string
+                    example: "Database Management API"
+                  version:
+                    type: string
+                    example: "1.0.0"
+                  endpoints:
+                    type: object
 
   # ======== 4. 전광판 API (17개) ========
   /api/v1/parking/electric-signs:
@@ -1025,68 +1441,598 @@ paths:
         '200':
           description: 차량 위치 조회 성공
 
-  # ======== 16. 모니터링 API (15개) ========
-  /api/v1/monitoring/ping:
+  # ======== 16. 모니터링 API (11개) ========
+  /api/v1/monitoring/health:
     get:
       tags: [system]
-      summary: 데이터베이스 생존 확인
+      summary: 전체 시스템 생존 상태 확인
+      description: 시스템 전체의 건강 상태를 확인합니다.
+      parameters:
+        - name: include_details
+          in: query
+          required: false
+          schema:
+            type: boolean
+            default: false
+          description: 상세 정보 포함 여부
       responses:
         '200':
-          description: 생존 확인 성공
-
-  /api/v1/monitoring/health:
+          description: 시스템 상태 조회 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      status:
+                        type: string
+                        example: "healthy"
+                      services:
+                        type: object
+                      database:
+                        type: object
+                  timestamp:
+                    type: string
+        '503':
+          description: 시스템 이용 불가
     post:
       tags: [system]
       summary: 새로운 서비스 URL 등록
+      description: 모니터링할 새로운 서비스를 등록합니다.
       requestBody:
         required: true
         content:
           application/json:
             schema:
               type: object
+              required: [key, value]
               properties:
                 key:
                   type: string
-                  description: 등록 키
+                  description: 서비스 식별 키
+                  example: "parking_engine"
                 value:
                   type: string
                   description: 서비스 URL
+                  example: "http://localhost:3000"
       responses:
         '200':
-          description: 등록 성공
+          description: 서비스 등록 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: object
+                  timestamp:
+                    type: string
+        '400':
+          description: 잘못된 요청
+        '500':
+          description: 서버 오류
 
-  /api/v1/monitoring/health/get:
+  /api/v1/monitoring/health/services:
     get:
       tags: [system]
       summary: 등록된 서비스들의 생존 상태 확인
+      description: 등록된 모든 서비스의 생존 상태를 확인합니다.
+      parameters:
+        - name: timeout
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 10
+          description: 타임아웃 (초)
       responses:
         '200':
-          description: 생존 상태 조회 성공
+          description: 서비스 상태 조회 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      services:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            key:
+                              type: string
+                            url:
+                              type: string
+                            status:
+                              type: string
+                            response_time:
+                              type: number
+                  timestamp:
+                    type: string
+        '500':
+          description: 서버 오류
 
   /api/v1/monitoring/health/isalive:
     get:
       tags: [system]
-      summary: 서버 생존 확인
+      summary: 서버 생존 확인 (레거시 호환)
+      description: 서버의 기본 생존 상태를 확인합니다. 레거시 클라이언트 호환용입니다.
       responses:
         '200':
           description: 서버 생존 확인
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  alive:
+                    type: boolean
+                    example: true
+                  status:
+                    type: string
+                    example: "healthy"
+                  timestamp:
+                    type: string
+                  server:
+                    type: string
+                    example: "parking_system_api"
+
+  /api/v1/monitoring/ping:
+    get:
+      tags: [system]
+      summary: 데이터베이스 생존 확인
+      description: 데이터베이스 연결 상태를 확인합니다.
+      responses:
+        '200':
+          description: 데이터베이스 생존 확인 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      database_status:
+                        type: string
+                      response_time:
+                        type: number
+                  timestamp:
+                    type: string
+        '500':
+          description: 데이터베이스 연결 실패
+
+  /api/v1/monitoring/ping/database:
+    get:
+      tags: [system]
+      summary: 데이터베이스 상세 상태 확인
+      description: 데이터베이스의 상세 상태 정보를 확인합니다.
+      responses:
+        '200':
+          description: 데이터베이스 상세 상태 조회 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      engine_db:
+                        type: object
+                      display_db:
+                        type: object
+                      connections:
+                        type: array
+                  timestamp:
+                    type: string
+        '500':
+          description: 서버 오류
 
   /api/v1/monitoring/errors:
     get:
       tags: [system]
       summary: 현재 오류 상태 조회
+      description: 시스템에서 발생한 오류 목록을 조회합니다.
       responses:
         '200':
           description: 오류 상태 조회 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      errors:
+                        type: array
+                        items:
+                          type: string
+                      error_count:
+                        type: integer
+                  timestamp:
+                    type: string
+        '500':
+          description: 서버 오류
+    post:
+      tags: [system]
+      summary: 오류 보고
+      description: 새로운 오류를 시스템에 보고합니다.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [error]
+              properties:
+                error:
+                  type: string
+                  description: 오류 메시지
+                  example: "Database connection timeout"
+                severity:
+                  type: string
+                  enum: [low, medium, high, critical]
+                  description: 오류 심각도
+                component:
+                  type: string
+                  description: 오류 발생 컴포넌트
+      responses:
+        '200':
+          description: 오류 보고 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: object
+                  timestamp:
+                    type: string
+        '400':
+          description: 잘못된 요청
+        '500':
+          description: 서버 오류
+    delete:
+      tags: [system]
+      summary: 오류 목록 초기화
+      description: 시스템의 오류 목록을 초기화합니다.
+      responses:
+        '200':
+          description: 오류 목록 초기화 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      cleared_count:
+                        type: integer
+                  timestamp:
+                    type: string
+        '500':
+          description: 서버 오류
 
-  # ======== 17. 리소스 관리 API (5개) ========
+  /api/v1/monitoring/status:
+    get:
+      tags: [system]
+      summary: 전체 모니터링 상태 요약
+      description: 시스템 전체의 모니터링 상태를 요약하여 제공합니다.
+      responses:
+        '200':
+          description: 모니터링 상태 요약 조회 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      overall_status:
+                        type: string
+                      services:
+                        type: object
+                      database:
+                        type: object
+                      errors:
+                        type: object
+                      uptime:
+                        type: string
+                  timestamp:
+                    type: string
+        '500':
+          description: 서버 오류
+
+  /api/v1/monitoring/info:
+    get:
+      tags: [system]
+      summary: 모니터링 서비스 정보
+      description: 모니터링 서비스의 정보를 조회합니다.
+      responses:
+        '200':
+          description: 서비스 정보 조회 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      service_name:
+                        type: string
+                        example: "Monitoring API"
+                      version:
+                        type: string
+                        example: "1.0.0"
+                      endpoints:
+                        type: array
+                        items:
+                          type: string
+                  timestamp:
+                    type: string
+
+  # ======== 17. 리소스 관리 API (7개) ========
   /api/v1/resources:
     get:
       tags: [utilities]
       summary: 주차장 리소스 정보 조회
+      description: 주차장 리소스 정보를 조회합니다. include_details 파라미터로 상세 정보 포함 여부를 설정할 수 있습니다.
+      parameters:
+        - name: include_details
+          in: query
+          required: false
+          schema:
+            type: boolean
+            default: false
+          description: 상세 정보 포함 여부
       responses:
         '200':
           description: 리소스 정보 조회 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: object
+                  timestamp:
+                    type: string
+        '500':
+          description: 서버 오류
+
+  /api/v1/resources/parking-lots:
+    get:
+      tags: [utilities]
+      summary: 주차장 목록 조회
+      description: 주차장 목록을 JSON 형태로 조회합니다.
+      parameters:
+        - name: force_refresh
+          in: query
+          required: false
+          schema:
+            type: boolean
+            default: false
+          description: 강제 새로고침 여부
+      responses:
+        '200':
+          description: 주차장 목록 조회 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      type: object
+                  timestamp:
+                    type: string
+        '500':
+          description: 서버 오류
+
+  /api/v1/resources/parking-lots/raw:
+    get:
+      tags: [utilities]
+      summary: 주차장 목록 원시 데이터 조회 (레거시 호환)
+      description: 레거시 클라이언트 호환을 위한 원시 데이터 형태로 주차장 목록을 조회합니다.
+      responses:
+        '200':
+          description: 원시 데이터 조회 성공
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "start,data1,data2,data3..."
+        '500':
+          description: 서버 오류
+
+  /api/v1/resources/refresh:
+    post:
+      tags: [utilities]
+      summary: 리소스 정보 새로고침
+      description: 주차장 리소스 정보를 새로고침합니다.
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                cache_clear:
+                  type: boolean
+                  description: 캐시 초기화 여부
+                force_reload:
+                  type: boolean
+                  description: 강제 다시 로드 여부
+      responses:
+        '200':
+          description: 새로고침 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: object
+                  timestamp:
+                    type: string
+        '500':
+          description: 서버 오류
+
+  /api/v1/resources/status:
+    get:
+      tags: [utilities]
+      summary: 리소스 상태 조회
+      description: 현재 리소스 관리 서비스의 상태를 조회합니다.
+      responses:
+        '200':
+          description: 상태 조회 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      cache_status:
+                        type: string
+                      last_refresh:
+                        type: string
+                      resource_count:
+                        type: integer
+                  timestamp:
+                    type: string
+        '500':
+          description: 서버 오류
+
+  /api/v1/resources/health:
+    get:
+      tags: [utilities]
+      summary: 리소스 관리 서비스 상태 확인
+      description: 리소스 관리 서비스의 건강 상태를 확인합니다.
+      responses:
+        '200':
+          description: 서비스 정상
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      status:
+                        type: string
+                        example: "healthy"
+                      uptime:
+                        type: string
+                  timestamp:
+                    type: string
+        '503':
+          description: 서비스 이용 불가
+
+  /api/v1/resources/info:
+    get:
+      tags: [utilities]
+      summary: 리소스 관리 서비스 정보
+      description: 리소스 관리 서비스의 정보를 조회합니다.
+      responses:
+        '200':
+          description: 서비스 정보 조회 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      service_name:
+                        type: string
+                        example: "Resource Management API"
+                      version:
+                        type: string
+                        example: "1.0.0"
+                      endpoints:
+                        type: array
+                        items:
+                          type: string
+                  timestamp:
+                    type: string
 
   # ======== 18. 그래프 데이터 API (5개) ========
   /api/v1/statistics/graphs:

@@ -253,21 +253,52 @@ class ParkingZoneServiceException implements Exception {
 class ParkingZoneConstants {
   static const String defaultFileDirectory = 'file';
   static const int maxFilenameLength = 100;
-  static const int maxFileSizeBytes = 10 * 1024 * 1024; // 10MB
+  static const int maxFileSizeBytes = 500 * 1024 * 1024; // 500MB (대용량 영상 지원)
 
   // 지원되는 파일 확장자
   static const List<String> supportedExtensions = [
+    // 이미지 파일
     'jpg',
     'jpeg',
     'png',
     'gif',
     'bmp',
     'webp',
+    'tiff',
+    'ico',
+    // 영상 파일
+    'mp4',
+    'avi',
+    'mov',
+    'wmv',
+    'flv',
+    'webm',
+    'mkv',
+    'mpg',
+    'mpeg',
+    'm4v',
+    '3gp',
+    // 문서 파일
     'pdf',
+    'doc',
+    'docx',
+    'xls',
+    'xlsx',
+    'ppt',
+    'pptx',
+    // 데이터 파일
     'json',
     'xml',
     'txt',
-    'csv'
+    'csv',
+    'yaml',
+    'yml',
+    // 압축 파일
+    'zip',
+    'rar',
+    '7z',
+    'tar',
+    'gz'
   ];
 
   // 주차 공간 유형

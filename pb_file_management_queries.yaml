@@ -1,0 +1,96 @@
+# 새로운 파일 관리 쿼리들 - pb.yaml에 추가할 내용
+
+storedStatements:
+  # 파일 관리 관련 쿼리들
+  - id: I_File
+    sql: INSERT INTO tb_files (filename, original_filename, file_path, file_type, file_category, file_size, mime_type, description) VALUES (:filename, :original_filename, :file_path, :file_type, :file_category, :file_size, :mime_type, :description)
+  
+  - id: S_File_All
+    sql: SELECT * FROM tb_files WHERE is_active = 1 ORDER BY uploaded_at DESC
+  
+  - id: S_File_ById
+    sql: SELECT * FROM tb_files WHERE uid = :uid AND is_active = 1
+  
+  - id: S_File_ByType
+    sql: SELECT * FROM tb_files WHERE file_category = :category AND is_active = 1 ORDER BY uploaded_at DESC
+  
+  - id: S_File_ByFilename
+    sql: SELECT * FROM tb_files WHERE filename = :filename AND is_active = 1
+  
+  - id: U_File
+    sql: UPDATE tb_files SET filename = :filename, file_path = :file_path, file_type = :file_type, file_size = :file_size, description = :description, updated_at = CURRENT_TIMESTAMP WHERE uid = :uid
+  
+  - id: D_File_Soft
+    sql: UPDATE tb_files SET is_active = 0, updated_at = CURRENT_TIMESTAMP WHERE uid = :uid
+  
+  - id: D_File_Hard
+    sql: DELETE FROM tb_files WHERE uid = :uid
+  
+  - id: S_File_Stats
+    sql: SELECT file_category, COUNT(*) as count, SUM(file_size) as total_size FROM tb_files WHERE is_active = 1 GROUP BY file_category
+  
+  - id: S_File_Orphaned
+    sql: SELECT f.* FROM tb_files f LEFT JOIN tb_parking_zone_files pzf ON f.uid = pzf.file_id WHERE pzf.file_id IS NULL AND f.is_active = 1
+  
+  # 주차구역-파일 연결 관련 쿼리들
+  - id: I_ParkingZone_File
+    sql: INSERT INTO tb_parking_zone_files (parking_zone_id, file_id, file_purpose) VALUES (:parking_zone_id, :file_id, :file_purpose)
+  
+  - id: S_ParkingZone_Files
+    sql: SELECT f.*, pzf.file_purpose FROM tb_files f JOIN tb_parking_zone_files pzf ON f.uid = pzf.file_id WHERE pzf.parking_zone_id = :parking_zone_id AND f.is_active = 1
+  
+  - id: D_ParkingZone_File
+    sql: DELETE FROM tb_parking_zone_files WHERE parking_zone_id = :parking_zone_id AND file_id = :file_id
+  
+  # 기존 쿼리 수정 (하위 호환성 유지)
+  - id: I_TbPakringZone_Enhanced
+    sql: INSERT INTO tb_parking_zone (parking_name, file_address, floor) VALUES (:parking_name, :file_address, :floor)
+  
+  - id: S_TbParkingZone_WithFiles
+    sql: |
+      SELECT 
+        pz.*,
+        GROUP_CONCAT(f.filename) as file_names,
+        GROUP_CONCAT(f.file_type) as file_types,
+        GROUP_CONCAT(f.file_category) as file_categories
+      FROM tb_parking_zone pz 
+      LEFT JOIN tb_parking_zone_files pzf ON pz.uid = pzf.parking_zone_id
+      LEFT JOIN tb_files f ON pzf.file_id = f.uid AND f.is_active = 1
+      GROUP BY pz.uid
+      ORDER BY pz.parking_name
+
+initStatements:
+  # 새로운 파일 관리 테이블들
+  - CREATE TABLE IF NOT EXISTS "tb_files" (
+      "uid" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+      "filename" VARCHAR(255) NOT NULL,
+      "original_filename" VARCHAR(255) NOT NULL,
+      "file_path" TEXT NOT NULL UNIQUE,
+      "file_type" VARCHAR(10) NOT NULL,
+      "file_category" VARCHAR(20) NOT NULL,
+      "file_size" INTEGER NOT NULL,
+      "mime_type" VARCHAR(100),
+      "description" TEXT,
+      "uploaded_at" DATETIME DEFAULT CURRENT_TIMESTAMP,
+      "updated_at" DATETIME DEFAULT CURRENT_TIMESTAMP,
+      "is_active" BOOLEAN DEFAULT TRUE
+    )
+
+  - CREATE TABLE IF NOT EXISTS "tb_parking_zone_files" (
+      "uid" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+      "parking_zone_id" INTEGER NOT NULL,
+      "file_id" INTEGER NOT NULL,
+      "file_purpose" VARCHAR(50),
+      "created_at" DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (parking_zone_id) REFERENCES tb_parking_zone(uid),
+      FOREIGN KEY (file_id) REFERENCES tb_files(uid),
+      UNIQUE(parking_zone_id, file_id)
+    )
+
+  # 인덱스 추가
+  - CREATE INDEX IF NOT EXISTS idx_tb_files_category ON tb_files(file_category);
+  - CREATE INDEX IF NOT EXISTS idx_tb_files_type ON tb_files(file_type);
+  - CREATE INDEX IF NOT EXISTS idx_tb_files_filename ON tb_files(filename);
+  - CREATE INDEX IF NOT EXISTS idx_tb_files_active ON tb_files(is_active);
+  - CREATE INDEX IF NOT EXISTS idx_tb_parking_zone_files_zone ON tb_parking_zone_files(parking_zone_id);
+  - CREATE INDEX IF NOT EXISTS idx_tb_parking_zone_files_file ON tb_parking_zone_files(file_id);

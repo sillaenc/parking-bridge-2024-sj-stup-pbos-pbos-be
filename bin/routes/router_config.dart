@@ -43,6 +43,9 @@ import 'billboard_api.dart';
 import 'display_api.dart';
 import 'led_calculation_api.dart';
 import 'system_health_api.dart';
+import 'database_management_api.dart';
+import 'resource_management_api.dart';
+import 'monitoring_api.dart';
 
 /// OpenAPI 3.0 스타일의 라우터 설정을 관리하는 클래스
 /// 모든 API 엔드포인트를 /api/v1/ 형태로 체계적으로 구성
@@ -120,6 +123,10 @@ class RouterConfig {
         SettingsDbManagement(manageAddress: _manageAddress);
     final settings = Settings(manageAddress: _manageAddress);
 
+    // 새로운 RESTful 데이터베이스 관리 API (리팩토링됨)
+    final databaseManagementApi =
+        DatabaseManagementApi(manageAddress: _manageAddress);
+
     // 새로운 RESTful 주차 구역 관리 API (리팩토링됨)
     final parkingZoneManagementApi =
         ParkingZoneManagementApi(manageAddress: _manageAddress);
@@ -129,7 +136,9 @@ class RouterConfig {
     // 새로운 RESTful 카메라 주차 표면 관리 API (리팩토링됨)
     final cameraParkingApi = CameraParkingAPI(manageAddress: _manageAddress);
 
-    _router.mount('$API_PREFIX/settings/database', settingsDbManagement.router);
+    // 새로운 RESTful API 라우트
+    _router.mount(
+        '$API_PREFIX/settings/database', databaseManagementApi.router);
     _router.mount(
         '$API_PREFIX/settings/parking-zones', parkingZoneManagementApi.router);
     _router.mount(
@@ -137,6 +146,8 @@ class RouterConfig {
     _router.mount('$API_PREFIX/settings/general', settings.router);
 
     // 레거시 호환성 라우트 (기존 클라이언트 지원용)
+    _router.mount(
+        '$API_PREFIX/settings/database/legacy', settingsDbManagement.router);
     _router.mount('$API_PREFIX/settings/parking-zones/legacy',
         legacyParkingZoneApi.router);
   }
@@ -204,16 +215,31 @@ class RouterConfig {
     final ping = Ping(manageAddress: _manageAddress);
     final error = Error(manageAddress: _manageAddress);
 
-    _router.mount('$API_PREFIX/monitoring/health', isalive.router);
-    _router.mount('$API_PREFIX/monitoring/ping', ping.router);
-    _router.mount('$API_PREFIX/monitoring/errors', error.router);
+    // 새로운 RESTful 모니터링 API (리팩토링됨)
+    final monitoringApi = MonitoringApi(manageAddress: _manageAddress);
+
+    // 새로운 RESTful API 라우트
+    _router.mount('$API_PREFIX/monitoring', monitoringApi.router);
+
+    // 레거시 호환성 라우트 (기존 클라이언트 지원용)
+    _router.mount('$API_PREFIX/monitoring/legacy/health', isalive.router);
+    _router.mount('$API_PREFIX/monitoring/legacy/ping', ping.router);
+    _router.mount('$API_PREFIX/monitoring/legacy/errors', error.router);
   }
 
-  /// 리소스 관련 라우트 설정
+  /// 리소스 관리 라우트 설정
   void _configureResourceRoutes() {
     final getResource = GetResource(manageAddress: _manageAddress);
 
-    _router.mount('$API_PREFIX/resources', getResource.router);
+    // 새로운 RESTful 리소스 관리 API (리팩토링됨)
+    final resourceManagementApi =
+        ResourceManagementApi(manageAddress: _manageAddress);
+
+    // 새로운 RESTful API 라우트
+    _router.mount('$API_PREFIX/resources', resourceManagementApi.router);
+
+    // 레거시 호환성 라우트 (기존 클라이언트 지원용)
+    _router.mount('$API_PREFIX/resources/legacy', getResource.router);
   }
 
   /// 새로 리팩토링된 API 라우트 설정 (OpenAPI 3.0 표준)
@@ -256,7 +282,7 @@ class RouterConfig {
 
   /// Swagger UI 및 API 문서 라우트 설정
   void _configureSwaggerRoutes() {
-    // 기본 Swagger UI - 완전한 137개 API 문서 UI로 변경
+    // 기본 Swagger UI - 완전한 145개 API 문서 UI로 변경
     _router.get('/docs', (Request request) {
       return _serveStaticFile('swagger-ui-complete.html', 'text/html');
     });
@@ -266,7 +292,7 @@ class RouterConfig {
       return _serveStaticFile('swagger-ui-complete.html', 'text/html');
     });
 
-    // 완전한 137개 API 문서 UI (별칭 유지)
+    // 완전한 145개 API 문서 UI (별칭 유지)
     _router.get('/docs-complete', (Request request) {
       return _serveStaticFile('swagger-ui-complete.html', 'text/html');
     });
@@ -276,7 +302,7 @@ class RouterConfig {
       return _serveStaticFile('swagger.yaml', 'application/x-yaml');
     });
 
-    // 완전한 137개 API 문서 서빙
+    // 완전한 145개 API 문서 서빙
     _router.get('/swagger-complete.yaml', (Request request) {
       return _serveStaticFile('swagger_complete.yaml', 'application/x-yaml');
     });
@@ -290,11 +316,11 @@ class RouterConfig {
     });
 
     print('📚 Swagger 문서가 다음 경로에서 제공됩니다:');
-    print('   • 기본 Swagger UI (137개 API): http://localhost:8080/docs');
-    print('   • 완전한 API UI (별칭): http://localhost:8080/docs-complete');
-    print('   • API 문서: http://localhost:8080/api-docs');
+    print('   • 기본 Swagger UI (145개 API): http://localhost:8080/docs');
+    // print('   • 완전한 API UI (별칭): http://localhost:8080/docs-complete');
+    // print('   • API 문서: http://localhost:8080/api-docs');
     print('   • 기본 OpenAPI 스펙: http://localhost:8080/swagger.yaml');
-    print('   • 완전한 137개 API 스펙: http://localhost:8080/swagger-complete.yaml');
+    print('   • 완전한 145개 API 스펙: http://localhost:8080/swagger-complete.yaml');
   }
 
   /// 정적 파일 서빙 헬퍼 메서드
@@ -375,15 +401,23 @@ class RouterConfig {
     print('   API Version: v1');
     print('   Base Path: $API_PREFIX');
     print('   Available Endpoints:');
-    print('   ├── Auth: $API_PREFIX/auth/* (리팩토링됨)');
-    print('   ├── Users: $API_PREFIX/users/* (리팩토링됨)');
-    print('   ├── Engine: $API_PREFIX/engine/* (리팩토링됨)');
-    print('   ├── Settings: $API_PREFIX/settings/* (일부 리팩토링됨)');
-    print('   ├── Statistics: $API_PREFIX/statistics/* (리팩토링됨)');
-    print('   ├── Parking: $API_PREFIX/parking/* (일부 리팩토링됨)');
-    print('   ├── System: $API_PREFIX/system/*');
-    print('   ├── Monitoring: $API_PREFIX/monitoring/*');
-    print('   └── Resources: $API_PREFIX/resources/*');
+    print('   ├── Auth: $API_PREFIX/auth/* (완전 리팩토링됨 ✅)');
+    print('   ├── Users: $API_PREFIX/users/* (완전 리팩토링됨 ✅)');
+    print('   ├── Engine: $API_PREFIX/engine/* (완전 리팩토링됨 ✅)');
+    print('   ├── Settings: $API_PREFIX/settings/* (완전 리팩토링됨 ✅)');
+    print('   ├── Statistics: $API_PREFIX/statistics/* (완전 리팩토링됨 ✅)');
+    print('   ├── Parking: $API_PREFIX/parking/* (완전 리팩토링됨 ✅)');
+    print('   ├── System: $API_PREFIX/system/* (레거시 + 신규 혼재 ⚠️)');
+    print('   ├── Monitoring: $API_PREFIX/monitoring/* (완전 리팩토링됨 ✅)');
+    print('   ├── Resources: $API_PREFIX/resources/* (완전 리팩토링됨 ✅)');
+    print(
+        '   └── 신규 RESTful APIs: central, vehicle, billboard, display, led (완전 리팩토링됨 ✅)');
+    print('');
+    print('📝 리팩토링 상태 요약:');
+    print(
+        '   • 완전 리팩토링: Auth, Users, Engine, Settings, Statistics, Parking, Monitoring, Resources, 신규 6개 API');
+    print('   • 일부 리팩토링: System (레거시 + 신규 혼재)');
+    print('   • 모든 주요 API 리팩토링 완료! 🎉');
     print('');
   }
 }

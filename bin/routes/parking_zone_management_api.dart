@@ -40,6 +40,12 @@ class ParkingZoneManagementApi {
     // GET /api/v1/settings/parking-zones/files - 파일 시스템 파일 목록 조회
     router.get('/files', _getAllFiles);
 
+    // POST /api/v1/settings/parking-zones/sync - 수동 파일시스템 동기화
+    router.post('/sync', _syncFileSystem);
+
+    // GET /api/v1/settings/parking-zones/filesystem-health - 파일시스템 상태 확인
+    router.get('/filesystem-health', _checkFileSystemHealth);
+
     // GET /api/v1/settings/parking-zones/health - 서비스 상태 확인
     router.get('/health', _getServiceHealth);
 
@@ -355,13 +361,60 @@ class ParkingZoneManagementApi {
     }
   }
 
+  /// 수동 파일시스템 동기화
+  Future<Response> _syncFileSystem(Request request) async {
+    try {
+      final result = await _parkingZoneService.syncFileSystemManually();
+
+      return Response.ok(
+        jsonEncode(result.toJson()),
+        headers: {'Content-Type': 'application/json'},
+      );
+    } on ParkingZoneServiceException catch (e) {
+      return _handleParkingZoneServiceException(e);
+    } catch (e) {
+      return Response.internalServerError(
+        body: jsonEncode({
+          'success': false,
+          'message': 'Internal server error',
+          'error': e.toString(),
+        }),
+        headers: {'Content-Type': 'application/json'},
+      );
+    }
+  }
+
+  /// 파일시스템 상태 확인
+  Future<Response> _checkFileSystemHealth(Request request) async {
+    try {
+      final result = await _parkingZoneService.checkFileSystemHealth();
+
+      return Response.ok(
+        jsonEncode(result.toJson()),
+        headers: {'Content-Type': 'application/json'},
+      );
+    } on ParkingZoneServiceException catch (e) {
+      return _handleParkingZoneServiceException(e);
+    } catch (e) {
+      return Response.internalServerError(
+        body: jsonEncode({
+          'success': false,
+          'message': 'Internal server error',
+          'error': e.toString(),
+        }),
+        headers: {'Content-Type': 'application/json'},
+      );
+    }
+  }
+
   /// 서비스 정보
   Future<Response> _getServiceInfo(Request request) async {
     return Response.ok(
       jsonEncode({
         'service': 'Parking Zone Management API',
-        'version': '1.0.0',
-        'description': 'RESTful API for parking zone file management',
+        'version': '2.0.0', // 동기화 기능 추가로 버전 업
+        'description':
+            'RESTful API for parking zone file management with auto-sync',
         'endpoints': {
           'GET /': 'Get all parking zones',
           'GET /{name}': 'Get parking zone by name',
@@ -371,9 +424,18 @@ class ParkingZoneManagementApi {
           'PATCH /lots/{tag}/type': 'Change lot type',
           'PATCH /lots/{tag}/status': 'Change parking status',
           'GET /files': 'List all files in file system',
+          'POST /sync': 'Manual filesystem synchronization',
+          'GET /filesystem-health': 'Check filesystem health',
           'GET /health': 'Service health check',
           'GET /info': 'Service information',
         },
+        'features': [
+          'Video file support (mp4, avi, mov, etc.)',
+          'Large file support (500MB max)',
+          'Automatic filesystem synchronization',
+          'Orphaned file cleanup',
+          'Health monitoring',
+        ],
         'supportedFileTypes': ParkingZoneConstants.supportedExtensions,
         'maxFileSize':
             '${ParkingZoneConstants.maxFileSizeBytes / (1024 * 1024)}MB',
@@ -539,6 +601,106 @@ class LegacyParkingZoneApi {
       return Response.internalServerError(body: '/ChangeParked 서버 오류로 실패');
     } finally {
       print('/ChangeParked 요청 처리 완료');
+    }
+  }
+
+  /// 파일시스템 동기화
+  Future<Response> _syncFileSystem(Request request) async {
+    try {
+      final result = await _parkingZoneService.syncFileSystem();
+
+      return Response.ok(
+        jsonEncode({
+          'success': result.success,
+          'message': result.message,
+          'data': result.data,
+        }),
+        headers: {'Content-Type': 'application/json'},
+      );
+    } catch (e) {
+      return Response.internalServerError(
+        body: jsonEncode({
+          'success': false,
+          'message': 'Internal server error during sync',
+          'error': e.toString(),
+        }),
+        headers: {'Content-Type': 'application/json'},
+      );
+    }
+  }
+
+  /// 파일시스템 상태 확인
+  Future<Response> _checkFileSystemHealth(Request request) async {
+    try {
+      final result = await _parkingZoneService.checkFileSystemHealth();
+
+      return Response.ok(
+        jsonEncode({
+          'success': result.success,
+          'message': result.message,
+          'data': result.data,
+        }),
+        headers: {'Content-Type': 'application/json'},
+      );
+    } catch (e) {
+      return Response.internalServerError(
+        body: jsonEncode({
+          'success': false,
+          'message': 'Internal server error during health check',
+          'error': e.toString(),
+        }),
+        headers: {'Content-Type': 'application/json'},
+      );
+    }
+  }
+
+  /// 서비스 상태 확인
+  Future<Response> _getServiceHealth(Request request) async {
+    try {
+      final result = await _parkingZoneService.getServiceHealth();
+
+      return Response.ok(
+        jsonEncode({
+          'success': result.success,
+          'message': result.message,
+          'data': result.data,
+        }),
+        headers: {'Content-Type': 'application/json'},
+      );
+    } catch (e) {
+      return Response.internalServerError(
+        body: jsonEncode({
+          'success': false,
+          'message': 'Internal server error during service health check',
+          'error': e.toString(),
+        }),
+        headers: {'Content-Type': 'application/json'},
+      );
+    }
+  }
+
+  /// 서비스 정보
+  Future<Response> _getServiceInfo(Request request) async {
+    try {
+      final result = await _parkingZoneService.getServiceInfo();
+
+      return Response.ok(
+        jsonEncode({
+          'success': result.success,
+          'message': result.message,
+          'data': result.data,
+        }),
+        headers: {'Content-Type': 'application/json'},
+      );
+    } catch (e) {
+      return Response.internalServerError(
+        body: jsonEncode({
+          'success': false,
+          'message': 'Internal server error during service info retrieval',
+          'error': e.toString(),
+        }),
+        headers: {'Content-Type': 'application/json'},
+      );
     }
   }
 }
