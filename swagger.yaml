@@ -35,7 +35,7 @@ info:
     - **동기화**: 파일시스템-DB 양방향 동기화
     - **메타데이터**: 파일 크기, 타입, 카테고리, MIME 타입 관리
     
-  version: 2.1.0
+  version: 2.1.1
   contact:
     name: 스마트 파킹 시스템 지원팀
   license:
@@ -246,8 +246,11 @@ paths:
     post:
       tags: [users]
       summary: 새 사용자 생성
+      description: 새로운 사용자 계정을 생성합니다. 모든 필드가 필수입니다.
+      operationId: createUser
       requestBody:
         required: true
+        description: 사용자 생성을 위한 정보
         content:
           application/json:
             schema:
@@ -255,28 +258,38 @@ paths:
               properties:
                 account:
                   type: string
-                  description: 계정 ID
+                  description: 계정 ID (고유값)
                   example: "newuser"
+                  minLength: 3
+                  maxLength: 50
                 passwd:
                   type: string
                   description: 비밀번호
                   example: "password123"
+                  minLength: 6
                 passwdCheck:
                   type: string
-                  description: 비밀번호 확인
+                  description: 비밀번호 확인 (passwd와 동일해야 함)
                   example: "password123"
+                  minLength: 6
                 username:
                   type: string
                   description: 사용자 이름
                   example: "홍길동"
+                  minLength: 1
+                  maxLength: 100
                 userlevel:
                   type: integer
-                  description: 사용자 레벨 (1=일반, 2=관리자)
+                  description: 사용자 레벨 (1=일반사용자, 2=관리자)
                   example: 1
+                  minimum: 1
+                  maximum: 2
                 isActivated:
                   type: integer
                   description: 활성화 상태 (0=비활성, 1=활성)
                   example: 1
+                  minimum: 0
+                  maximum: 1
               required:
                 - account
                 - passwd
@@ -284,6 +297,7 @@ paths:
                 - username
                 - userlevel
                 - isActivated
+              additionalProperties: false
       responses:
         '201':
           description: 사용자 생성 성공
