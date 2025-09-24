@@ -18,6 +18,10 @@ import 'statistics_api.dart';
 import 'settings_db_management.dart';
 import 'settings_parking_area.dart';
 import 'parking_zone_management_api.dart';
+import 'parking_zones_api.dart';
+import 'parking_lots_api.dart';
+import 'file_system_api.dart';
+import 'simple_camera_api.dart';
 import 'settings_cam_parking_area.dart';
 import 'camera_parking_api.dart';
 import 'get_resource.dart';
@@ -127,7 +131,13 @@ class RouterConfig {
     final databaseManagementApi =
         DatabaseManagementApi(manageAddress: _manageAddress);
 
-    // 새로운 RESTful 주차 구역 관리 API (리팩토링됨)
+    // 새로운 분리된 API들 (리팩토링됨)
+    final parkingZonesApi = ParkingZonesApi(manageAddress: _manageAddress);
+    final parkingLotsApi = ParkingLotsApi(manageAddress: _manageAddress);
+    final fileSystemApi = FileSystemApi(manageAddress: _manageAddress);
+    final simpleCameraApi = SimpleCameraApi(manageAddress: _manageAddress);
+
+    // 기존 통합 API (레거시 호환성용)
     final parkingZoneManagementApi =
         ParkingZoneManagementApi(manageAddress: _manageAddress);
     final legacyParkingZoneApi =
@@ -136,10 +146,15 @@ class RouterConfig {
     // 새로운 RESTful 카메라 주차 표면 관리 API (리팩토링됨)
     final cameraParkingApi = CameraParkingAPI(manageAddress: _manageAddress);
 
-    // 새로운 RESTful API 라우트
+    // 새로운 분리된 API 라우트
+    _router.mount('$API_PREFIX/parking-zones', parkingZonesApi.router);
+    _router.mount('$API_PREFIX/parking-lots', parkingLotsApi.router);
+    _router.mount('$API_PREFIX/files', fileSystemApi.router);
+    _router.mount('$API_PREFIX/cameras', simpleCameraApi.router);
+
+    // 기존 설정 관련 API 라우트
     _router.mount(
         '$API_PREFIX/settings/database', databaseManagementApi.router);
-    _router.mount('$API_PREFIX/files', parkingZoneManagementApi.router);
     _router.mount(
         '$API_PREFIX/settings/camera-parking', cameraParkingApi.router);
     _router.mount('$API_PREFIX/settings/general', settings.router);
@@ -147,7 +162,7 @@ class RouterConfig {
     // 레거시 호환성 라우트 (기존 클라이언트 지원용)
     _router.mount(
         '$API_PREFIX/settings/database/legacy', settingsDbManagement.router);
-    _router.mount('$API_PREFIX/files/legacy', legacyParkingZoneApi.router);
+    _router.mount('$API_PREFIX/files/legacy', parkingZoneManagementApi.router);
   }
 
   /// 통계 관련 라우트 설정
@@ -285,6 +300,11 @@ class RouterConfig {
       return _serveStaticFile('swagger-ui-complete.html', 'text/html');
     });
 
+    // 표준 Swagger UI 경로 (기본 API 문서)
+    _router.get('/swagger-ui.html', (Request request) {
+      return _serveStaticFile('swagger-ui.html', 'text/html');
+    });
+
     // API 문서 접근을 위한 별칭
     _router.get('/api-docs', (Request request) {
       return _serveStaticFile('swagger-ui-complete.html', 'text/html');
@@ -314,9 +334,9 @@ class RouterConfig {
     });
 
     print('📚 Swagger 문서가 다음 경로에서 제공됩니다:');
-    print('   • 기본 Swagger UI (145개 API): http://localhost:8080/docs');
-    // print('   • 완전한 API UI (별칭): http://localhost:8080/docs-complete');
-    // print('   • API 문서: http://localhost:8080/api-docs');
+    print('   • 기본 Swagger UI: http://localhost:8080/swagger-ui.html');
+    print('   • 완전한 API UI (145개): http://localhost:8080/docs');
+    print('   • API 문서 별칭: http://localhost:8080/api-docs');
     print('   • 기본 OpenAPI 스펙: http://localhost:8080/swagger.yaml');
     print('   • 완전한 145개 API 스펙: http://localhost:8080/swagger-complete.yaml');
   }
