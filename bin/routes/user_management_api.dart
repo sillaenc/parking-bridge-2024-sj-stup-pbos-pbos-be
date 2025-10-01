@@ -18,11 +18,17 @@ class UserManagementApi {
     // GET /api/v1/users - 모든 사용자 조회
     router.get('/', _getAllUsers);
 
-    // GET /api/v1/users/{account} - 특정 사용자 조회
-    router.get('/<account>', _getUserByAccount);
+    // GET /api/v1/users/health - 서비스 상태 확인 (account 경로보다 먼저 정의)
+    router.get('/health', _getServiceHealth);
+
+    // GET /api/v1/users/info - 서비스 정보 (account 경로보다 먼저 정의)
+    router.get('/info', _getServiceInfo);
 
     // POST /api/v1/users - 사용자 생성
     router.post('/', _createUser);
+
+    // GET /api/v1/users/{account} - 특정 사용자 조회
+    router.get('/<account>', _getUserByAccount);
 
     // PUT /api/v1/users/{account} - 사용자 정보 업데이트
     router.put('/<account>', _updateUser);
@@ -35,12 +41,6 @@ class UserManagementApi {
 
     // DELETE /api/v1/users/{account} - 사용자 삭제
     router.delete('/<account>', _deleteUser);
-
-    // GET /api/v1/users/health - 서비스 상태 확인
-    router.get('/health', _getServiceHealth);
-
-    // GET /api/v1/users/info - 서비스 정보
-    router.get('/info', _getServiceInfo);
 
     return router;
   }

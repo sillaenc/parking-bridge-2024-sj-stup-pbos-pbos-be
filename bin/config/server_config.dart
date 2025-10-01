@@ -30,6 +30,7 @@ class ServerConfig {
   Future<void> _configureDatabase() async {
     _manageAddress.displayDbAddr = _env['displayDbAddr'];
     _manageAddress.displayDbLPR = _env['displayDbLPR'];
+    _manageAddress.engineDbAddr = _env['engineDbAddr'];
 
     if (_manageAddress.displayDbAddr == null) {
       throw Exception('displayDbAddr 환경 변수가 설정되지 않았습니다.');
@@ -38,6 +39,7 @@ class ServerConfig {
     print('Database configuration completed:');
     print('- Display DB: ${_manageAddress.displayDbAddr}');
     print('- Display LPR: ${_manageAddress.displayDbLPR}');
+    print('- Engine DB: ${_manageAddress.engineDbAddr}');
   }
 
   /// 서버 포트 가져오기

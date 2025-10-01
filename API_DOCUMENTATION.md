@@ -17,35 +17,50 @@
 - **API Prefix**: `/api/v1`
 
 ### 📊 Current API Status
-- **Total Endpoints**: 145+ API endpoints
-- **Main Categories**: 12 API categories
+- **Total Endpoints**: 80+ API endpoints (확인됨)
+- **Main Categories**: 15 API categories
 - **Legacy Support**: Backward compatible APIs included
 - **Documentation**: Swagger UI available at `/docs`
+- **실제 테스트 완료**: 2025-09-24
 
 ---
 
 ## ✅ 정확한 API 엔드포인트 (Postman 사용)
 
-### 🔐 인증 & 사용자 관리
+### 🔐 인증 & 사용자 관리 (테스트 완료 ✅)
 ```
-POST   /api/v1/auth/login              # 로그인
-GET    /api/v1/auth/health             # 인증 서비스 상태
-GET    /api/v1/auth/base-info          # 주차장 기본 정보
-GET    /api/v1/users                   # 사용자 목록 조회
-POST   /api/v1/users                   # 사용자 생성
-GET    /api/v1/users/health            # 사용자 서비스 상태
+POST   /api/v1/auth/login              # 로그인 ✅
+POST   /api/v1/auth/refresh            # 토큰 갱신 ✅
+GET    /api/v1/auth/token              # 현재 토큰 정보 조회 ✅
+GET    /api/v1/auth/protected          # 보호된 리소스 접근 테스트 ✅
+GET    /api/v1/auth/health             # 인증 서비스 상태 ✅
+GET    /api/v1/auth/info               # 인증 서비스 정보 ✅
+GET    /api/v1/auth/base-info          # 주차장 기본 정보 ✅
+GET    /api/v1/users                   # 사용자 목록 조회 ✅
+GET    /api/v1/users/{account}         # 특정 사용자 조회 ✅
+POST   /api/v1/users                   # 사용자 생성 ✅
+PUT    /api/v1/users/{account}         # 사용자 정보 업데이트 ✅
+PATCH  /api/v1/users/{account}/password # 비밀번호 변경 ✅
+PATCH  /api/v1/users/{account}/password/reset # 비밀번호 리셋 ✅
+DELETE /api/v1/users/{account}         # 사용자 삭제 ✅
+GET    /api/v1/users/health            # 사용자 서비스 상태 ✅
+GET    /api/v1/users/info              # 사용자 서비스 정보 ✅
 ```
 
-### 📁 파일 & 주차 구역 관리
+### 📁 파일 & 주차 구역 관리 (테스트 완료 ✅)
 ```
-GET    /api/v1/files                   # 모든 주차 구역 조회
-POST   /api/v1/files                   # 파일 업로드 및 주차 구역 생성
-GET    /api/v1/files/{name}            # 특정 주차 구역 조회
-PUT    /api/v1/files/{name}            # 파일 업데이트
-DELETE /api/v1/files/{name}            # 파일 삭제
-GET    /api/v1/files/list              # 파일 시스템 파일 목록
-POST   /api/v1/files/sync              # 수동 파일시스템 동기화
-GET    /api/v1/files/health            # 파일 서비스 상태
+GET    /api/v1/files                   # 모든 주차 구역 조회 ✅
+POST   /api/v1/files                   # 파일 업로드 및 주차 구역 생성 ✅
+GET    /api/v1/files/{name}            # 특정 주차 구역 조회 ✅
+PUT    /api/v1/files/{name}            # 파일 업데이트 ✅
+DELETE /api/v1/files/{name}            # 파일 삭제 ✅
+PATCH  /api/v1/files/lots/{tag}/type   # 주차 공간 유형 변경 ✅
+PATCH  /api/v1/files/lots/{tag}/status # 주차 상태 변경 ✅
+GET    /api/v1/files/list              # 파일 시스템 파일 목록 ✅
+POST   /api/v1/files/sync              # 수동 파일시스템 동기화 ✅
+GET    /api/v1/files/health            # 파일시스템 상태 확인 ✅
+GET    /api/v1/files/service-health    # 서비스 상태 확인 ✅
+GET    /api/v1/files/info              # 서비스 정보 ✅
 ```
 
 ### ⚙️ 설정 관리
@@ -66,46 +81,776 @@ GET    /api/v1/parking/electric-signs       # 모든 전광판 조회
 GET    /api/v1/parking/electric-signs/health # 전광판 서비스 상태
 ```
 
-### 🎛️ 대시보드 & 디스플레이
+### 🎛️ 대시보드 & 디스플레이 (테스트 완료 ✅)
 ```
-GET    /api/v1/central/dashboard        # 중앙 대시보드 데이터
-GET    /api/v1/central/health           # 중앙 서비스 상태
-GET    /api/v1/central/info             # 중앙 서비스 정보
-GET    /api/v1/display                  # 디스플레이 API 정보
-GET    /api/v1/display/health           # 디스플레이 서비스 상태
-GET    /api/v1/display/info?floors=B1,F1 # 층별 디스플레이 정보
-```
-
-### 📊 통계 & 분석
-```
-GET    /api/v1/statistics/health        # 통계 서비스 상태
-GET    /api/v1/statistics/parking       # 주차 통계 조회
-GET    /api/v1/statistics/camera-parking # 카메라 주차 통계
+GET    /api/v1/central/dashboard        # 중앙 대시보드 데이터 ✅
+GET    /api/v1/central/health           # 중앙 서비스 상태 ✅
+GET    /api/v1/central/info             # 중앙 서비스 정보 ✅
+GET    /api/v1/display                  # 디스플레이 API 정보 ✅
+GET    /api/v1/display/health           # 디스플레이 서비스 상태 ✅
+GET    /api/v1/display/info             # 디스플레이 서비스 정보 ✅
 ```
 
-### 🚙 차량 & 전광판
-```
-GET    /api/v1/vehicle/health           # 차량 서비스 상태
-GET    /api/v1/billboard                # 전광판 API 정보
-GET    /api/v1/billboard/health         # 전광판 서비스 상태
-GET    /api/v1/billboard/info           # 전광판 서비스 정보
-GET    /api/v1/billboard/floor/B1       # 층별 주차 정보 (전광판용)
+### 📊 통계 & 분석 API 전체 목록 (테스트 완료 ✅)
+
+#### GET `/api/v1/statistics/daily` - 일별 통계 조회
+
+**응답:**
+```json
+[
+  {
+    "hour_parking": 1,
+    "recorded_hour": "2025-09-24 08"
+  },
+  {
+    "hour_parking": 1,
+    "recorded_hour": "2025-09-24 09"
+  }
+]
 ```
 
-### 🔧 시스템 & 모니터링
-```
-GET    /api/v1/system/health            # 시스템 전체 상태
-GET    /api/v1/monitoring/health        # 모니터링 서비스 상태
-GET    /api/v1/monitoring/ping          # 데이터베이스 생존 확인
-GET    /api/v1/led/health              # LED 계산 서비스 상태
+#### GET `/api/v1/statistics/daily/all` - 일별 전체 통계
+
+**응답:**
+```json
+[
+  {
+    "uid": 1,
+    "hour_parking": 1,
+    "recorded_hour": "2025-09-24 08",
+    "car_type": 1,
+    "lot": 150
+  }
+]
 ```
 
-### 🗄️ 리소스 & 엔진
+#### GET `/api/v1/statistics/weekly` - 주별 통계 조회
+
+**응답:**
+```json
+[
+  {
+    "day_parking": 1,
+    "recorded_day": "2025-09-18"
+  },
+  {
+    "day_parking": 1,
+    "recorded_day": "2025-09-19"
+  }
+]
 ```
-GET    /api/v1/resources/health         # 리소스 서비스 상태
-GET    /api/v1/resources/usage          # 리소스 사용량 조회
-GET    /api/v1/engine/data/health       # 엔진 데이터 서비스 상태
-POST   /api/v1/engine/data              # 엔진 데이터 처리
+
+#### GET `/api/v1/statistics/monthly` - 월별 통계 조회
+
+**응답:**
+```json
+[
+  {
+    "day_parking": 1,
+    "recorded_day": "2025-08-24"
+  },
+  {
+    "day_parking": 1,
+    "recorded_day": "2025-09-01"
+  }
+]
+```
+
+#### GET `/api/v1/statistics/monthly/all` - 월별 전체 통계
+
+**응답:**
+```json
+[
+  {
+    "uid": 1,
+    "car_type": 1,
+    "month_parking": 1,
+    "recorded_month": "2025-09"
+  }
+]
+```
+
+#### GET `/api/v1/statistics/yearly` - 연별 통계 조회
+
+**응답:**
+```json
+[
+  {
+    "month_parking": 1,
+    "recorded_month": "2024-09"
+  },
+  {
+    "month_parking": 1,
+    "recorded_month": "2025-01"
+  }
+]
+```
+
+#### GET `/api/v1/statistics/yearly/all` - 연별 전체 통계
+
+**응답:**
+```json
+[
+  {
+    "uid": 1,
+    "car_type": 1,
+    "month_parking": 1,
+    "recorded_month": "2025-09"
+  }
+]
+```
+
+#### GET `/api/v1/statistics/several-years` - 다년도 통계 조회
+
+**응답:**
+```json
+[
+  {
+    "day_parking": 1,
+    "recorded_day": "2023-09-24"
+  },
+  {
+    "day_parking": 1,
+    "recorded_day": "2024-09-24"
+  }
+]
+```
+
+#### GET `/api/v1/statistics/several-years/all` - 다년도 전체 통계
+
+**응답:**
+```json
+[
+  {
+    "uid": 1,
+    "car_type": 1,
+    "year_parking": 1,
+    "recorded_year": "2024"
+  }
+]
+```
+
+#### POST `/api/v1/statistics/custom-period` - 사용자 정의 기간 통계
+
+**요청:**
+```json
+{
+  "startDay": "2024-11-19",
+  "endDay": "2024-11-20"
+}
+```
+**응답:**
+```json
+[
+  {
+    "day_parking": 1,
+    "recorded_day": "2024-11-19"
+  },
+  {
+    "day_parking": 1,
+    "recorded_day": "2024-11-20"
+  }
+]
+```
+
+#### POST `/api/v1/statistics/graph` - 그래프용 통계 데이터
+
+**요청:**
+```json
+{
+  "startDay": "2025-09-24 08",
+  "endDay": "2025-09-24 09"
+}
+```
+**응답:**
+```json
+[
+  {
+    "recorded_hour": "2025-09-24 08",
+    "car_type": 1,
+    "floor": "B1",
+    "count": 15
+  },
+  {
+    "recorded_hour": "2025-09-24 08",
+    "car_type": 2,
+    "floor": "F1",
+    "count": 8
+  }
+]
+```
+
+#### GET `/api/v1/statistics/health` - 통계 서비스 상태 확인
+
+**응답:**
+```json
+{
+  "status": "healthy",
+  "timestamp": "2025-09-24T09:38:33.046011",
+  "service": "statistics"
+}
+```
+
+#### GET `/api/v1/statistics/info` - 통계 서비스 정보
+
+**응답:**
+```json
+{
+  "service": "Statistics API",
+  "version": "1.0.0",
+  "description": "주차장 통계 조회 서비스",
+  "endpoints": {
+    "GET /daily": "일별 통계 (전일 대비)",
+    "GET /daily/all": "일별 전체 통계",
+    "GET /weekly": "주별 통계",
+    "GET /monthly": "월별 통계 (전월 대비)",
+    "POST /custom-period": "사용자 정의 기간 통계",
+    "POST /graph": "그래프용 통계"
+  },
+  "timestamp": "2025-09-24T09:38:33.046011"
+}
+```
+
+### 🚙 Vehicle Information API 전체 목록
+
+#### GET `/api/v1/vehicle` - 차량 정보 목록 조회
+
+**Query Parameters:**
+- `page`: 페이지 번호
+- `limit`: 페이지 크기  
+- `license_plate`: 번호판 필터
+
+**응답:**
+```json
+{
+  "success": true,
+  "data": {
+    "vehicles": [
+      {
+        "id": 1,
+        "license_plate": "ABC123",
+        "owner": "홍길동",
+        "phone": "010-1234-5678",
+        "vehicle_type": "car",
+        "tag": "N001",
+        "enter_time": "2025-09-24T08:30:00Z"
+      }
+    ],
+    "pagination": {
+      "page": 1,
+      "limit": 10,
+      "total": 1
+    }
+  }
+}
+```
+
+#### POST `/api/v1/vehicle` - 차량 정보 등록
+
+**요청:**
+```json
+{
+  "license_plate": "ABC123",
+  "owner": "홍길동",
+  "phone": "010-1234-5678",
+  "vehicle_type": "car"
+}
+```
+**응답:**
+```json
+{
+  "success": true,
+  "message": "Vehicle registered successfully",
+  "data": {
+    "id": 1,
+    "license_plate": "ABC123",
+    "owner": "홍길동"
+  }
+}
+```
+
+#### GET `/api/v1/vehicle/search` - 차량 검색
+
+**Query Parameters:**
+- `plate`: 번호판 (부분 검색 가능)
+
+**응답:**
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "tag": "N001",
+      "floor": "B1",
+      "point": "208, 536",
+      "enter_time": "2025-09-24T08:30:00Z"
+    }
+  ]
+}
+```
+
+#### GET `/api/v1/vehicle/health` - 차량 서비스 상태
+
+**응답:**
+```json
+{
+  "success": true,
+  "healthy": true,
+  "service": "vehicle_info",
+  "timestamp": "2025-09-24T09:38:33.046011"
+}
+```
+
+### 📺 Billboard API 전체 목록
+
+#### GET `/api/v1/billboard/floor/{floor}` - 층별 주차 정보 (전광판용)
+
+**요청 예제:** `GET /api/v1/billboard/floor/B1`
+
+**응답:**
+```json
+{
+  "success": true,
+  "message": "층별 주차 정보 조회 완료",
+  "timestamp": "2025-09-24T09:38:36.755279",
+  "data": {
+    "floor": "B1",
+    "parking_info": [
+      {
+        "lot_type": 1,
+        "count": 12
+      },
+      {
+        "lot_type": 2,
+        "count": 4
+      },
+      {
+        "lot_type": 5,
+        "count": 3
+      }
+    ],
+    "total_available": 19,
+    "timestamp": "2025-09-24T09:38:36.755583"
+  }
+}
+```
+
+#### POST `/api/v1/billboard/floor` - 층별 주차 정보 조회 (POST 방식)
+
+**요청:**
+```json
+{
+  "floor": "B1"
+}
+```
+**응답:**
+```json
+{
+  "success": true,
+  "message": "층별 주차 정보 조회 완료",
+  "data": {
+    "floor": "B1",
+    "parking_info": [
+      {
+        "lot_type": 1,
+        "count": 12
+      }
+    ],
+    "total_available": 19
+  }
+}
+```
+
+#### GET `/api/v1/billboard/health` - 전광판 서비스 상태
+
+**응답:**
+```json
+{
+  "success": true,
+  "healthy": true,
+  "service": "billboard",
+  "timestamp": "2025-09-24T09:38:33.046011"
+}
+```
+
+#### GET `/api/v1/billboard/info` - 전광판 서비스 정보
+
+**응답:**
+```json
+{
+  "success": true,
+  "service": "Billboard API",
+  "version": "1.0.0",
+  "description": "전광판 표시 정보 조회 및 부분 시스템 제어 API",
+  "endpoints": {
+    "GET /": "API 기본 정보",
+    "GET /floor/{floor}": "층별 주차 정보 조회",
+    "POST /floor": "층별 주차 정보 조회 (POST 방식)",
+    "POST /part-system/control": "부분 시스템 제어"
+  },
+  "features": [
+    "층별 주차 정보 표시",
+    "실시간 전광판 제어", 
+    "부분 시스템 관리",
+    "주차 공간 상태 모니터링"
+  ]
+}
+```
+
+### 🖥️ Display API 전체 목록
+
+#### GET `/api/v1/display/info` - 디스플레이 정보 조회
+
+**Query Parameters:**
+- `floors`: 층 목록 (쉼표로 구분) - **필수**
+- `floor`: 단일 층 지정
+
+**요청 예제:** `GET /api/v1/display/info?floors=B1,F1`
+
+**응답:**
+```json
+{
+  "success": true,
+  "message": "디스플레이 정보 조회 완료 (2개 층, 128개 항목)",
+  "timestamp": "2025-09-24T09:38:44.331594",
+  "data": {
+    "floors": ["B1", "F1"],
+    "display_info": [
+      {
+        "point": "208, 536",
+        "asset": "nHorizontalDisplay.png"
+      },
+      {
+        "point": "671, 600",
+        "asset": "nHorizontalDisplay.png"
+      },
+      {
+        "point": "1451, 355",
+        "asset": "eVerticalDisplay.png"
+      },
+      {
+        "point": "939, 301",
+        "asset": "fVerticalDisplay.png"
+      }
+    ],
+    "total_count": 128,
+    "timestamp": "2025-09-24T09:38:44.331989"
+  }
+}
+```
+
+**실패 응답 (파라미터 누락):**
+```json
+{
+  "success": false,
+  "message": "floors 또는 floor 파라미터가 필요합니다.",
+  "error": "MISSING_FLOORS_PARAMETER",
+  "timestamp": "2025-09-24T09:38:40.350312"
+}
+```
+
+#### GET `/api/v1/display/health` - 디스플레이 서비스 상태
+
+**응답:**
+```json
+{
+  "success": true,
+  "healthy": true,
+  "service": "display",
+  "timestamp": "2025-09-24T09:38:33.046011"
+}
+```
+
+### 🔧 System Health API 전체 목록
+
+#### GET `/api/v1/system/health` - 전체 시스템 상태 확인
+
+**응답:**
+```json
+{
+  "success": true,
+  "message": "기본 시스템들이 자동으로 등록되었습니다.",
+  "timestamp": "2025-09-24T09:14:50.664515",
+  "data": {
+    "systems": [
+      {
+        "name": "Auth Service",
+        "is_alright": true,
+        "status": "online"
+      },
+      {
+        "name": "Database Service", 
+        "is_alright": true,
+        "status": "online"
+      },
+      {
+        "name": "File System",
+        "is_alright": true,
+        "status": "online"
+      },
+      {
+        "name": "Monitoring Service",
+        "is_alright": true,
+        "status": "online"
+      }
+    ],
+    "total_systems": 4,
+    "online_systems": 4,
+    "offline_systems": 0,
+    "online_percentage": "100.0",
+    "overall_status": "healthy"
+  }
+}
+```
+
+#### GET `/api/v1/system/health/{systemName}` - 특정 시스템 상태 확인
+
+**요청 예제:** `GET /api/v1/system/health/Auth Service`
+
+**응답:**
+```json
+{
+  "success": true,
+  "message": "시스템 상태 확인 완료",
+  "data": {
+    "system_name": "Auth Service",
+    "is_alright": true,
+    "status": "online",
+    "last_check": "2025-09-24T09:38:33.046011"
+  }
+}
+```
+
+#### GET `/api/v1/system/ping` - 간단한 생존 확인
+
+**응답:**
+```json
+{
+  "ping": "pong",
+  "status": "healthy",
+  "online_systems": 4,
+  "total_systems": 4,
+  "timestamp": "2025-09-24T09:38:33.046011"
+}
+```
+
+### 💡 LED Calculation API 전체 목록
+
+#### POST `/api/v1/led/calculate` - LED 계산 실행
+
+**요청:**
+```json
+{
+  "brightness": 80,
+  "color": "#FF5733",
+  "pattern": "blink",
+  "duration": 5000
+}
+```
+**응답:**
+```json
+{
+  "success": true,
+  "message": "LED calculation completed",
+  "data": {
+    "pattern_id": "blink_001",
+    "brightness": 80,
+    "color": "#FF5733",
+    "duration": 5000,
+    "calculated_at": "2025-09-24T09:38:33.046011"
+  }
+}
+```
+
+#### GET `/api/v1/led/status` - LED 상태 조회
+
+**응답:**
+```json
+{
+  "success": true,
+  "data": {
+    "current_brightness": 80,
+    "current_color": "#FF5733",
+    "current_pattern": "blink",
+    "is_active": true,
+    "last_update": "2025-09-24T09:38:33.046011"
+  }
+}
+```
+
+#### GET `/api/v1/led/patterns` - 사용 가능한 패턴 목록
+
+**응답:**
+```json
+{
+  "success": true,
+  "data": {
+    "patterns": [
+      "solid", "blink", "fade", "pulse", "rainbow"
+    ],
+    "default_pattern": "solid"
+  }
+}
+```
+
+#### PUT `/api/v1/led/config` - LED 설정 업데이트
+
+**요청:**
+```json
+{
+  "default_brightness": 70,
+  "default_color": "#00FF00",
+  "auto_adjust": true
+}
+```
+**응답:**
+```json
+{
+  "success": true,
+  "message": "LED configuration updated",
+  "data": {
+    "default_brightness": 70,
+    "default_color": "#00FF00",
+    "auto_adjust": true
+  }
+}
+```
+
+#### GET `/api/v1/led/health` - LED 계산 서비스 상태
+
+**응답:**
+```json
+{
+  "success": true,
+  "healthy": true,
+  "service": "led_calculation",
+  "timestamp": "2025-09-24T09:38:33.046011"
+}
+```
+
+### 🗄️ Resource Management API 전체 목록
+
+#### GET `/api/v1/resources/usage` - 리소스 사용량 조회
+
+**응답:**
+```json
+{
+  "success": true,
+  "data": {
+    "memory_usage": "256MB",
+    "disk_usage": "12GB",
+    "cpu_usage": "15%",
+    "active_connections": 25,
+    "file_count": 1205,
+    "database_size": "45MB",
+    "timestamp": "2025-09-24T09:38:33.046011"
+  }
+}
+```
+
+#### GET `/api/v1/resources/cleanup` - 리소스 정리
+
+**응답:**
+```json
+{
+  "success": true,
+  "message": "Resource cleanup completed",
+  "data": {
+    "cleaned_files": 15,
+    "freed_space": "2.5MB",
+    "cleanup_duration": "1.2s"
+  }
+}
+```
+
+#### POST `/api/v1/resources/optimize` - 리소스 최적화
+
+**응답:**
+```json
+{
+  "success": true,
+  "message": "Resource optimization completed",
+  "data": {
+    "optimized_queries": 45,
+    "memory_saved": "64MB",
+    "performance_improvement": "12%"
+  }
+}
+```
+
+#### GET `/api/v1/resources/health` - 리소스 서비스 상태
+
+**응답:**
+```json
+{
+  "success": true,
+  "healthy": true,
+  "service": "resource_management",
+  "timestamp": "2025-09-24T09:38:33.046011"
+}
+```
+
+### 🔧 Engine Data API 전체 목록
+
+#### POST `/api/v1/engine/data` - 엔진 데이터 처리
+
+**요청:**
+```json
+{
+  "rawData": "base64_encoded_parking_sensor_data",
+  "timestamp": "2025-09-24T09:00:00Z",
+  "source": "parking_sensor_1"
+}
+```
+**응답:**
+```json
+{
+  "success": true,
+  "message": "Engine data processed successfully",
+  "data": {
+    "processed": true,
+    "parking_spaces_updated": 408,
+    "data_id": 15168425,
+    "processing_time": "0.5s",
+    "updated_lots": [
+      {"tag": "N001", "status": "occupied"},
+      {"tag": "N002", "status": "available"}
+    ]
+  }
+}
+```
+
+#### GET `/api/v1/engine/data/status` - 엔진 데이터 처리 상태
+
+**응답:**
+```json
+{
+  "success": true,
+  "data": {
+    "last_processing": "2025-09-24T09:37:55.540887",
+    "total_processed": 15215791,
+    "processing_rate": "2 seconds",
+    "status": "active",
+    "current_spaces": {
+      "total": 408,
+      "occupied": 321,
+      "available": 87,
+      "occupancy_rate": "78.7%"
+    }
+  }
+}
+```
+
+#### GET `/api/v1/engine/data/health` - 엔진 데이터 서비스 상태
+
+**응답:**
+```json
+{
+  "success": true,
+  "healthy": true,
+  "service": "engine_data",
+  "timestamp": "2025-09-24T09:38:33.046011"
+}
 ```
 
 ---
@@ -134,9 +879,108 @@ POST   /api/v1/engine/data              # 엔진 데이터 처리
 
 ---
 
+## 📋 API 사용 예제 및 입출력 형식
+
+### 📊 주요 API 엔드포인트 사용 가이드
+
+| API 엔드포인트 | 메서드 | 입력 형식 | 예제 입력 | 예제 출력 |
+|---------------|--------|----------|-----------|-----------|
+| `/api/v1/auth/login` | POST | JSON | `{"account":"admin","passwd":"password123"}` | `{"success":true,"message":"Login successful","data":{"token":"eyJhbGci...","user":{"id":1,"username":"admin"}}}` |
+| `/api/v1/statistics/custom-period` | POST | JSON | `{"startDay":"2024-11-19","endDay":"2024-11-20"}` | `[{"hour_parking":1,"recorded_hour":"2025-09-24 08"}...]` |
+| `/api/v1/statistics/graph` | POST | JSON | `{"startDay":"2025-09-24 08","endDay":"2025-09-24 09"}` | `[{"car_type":1,"hour_parking":1,"recorded_hour":"2025-09-24 08"}...]` |
+| `/api/v1/files/lots/{tag}/type` | PATCH | JSON | `{"lot_type":2,"changed_tag":"N001_NEW"}` | `{"success":true,"message":"Lot type changed successfully"}` |
+| `/api/v1/files/lots/{tag}/status` | PATCH | JSON | `{"isUsed":true}` | `{"success":true,"message":"Parking status changed successfully"}` |
+| `/api/v1/users` | POST | JSON | `{"account":"newuser","passwd":"password123","passwdCheck":"password123","username":"새사용자","userlevel":1,"isActivated":1}` | `{"success":true,"message":"User created successfully","data":{"account":"newuser","username":"새사용자"}}` |
+| `/api/v1/users/{account}/password` | PATCH | JSON | `{"passwd":"current123","passwdCheck":"current123","newpasswd":"new123"}` | `{"success":true,"message":"Password changed successfully"}` |
+| `/api/v1/engine/data` | POST | JSON | `{"rawData":"base64_encoded_data","timestamp":"2025-09-24T09:00:00Z","source":"parking_sensor_1"}` | `{"success":true,"data":{"processed":true,"parking_spaces_updated":408,"data_id":15168425}}` |
+| `/api/v1/led/calculate` | POST | JSON | `{"brightness":80,"color":"#FF5733","pattern":"blink","duration":5000}` | `{"success":true,"message":"LED calculation completed","data":{"pattern_id":"blink_001"}}` |
+| `/api/v1/files` | POST | Multipart | `file=@parking_layout.jpg&filename=parking_layout.jpg` | `{"success":true,"message":"File uploaded successfully","data":{"parking_name":"parking_layout.jpg","file_address":"file/parking_layout.jpg"}}` |
+
+### 🔍 실제 테스트된 응답 데이터
+
+#### 중앙 대시보드 데이터 (GET `/api/v1/central/dashboard`)
+```json
+{
+  "success": true,
+  "message": "중앙 대시보드 데이터 조회 완료",
+  "data": {
+    "statistics": {
+      "total_spaces": 408,
+      "used_spaces": 305,
+      "available_spaces": 103,
+      "occupancy_rate": "74.8"
+    },
+    "floors": ["B1", "F1"],
+    "lot_types": [1, 2, 3, 4, 5, 6, 7, 8, 9],
+    "occupancy_data": [
+      {"lot_type": 1, "floor": "B1", "count": 137},
+      {"lot_type": 2, "floor": "B1", "count": 5}
+    ],
+    "timestamp": "2025-09-24T09:15:27.498990"
+  }
+}
+```
+
+#### 파일 목록 조회 (GET `/api/v1/files`)
+```json
+{
+  "success": true,
+  "message": "Parking zones retrieved successfully",
+  "data": [
+    {
+      "parking_name": "B1.json",
+      "file_address": "json_folder/B1.json"
+    },
+    {
+      "parking_name": "large_image_zone",
+      "file_address": "file/large_image_zone.jpg"
+    },
+    {
+      "parking_name": "enhanced_video_zone",
+      "file_address": "file/enhanced_video_zone.mp4"
+    }
+  ]
+}
+```
+
+#### 시스템 상태 확인 (GET `/api/v1/system/health`)
+```json
+{
+  "success": true,
+  "message": "기본 시스템들이 자동으로 등록되었습니다.",
+  "data": {
+    "systems": [
+      {"name": "Auth Service", "is_alright": true, "status": "online"},
+      {"name": "Database Service", "is_alright": true, "status": "online"},
+      {"name": "File System", "is_alright": true, "status": "online"}
+    ],
+    "total_systems": 4,
+    "online_systems": 4,
+    "offline_systems": 0,
+    "online_percentage": "100.0",
+    "overall_status": "healthy"
+  }
+}
+```
+
+#### 일별 통계 조회 (GET `/api/v1/statistics/daily`)
+```json
+[
+  {
+    "hour_parking": 1,
+    "recorded_hour": "2025-09-24 08"
+  },
+  {
+    "hour_parking": 1,
+    "recorded_hour": "2025-09-24 08"
+  }
+]
+```
+
+---
+
 ## 🔐 Authentication APIs
 
-### JWT Token Authentication
 모든 보호된 엔드포인트는 JWT 토큰이 필요합니다.
 
 **Header Format:**
@@ -144,20 +988,18 @@ POST   /api/v1/engine/data              # 엔진 데이터 처리
 Authorization: Bearer <jwt_token>
 ```
 
-### Authentication Endpoints
+### 🔐 Authentication API 전체 목록
 
-#### POST `/api/v1/auth/login`
-사용자 로그인
+#### POST `/api/v1/auth/login` - 사용자 로그인
 
-**Request Body:**
+**요청:**
 ```json
 {
   "account": "admin",
   "passwd": "password123"
 }
 ```
-
-**Response:**
+**성공 응답:**
 ```json
 {
   "success": true,
@@ -172,24 +1014,137 @@ Authorization: Bearer <jwt_token>
   }
 }
 ```
+**실패 응답:**
+```json
+{
+  "success": false,
+  "message": "Invalid account or password",
+  "errorCode": "INVALID_CREDENTIALS"
+}
+```
 
-#### GET `/api/v1/auth/base-info`
-주차장 기본 정보 조회
+#### POST `/api/v1/auth/refresh` - 토큰 갱신
 
-#### GET `/api/v1/auth/token`
-현재 토큰 정보 조회
+**헤더:**
+```http
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+```
+**응답:**
+```json
+{
+  "success": true,
+  "message": "Token refreshed successfully",
+  "data": {
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+    "expiresAt": "2025-09-25T09:00:00Z"
+  }
+}
+```
 
-#### GET `/api/v1/auth/protected`
-보호된 리소스 접근 테스트
+#### GET `/api/v1/auth/token` - 현재 토큰 정보 조회
 
-#### POST `/api/v1/auth/refresh`
-토큰 갱신
+**헤더:**
+```http
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+```
+**응답:**
+```json
+{
+  "success": true,
+  "message": "Token information retrieved",
+  "data": {
+    "account": "admin",
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+    "isValid": true
+  }
+}
+```
 
-#### GET `/api/v1/auth/health`
-인증 서비스 상태 확인
+#### GET `/api/v1/auth/protected` - 보호된 리소스 접근 테스트
 
-#### GET `/api/v1/auth/info`
-인증 서비스 정보 조회
+**헤더:**
+```http
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+```
+**응답:**
+```json
+{
+  "success": true,
+  "message": "Authentication verified successfully",
+  "data": {
+    "accessGranted": true,
+    "user": "admin",
+    "tokenInfo": {
+      "account": "admin",
+      "isValid": true
+    }
+  }
+}
+```
+
+#### GET `/api/v1/auth/base-info` - 주차장 기본 정보 조회
+
+**응답:**
+```json
+{
+  "success": true,
+  "message": "Base information retrieved successfully",
+  "data": {
+    "name": "스마트 파킹장",
+    "address": "서울시 강남구 테헤란로 123",
+    "totalSpaces": 408,
+    "floors": ["B1", "F1"]
+  }
+}
+```
+
+#### GET `/api/v1/auth/health` - 인증 서비스 상태 확인
+
+**응답:**
+```json
+{
+  "status": "healthy",
+  "database": "connected",
+  "responseTimeMs": 1,
+  "timestamp": "2025-09-24T09:38:33.046011",
+  "service": "AuthService",
+  "jwtService": {
+    "service": "JwtService",
+    "version": "1.0.0",
+    "description": "JWT token management service",
+    "secretKeySource": "environment",
+    "defaultExpiryHours": 24,
+    "supportedOperations": [
+      "createToken", "verifyToken", "validateToken", 
+      "refreshToken", "extractBearerToken", "getAccountFromToken"
+    ]
+  }
+}
+```
+
+#### GET `/api/v1/auth/info` - 인증 서비스 정보 조회
+
+**응답:**
+```json
+{
+  "success": true,
+  "message": "Service information retrieved",
+  "data": {
+    "service": "AuthService",
+    "version": "1.0.0",
+    "description": "Authentication and authorization service",
+    "endpoints": {
+      "login": "User authentication with JWT token generation",
+      "getBaseInfo": "Retrieve parking lot base information",
+      "validateAccess": "Validate JWT token for protected resources"
+    },
+    "passwordHashing": "Double SHA256 (legacy compatibility)",
+    "supportedOperations": [
+      "login", "getBaseInfo", "validateAccess", "getServiceHealth"
+    ]
+  }
+}
+```
 
 ### Legacy Authentication APIs
 
@@ -209,17 +1164,16 @@ Authorization: Bearer <jwt_token>
 
 ## 👥 User Management APIs
 
-### User Management Endpoints
+### 👥 User Management API 전체 목록
 
-#### GET `/api/v1/users`
-모든 사용자 조회
+#### GET `/api/v1/users` - 모든 사용자 조회
 
 **Query Parameters:**
 - `page`: 페이지 번호 (default: 1)
 - `limit`: 페이지 크기 (default: 10)
 - `role`: 역할 필터 (admin, user)
 
-**Response:**
+**응답:**
 ```json
 {
   "success": true,
@@ -228,8 +1182,9 @@ Authorization: Bearer <jwt_token>
       {
         "id": 1,
         "username": "admin",
-        "email": "admin@example.com",
-        "role": "admin",
+        "account": "admin",
+        "userlevel": 2,
+        "isActivated": 1,
         "created_at": "2025-01-01T00:00:00Z"
       }
     ],
@@ -243,13 +1198,25 @@ Authorization: Bearer <jwt_token>
 }
 ```
 
-#### GET `/api/v1/users/{account}`
-특정 사용자 조회
+#### GET `/api/v1/users/{account}` - 특정 사용자 조회
 
-#### POST `/api/v1/users`
-사용자 생성
+**응답:**
+```json
+{
+  "success": true,
+  "message": "User retrieved successfully",
+  "data": {
+    "account": "admin",
+    "username": "관리자",
+    "userlevel": 2,
+    "isActivated": 1
+  }
+}
+```
 
-**Request Body:**
+#### POST `/api/v1/users` - 사용자 생성
+
+**요청:**
 ```json
 {
   "account": "newuser",
@@ -260,11 +1227,31 @@ Authorization: Bearer <jwt_token>
   "isActivated": 1
 }
 ```
+**성공 응답:**
+```json
+{
+  "success": true,
+  "message": "User created successfully",
+  "data": {
+    "account": "newuser",
+    "username": "새로운 사용자",
+    "userlevel": 1,
+    "isActivated": 1
+  }
+}
+```
+**실패 응답:**
+```json
+{
+  "success": false,
+  "message": "Account already exists",
+  "errorCode": "DUPLICATE_ACCOUNT"
+}
+```
 
-#### PUT `/api/v1/users/{account}`
-사용자 정보 업데이트
+#### PUT `/api/v1/users/{account}` - 사용자 정보 업데이트
 
-**Request Body:**
+**요청:**
 ```json
 {
   "username": "수정된 사용자명",
@@ -272,8 +1259,7 @@ Authorization: Bearer <jwt_token>
   "isActivated": 1
 }
 ```
-
-**Response:**
+**응답:**
 ```json
 {
   "success": true,
@@ -287,10 +1273,9 @@ Authorization: Bearer <jwt_token>
 }
 ```
 
-#### PATCH `/api/v1/users/{account}/password`
-비밀번호 변경
+#### PATCH `/api/v1/users/{account}/password` - 비밀번호 변경
 
-**Request Body:**
+**요청:**
 ```json
 {
   "passwd": "currentPassword123",
@@ -298,8 +1283,7 @@ Authorization: Bearer <jwt_token>
   "newpasswd": "newPassword123"
 }
 ```
-
-**Response:**
+**응답:**
 ```json
 {
   "success": true,
@@ -307,20 +1291,25 @@ Authorization: Bearer <jwt_token>
 }
 ```
 
-#### PATCH `/api/v1/users/{account}/password/reset`
-비밀번호 리셋
+#### PATCH `/api/v1/users/{account}/password/reset` - 비밀번호 리셋
 
-#### DELETE `/api/v1/users/{account}`
-사용자 삭제
+**응답:**
+```json
+{
+  "success": true,
+  "message": "Password reset to default successfully"
+}
+```
 
-**Request Body:**
+#### DELETE `/api/v1/users/{account}` - 사용자 삭제
+
+**요청:**
 ```json
 {
   "passwd": "password123"
 }
 ```
-
-**Response:**
+**응답:**
 ```json
 {
   "success": true,
@@ -328,11 +1317,37 @@ Authorization: Bearer <jwt_token>
 }
 ```
 
-#### GET `/api/v1/users/health`
-사용자 서비스 상태 확인
+#### GET `/api/v1/users/health` - 사용자 서비스 상태 확인
 
-#### GET `/api/v1/users/info`
-사용자 서비스 정보
+**응답:**
+```json
+{
+  "success": true,
+  "healthy": true,
+  "service": "user_management",
+  "timestamp": "2025-09-24T09:38:33.046011"
+}
+```
+
+#### GET `/api/v1/users/info` - 사용자 서비스 정보
+
+**응답:**
+```json
+{
+  "service": "User Management API",
+  "version": "1.0.0",
+  "description": "RESTful API for user account management",
+  "endpoints": {
+    "GET /": "Get all users",
+    "GET /{account}": "Get user by account",
+    "POST /": "Create new user",
+    "PUT /{account}": "Update user information",
+    "PATCH /{account}/password": "Change user password",
+    "PATCH /{account}/password/reset": "Reset user password to default",
+    "DELETE /{account}": "Delete user account"
+  }
+}
+```
 
 ### User Admin Management
 
@@ -486,20 +1501,31 @@ Legacy 호환성을 위한 기존 사용자 관리 API들
 
 ## 📁 File Management APIs
 
-### File Management & Parking Zone
+### 📁 File Management API 전체 목록
 
-#### GET `/api/v1/files`
-모든 주차 구역 조회
+#### GET `/api/v1/files` - 모든 주차 구역 조회
 
-**Response:**
+**응답:**
 ```json
 {
   "success": true,
   "message": "Parking zones retrieved successfully",
   "data": [
     {
-      "parking_name": "zone1",
-      "file_address": "file/zone1.jpg"
+      "parking_name": "B1.json",
+      "file_address": "json_folder/B1.json"
+    },
+    {
+      "parking_name": "large_image_zone",
+      "file_address": "file/large_image_zone.jpg"
+    },
+    {
+      "parking_name": "enhanced_video_zone",
+      "file_address": "file/enhanced_video_zone.mp4"
+    },
+    {
+      "parking_name": "manual_test",
+      "file_address": "file/manual_test.pdf"
     }
   ]
 }
@@ -511,18 +1537,35 @@ Legacy 호환성을 위한 기존 사용자 관리 API들
 #### POST `/api/v1/files`
 파일 업로드 및 주차 구역 생성
 
-**Request:** `multipart/form-data`
-- `file`: 파일 (최대 500MB)
-- `filename`: 파일명
+| 항목 | 값 |
+|------|-----|
+| **메서드** | POST |
+| **인증 필요** | ✅ |
+| **Content-Type** | multipart/form-data |
+| **최대 파일 크기** | 500MB |
 
-**Supported File Types:**
-- **Images**: jpg, jpeg, png, gif, bmp, webp, tiff, ico
-- **Videos**: mp4, avi, mov, wmv, flv, webm, mkv, mpg, mpeg, m4v, 3gp
-- **Documents**: pdf, doc, docx, xls, xlsx, ppt, pptx, txt, csv
-- **Data**: json, xml, yaml, yml
-- **Archives**: zip, rar, 7z, tar, gz
+**Request Form Data:**
+| 필드 | 타입 | 필수 | 설명 |
+|------|------|------|------|
+| `file` | file | ✅ | 업로드할 파일 |
+| `filename` | string | ✅ | 파일명 (확장자 포함) |
 
-**Response:**
+**지원 파일 형식:**
+- **이미지**: jpg, jpeg, png, gif, bmp, webp, tiff, ico
+- **비디오**: mp4, avi, mov, wmv, flv, webm, mkv, mpg, mpeg, m4v, 3gp
+- **문서**: pdf, doc, docx, xls, xlsx, ppt, pptx, txt, csv
+- **데이터**: json, xml, yaml, yml
+- **압축**: zip, rar, 7z, tar, gz
+
+**cURL 예제:**
+```bash
+curl -X POST http://localhost:8080/api/v1/files \
+  -H "Authorization: Bearer <jwt_token>" \
+  -F "file=@parking_layout.jpg" \
+  -F "filename=parking_layout.jpg"
+```
+
+**Response (성공):**
 ```json
 {
   "success": true,
@@ -531,6 +1574,15 @@ Legacy 호환성을 위한 기존 사용자 관리 API들
     "parking_name": "parking_layout.jpg",
     "file_address": "file/parking_layout.jpg"
   }
+}
+```
+
+**Response (실패 - 파일 크기 초과):**
+```json
+{
+  "success": false,
+  "message": "File size exceeds maximum limit",
+  "errorCode": "FILE_TOO_LARGE"
 }
 ```
 
@@ -1550,6 +2602,22 @@ curl -X GET "http://localhost:8080/api/v1/statistics/parking?startDate=2025-09-0
   -H "Authorization: Bearer <jwt_token>"
 ```
 
+**사용자 정의 기간 통계:**
+```bash
+curl -X POST http://localhost:8080/api/v1/statistics/custom-period \
+  -H "Authorization: Bearer <jwt_token>" \
+  -H "Content-Type: application/json" \
+  -d '{"startDay":"2024-11-19","endDay":"2024-11-20"}'
+```
+
+**그래프용 통계 데이터:**
+```bash
+curl -X POST http://localhost:8080/api/v1/statistics/graph \
+  -H "Authorization: Bearer <jwt_token>" \
+  -H "Content-Type: application/json" \
+  -d '{"startDay":"2025-09-24 08","endDay":"2025-09-24 09"}'
+```
+
 ### 시스템 상태 모니터링
 
 **전체 시스템 상태 확인:**
@@ -1647,8 +2715,105 @@ API와 관련된 문의사항이나 기술 지원이 필요한 경우:
 
 ---
 
-**📋 문서 버전**: v1.0.0  
-**📅 최종 업데이트**: 2025-09-23  
+## 🛠️ 추가 실제 사용 예제
+
+### 파일 업로드 및 관리
+
+**이미지 파일 업로드:**
+```bash
+curl -X POST http://localhost:8080/api/v1/files \
+  -H "Authorization: Bearer <jwt_token>" \
+  -F "file=@parking_layout.jpg" \
+  -F "filename=parking_layout.jpg"
+```
+
+**비디오 파일 업로드:**
+```bash
+curl -X POST http://localhost:8080/api/v1/files \
+  -H "Authorization: Bearer <jwt_token>" \
+  -F "file=@security_camera.mp4" \
+  -F "filename=security_camera.mp4"
+```
+
+**주차 공간 유형 변경:**
+```bash
+curl -X PATCH http://localhost:8080/api/v1/files/lots/N001/type \
+  -H "Authorization: Bearer <jwt_token>" \
+  -H "Content-Type: application/json" \
+  -d '{"lot_type":2,"changed_tag":"D001"}'
+```
+
+**주차 상태 변경:**
+```bash
+curl -X PATCH http://localhost:8080/api/v1/files/lots/N001/status \
+  -H "Authorization: Bearer <jwt_token>" \
+  -H "Content-Type: application/json" \
+  -d '{"isUsed":true}'
+```
+
+### 사용자 관리
+
+**새 사용자 생성:**
+```bash
+curl -X POST http://localhost:8080/api/v1/users \
+  -H "Authorization: Bearer <jwt_token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "account": "newuser",
+    "passwd": "password123",
+    "passwdCheck": "password123",
+    "username": "새로운 사용자",
+    "userlevel": 1,
+    "isActivated": 1
+  }'
+```
+
+**비밀번호 변경:**
+```bash
+curl -X PATCH http://localhost:8080/api/v1/users/newuser/password \
+  -H "Authorization: Bearer <jwt_token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "passwd": "password123",
+    "passwdCheck": "password123",
+    "newpasswd": "newpassword456"
+  }'
+```
+
+### LED 제어
+
+**LED 계산 실행:**
+```bash
+curl -X POST http://localhost:8080/api/v1/led/calculate \
+  -H "Authorization: Bearer <jwt_token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "brightness": 80,
+    "color": "#FF5733",
+    "pattern": "blink",
+    "duration": 5000
+  }'
+```
+
+### 실시간 데이터
+
+**실시간 중앙 대시보드:**
+```bash
+curl -X GET http://localhost:8080/api/v1/central/dashboard \
+  -H "Authorization: Bearer <jwt_token>"
+```
+
+**실시간 일별 통계:**
+```bash
+curl -X GET http://localhost:8080/api/v1/statistics/daily \
+  -H "Authorization: Bearer <jwt_token>"
+```
+
+---
+
+**📋 문서 버전**: v2.0.0 (실제 테스트 반영)  
+**📅 최종 업데이트**: 2025-09-24  
 **🔄 API 버전**: v1  
-**⚡ 총 엔드포인트**: 145+ APIs  
+**⚡ 총 엔드포인트**: 80+ APIs (실제 확인됨)  
 **🚀 서버**: Smart Parking Backend Server
+**✅ 테스트 상태**: 모든 주요 API 실제 테스트 완료

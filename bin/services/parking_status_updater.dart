@@ -219,25 +219,26 @@ class ParkingStatusUpdater {
   }) async {
     try {
       // LPR 데이터 조회 (현재는 주석 처리됨)
-      // final lprData = await _dbClient.executeQueryWithUtf8(
-      //   url: displayDbLprUrl,
-      //   queryId: "SELECT slot_name, plate_number, entry_time FROM parking_records;",
-      // );
+      final lprData = await _dbClient.executeQueryWithUtf8(
+        url: displayDbLprUrl,
+        queryId:
+            "SELECT slot_name, plate_number, entry_time FROM parking_records;",
+      );
 
       // LPR 데이터를 통한 번호판 정보 업데이트
-      // for (final record in lprData) {
-      //   await _dbClient.executeStatement(
-      //     url: displayDbUrl,
-      //     statementId: '#update_plate',
-      //     values: {
-      //       'plate': record['plate_number'],
-      //       'startTime': record['entry_time'],
-      //       'slot_name': record['slot_name'],
-      //     },
-      //   );
-      // }
+      for (final record in lprData) {
+        await _dbClient.executeStatement(
+          url: displayDbUrl,
+          statementId: '#update_plate',
+          values: {
+            'plate': record['plate_number'],
+            'startTime': record['entry_time'],
+            'slot_name': record['slot_name'],
+          },
+        );
+      }
 
-      print('ℹ️  LPR 데이터 처리는 현재 비활성화되어 있습니다.');
+      // print('ℹ️  LPR 데이터 처리는 현재 비활성화되어 있습니다.');
       return true;
     } catch (e) {
       print('❌ LPR 데이터 처리 실패: $e');

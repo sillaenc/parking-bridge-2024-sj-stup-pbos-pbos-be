@@ -6,7 +6,7 @@ class CorsMiddleware {
   /// CORS 헤더들을 정의
   static const Map<String, String> _corsHeaders = {
     'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+    'Access-Control-Allow-Methods': 'GET, POST, PUT, PATCH, DELETE, OPTIONS',
     'Access-Control-Allow-Headers':
         'Origin, Content-Type, X-Auth-Token, Authorization',
   };
@@ -49,7 +49,8 @@ class CorsMiddleware {
 
         final headers = {
           'Access-Control-Allow-Origin': isAllowed ? origin : 'null',
-          'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+          'Access-Control-Allow-Methods':
+              'GET, POST, PUT, PATCH, DELETE, OPTIONS',
           'Access-Control-Allow-Headers':
               'Origin, Content-Type, X-Auth-Token, Authorization',
         };

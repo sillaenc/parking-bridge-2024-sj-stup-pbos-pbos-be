@@ -18,6 +18,9 @@ class BillboardApi {
   Router get router {
     final router = Router();
 
+    // GET /api/v1/billboard - 전광판 API 기본 정보
+    router.get('/', _getApiInfo);
+
     // GET /api/v1/billboard/floor/{floor} - 층별 주차 정보 조회
     router.get('/floor/<floor>', _getFloorParkingInfo);
 
@@ -30,7 +33,35 @@ class BillboardApi {
     // GET /api/v1/billboard/health - 서비스 상태 확인
     router.get('/health', _getServiceHealth);
 
+    // GET /api/v1/billboard/info - 서비스 정보 조회
+    router.get('/info', _getServiceInfo);
+
     return router;
+  }
+
+  /// API 기본 정보 제공
+  Future<Response> _getApiInfo(Request request) async {
+    return Response.ok(
+      jsonEncode({
+        'success': true,
+        'service': 'Billboard API',
+        'version': '1.0.0',
+        'description': '전광판 표시 정보 조회 및 부분 시스템 제어 API',
+        'endpoints': {
+          'GET /': 'API 기본 정보',
+          'GET /floor/{floor}': '층별 주차 정보 조회',
+          'POST /floor': '층별 주차 정보 조회 (POST 방식)',
+          'POST /part-system/control': '부분 시스템 제어',
+          'GET /health': '서비스 상태 확인'
+        },
+        'examples': {
+          'get_floor_info': '/api/v1/billboard/floor/B1',
+          'check_health': '/api/v1/billboard/health'
+        },
+        'timestamp': DateTime.now().toIso8601String(),
+      }),
+      headers: {'Content-Type': 'application/json'},
+    );
   }
 
   /// GET 방식으로 층별 주차 정보 조회
@@ -184,6 +215,34 @@ class BillboardApi {
         headers: {'Content-Type': 'application/json'},
       );
     }
+  }
+
+  /// 서비스 정보 조회
+  Future<Response> _getServiceInfo(Request request) async {
+    return Response.ok(
+      jsonEncode({
+        'success': true,
+        'service': 'Billboard API',
+        'version': '1.0.0',
+        'description': '전광판 표시 정보 조회 및 부분 시스템 제어 API',
+        'endpoints': {
+          'GET /': 'API 기본 정보',
+          'GET /floor/{floor}': '층별 주차 정보 조회',
+          'POST /floor': '층별 주차 정보 조회 (POST 방식)',
+          'POST /part-system/control': '부분 시스템 제어',
+          'GET /health': '서비스 상태 확인',
+          'GET /info': '서비스 정보 조회'
+        },
+        'features': [
+          '층별 주차 정보 표시',
+          '실시간 전광판 제어',
+          '부분 시스템 관리',
+          '주차 공간 상태 모니터링'
+        ],
+        'timestamp': DateTime.now().toIso8601String(),
+      }),
+      headers: {'Content-Type': 'application/json'},
+    );
   }
 
   /// 에러 타입에 따른 HTTP 상태 코드 반환

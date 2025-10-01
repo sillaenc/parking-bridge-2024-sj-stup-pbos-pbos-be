@@ -19,24 +19,7 @@ class ParkingZoneManagementApi {
     // GET /api/v1/files - 모든 주차 구역 조회
     router.get('/', _getAllParkingZones);
 
-    // GET /api/v1/files/{name} - 특정 주차 구역 조회
-    router.get('/<name>', _getParkingZoneByName);
-
-    // POST /api/v1/files - 파일 업로드 및 주차 구역 생성
-    router.post('/', _uploadFile);
-
-    // PUT /api/v1/files/{name} - 파일 업데이트 및 주차 구역 업데이트
-    router.put('/<name>', _updateFile);
-
-    // DELETE /api/v1/files/{name} - 파일 삭제 및 주차 구역 삭제
-    router.delete('/<name>', _deleteFile);
-
-    // PATCH /api/v1/files/lots/{tag}/type - 주차 공간 유형 변경
-    router.patch('/lots/<tag>/type', _changeLotType);
-
-    // PATCH /api/v1/files/lots/{tag}/status - 주차 상태 변경
-    router.patch('/lots/<tag>/status', _changeParkingStatus);
-
+    // 특정 경로들을 먼저 정의 (라우터 충돌 방지)
     // GET /api/v1/files/list - 파일 시스템 파일 목록 조회
     router.get('/list', _getAllFiles);
 
@@ -51,6 +34,25 @@ class ParkingZoneManagementApi {
 
     // GET /api/v1/files/info - 서비스 정보
     router.get('/info', _getServiceInfo);
+
+    // PATCH /api/v1/files/lots/{tag}/type - 주차 공간 유형 변경
+    router.patch('/lots/<tag>/type', _changeLotType);
+
+    // PATCH /api/v1/files/lots/{tag}/status - 주차 상태 변경
+    router.patch('/lots/<tag>/status', _changeParkingStatus);
+
+    // POST /api/v1/files - 파일 업로드 및 주차 구역 생성
+    router.post('/', _uploadFile);
+
+    // 가변 경로는 마지막에 정의 (라우터 충돌 방지)
+    // GET /api/v1/files/{name} - 특정 주차 구역 조회
+    router.get('/<name>', _getParkingZoneByName);
+
+    // PUT /api/v1/files/{name} - 파일 업데이트 및 주차 구역 업데이트
+    router.put('/<name>', _updateFile);
+
+    // DELETE /api/v1/files/{name} - 파일 삭제 및 주차 구역 삭제
+    router.delete('/<name>', _deleteFile);
 
     return router;
   }

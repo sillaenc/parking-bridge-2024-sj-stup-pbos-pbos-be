@@ -1,0 +1,199 @@
+  # ======== 3. 파일 시스템 관리 API (4개) ========
+  /api/v1/files:
+    get:
+      tags: [files]
+      summary: 파일 시스템 파일 목록 조회
+      description: 실제 파일 시스템에 존재하는 모든 파일들을 조회합니다
+      responses:
+        '200':
+          description: 파일 시스템 파일 목록
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Files retrieved successfully"
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        filename:
+                          type: string
+                          example: "enhanced_video_zone"
+                        fullPath:
+                          type: string
+                          example: "file/enhanced_video_zone.mp4"
+                        extension:
+                          type: string
+                          example: "mp4"
+                        sizeBytes:
+                          type: integer
+                          example: 36
+                        createdAt:
+                          type: string
+                          format: date-time
+                          example: "2025-09-23T13:05:43.339"
+                        modifiedAt:
+                          type: string
+                          format: date-time
+                          example: "2025-09-23T13:05:43.339"
+        '500':
+          description: 내부 서버 오류
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Internal server error"
+                  error:
+                    type: string
+
+  /api/v1/files/sync:
+    post:
+      tags: [files]
+      summary: 수동 파일시스템 동기화
+      description: |
+        파일시스템과 데이터베이스 간의 수동 동기화를 실행합니다:
+        - 파일시스템에 없는 DB 레코드 정리 (고아 레코드 삭제)
+        - DB에 없는 파일시스템 파일들을 DB에 추가
+      responses:
+        '200':
+          description: 동기화 완료
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "파일시스템 동기화가 완료되었습니다."
+                  syncedFiles:
+                    type: integer
+                    example: 15
+                  cleanedRecords:
+                    type: integer
+                    example: 3
+        '500':
+          description: 내부 서버 오류
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Internal server error"
+                  error:
+                    type: string
+
+  /api/v1/files/health:
+    get:
+      tags: [files]
+      summary: 파일시스템 상태 확인
+      description: 파일시스템과 데이터베이스 간의 일관성 상태를 확인합니다
+      responses:
+        '200':
+          description: 파일시스템 상태 정보
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "healthy"
+                  totalFiles:
+                    type: integer
+                    example: 25
+                  dbRecords:
+                    type: integer
+                    example: 25
+                  syncStatus:
+                    type: string
+                    example: "synchronized"
+                  lastSyncTime:
+                    type: string
+                    format: date-time
+                  directories:
+                    type: object
+                  timestamp:
+                    type: string
+                    format: date-time
+        '500':
+          description: 파일시스템 오류
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "unhealthy"
+                  error:
+                    type: string
+                  timestamp:
+                    type: string
+                    format: date-time
+
+  /api/v1/files/info:
+    get:
+      tags: [files]
+      summary: 파일 시스템 관리 서비스 정보
+      description: 파일 시스템 API의 서비스 정보 및 지원 기능을 조회합니다
+      responses:
+        '200':
+          description: 서비스 정보
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  service:
+                    type: string
+                    example: "File System Management API"
+                  version:
+                    type: string
+                    example: "1.0.0"
+                  description:
+                    type: string
+                    example: "RESTful API for file system operations and synchronization"
+                  endpoints:
+                    type: object
+                  supportedDirectories:
+                    type: array
+                    items:
+                      type: string
+                  supportedFileTypes:
+                    type: array
+                    items:
+                      type: string
+                  maxFileSize:
+                    type: string
+                    example: "500MB"
+                  features:
+                    type: array
+                    items:
+                      type: string
+                  timestamp:
+                    type: string
+                    format: date-time
+
+
+

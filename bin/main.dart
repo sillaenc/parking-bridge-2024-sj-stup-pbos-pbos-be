@@ -28,7 +28,7 @@ void main() async {
     // 0. .env 파일 로드 (환경변수 설정)
     final env = DotEnv(includePlatformEnvironment: true)..load();
     print('📋 환경변수 로드 완료');
-    
+
     // .env에서 JWT_SECRET_KEY 확인
     if (env['JWT_SECRET_KEY'] != null) {
       print('🔐 JWT_SECRET_KEY .env에서 로드됨');

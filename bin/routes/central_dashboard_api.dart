@@ -24,6 +24,9 @@ class CentralDashboardApi {
     // GET /api/v1/central/health - 서비스 상태 확인
     router.get('/health', _getServiceHealth);
 
+    // GET /api/v1/central/info - 서비스 정보 조회
+    router.get('/info', _getServiceInfo);
+
     return router;
   }
 
@@ -94,5 +97,30 @@ class CentralDashboardApi {
         headers: {'Content-Type': 'application/json'},
       );
     }
+  }
+
+  /// 서비스 정보 조회
+  Future<Response> _getServiceInfo(Request request) async {
+    return Response.ok(
+      jsonEncode({
+        'success': true,
+        'service': 'Central Dashboard API',
+        'version': '1.0.0',
+        'description': '주차장 전체 현황 및 통계 정보를 제공하는 API',
+        'endpoints': {
+          'GET /dashboard': '중앙 대시보드 데이터 조회',
+          'GET /health': '서비스 상태 확인',
+          'GET /info': '서비스 정보 조회'
+        },
+        'features': [
+          '실시간 주차 통계',
+          '층별 점유율 분석',
+          '주차 공간 타입별 현황',
+          '전체 시스템 모니터링'
+        ],
+        'timestamp': DateTime.now().toIso8601String(),
+      }),
+      headers: {'Content-Type': 'application/json'},
+    );
   }
 }
