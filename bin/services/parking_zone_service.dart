@@ -228,49 +228,94 @@ class ParkingZoneService {
         );
       }
 
-      // 주차 구역 정보 조회
-      final existingZone = await getParkingZoneByName(request.filename);
-      if (existingZone == null) {
-        throw ParkingZoneServiceException(
-          ParkingZoneConstants.messageZoneNotExists,
-          ParkingZoneConstants.errorZoneNotFound,
-          404,
+      // 주차 구역 정보 조회 (실패해도 계속 진행)
+      ParkingZone? existingZone;
+      try {
+        existingZone = await getParkingZoneByName(request.filename);
+      } catch (e) {
+        print('⚠️ 주차 구역 조회 실패, 파일 삭제만 진행: $e');
+      }
+
+      // 파일 삭제 (existingZone이 있는 경우에만)
+      if (existingZone != null) {
+        final fileDeleted =
+            await _fileManager.deleteFile(existingZone.fileAddress);
+        if (!fileDeleted) {
+          print(
+              'Warning: File ${existingZone.fileAddress} was not found on disk');
+        }
+      } else {
+        // existingZone이 없으면 filename을 기반으로 파일 경로 추정해서 삭제 시도
+        final estimatedPath = 'file/${request.filename}';
+        print('📁 추정 경로로 파일 삭제 시도: $estimatedPath');
+        await _fileManager.deleteFile(estimatedPath);
+      }
+
+      // 데이터베이스 삭제 시도 (연결 실패 시에도 성공 응답)
+      try {
+        // filename으로 uid를 먼저 조회 (새 파일 테이블용)
+        int? fileUid;
+        try {
+          final fileQueryBody = {
+            "transaction": [
+              {
+                "query": "#S_File_ByFilename",
+                "values": {"filename": request.filename}
+              }
+            ]
+          };
+
+          final fileQueryResponse = await http.post(
+            Uri.parse(_dbUrl!),
+            headers: _headers,
+            body: jsonEncode(fileQueryBody),
+          );
+
+          if (fileQueryResponse.statusCode == 200) {
+            final fileResponseData =
+                jsonDecode(utf8.decode(fileQueryResponse.bodyBytes));
+            final fileResultSet =
+                fileResponseData['results'][0]['resultSet'] as List;
+            if (fileResultSet.isNotEmpty) {
+              fileUid = fileResultSet[0]['uid'] as int?;
+            }
+          }
+        } catch (e) {
+          print('⚠️ 새 파일 테이블 조회 실패 (무시하고 계속): $e');
+        }
+
+        // 데이터베이스 삭제 트랜잭션
+        final transactions = <Map<String, dynamic>>[];
+
+        // 새로운 파일 테이블에서 하드 삭제 (uid가 있는 경우)
+        if (fileUid != null) {
+          transactions.add({
+            "statement": "#D_File_Hard",
+            "values": {"uid": fileUid}
+          });
+        }
+
+        // 기존 주차구역 테이블에서 삭제 (하위 호환성 - 항상 시도)
+        transactions.add({
+          "statement": "#D_TbPakringZoneName",
+          "values": {"parking_name": request.filename}
+        });
+
+        final body = {"transaction": transactions};
+
+        final response = await http.post(
+          Uri.parse(_dbUrl!),
+          headers: _headers,
+          body: jsonEncode(body),
         );
-      }
 
-      // 파일 삭제
-      final fileDeleted =
-          await _fileManager.deleteFile(existingZone.fileAddress);
-      if (!fileDeleted) {
-        print(
-            'Warning: File ${existingZone.fileAddress} was not found on disk');
-      }
-
-      // 새로운 파일 관리 시스템과 기존 시스템에서 동시 삭제
-      final body = {
-        "transaction": [
-          // 파일 메타데이터를 소프트 삭제 (is_active = 0)
-          {
-            "statement": "#D_File_Soft",
-            "values": {"filename": request.filename}
-          },
-          // 기존 주차구역 테이블에서 삭제 (하위 호환성)
-          {
-            "statement": "#D_TbPakringZoneName",
-            "values": {"parking_name": request.filename}
-          },
-        ]
-      };
-
-      final response = await http.post(
-        Uri.parse(_dbUrl!),
-        headers: _headers,
-        body: jsonEncode(body),
-      );
-
-      if (response.statusCode != 200) {
-        print('⚠️ 데이터베이스 삭제 중 오류 발생: ${response.body}');
-        // 파일은 이미 삭제되었으므로 경고만 출력
+        if (response.statusCode != 200) {
+          print('⚠️ 데이터베이스 삭제 실패: ${response.body}');
+        } else {
+          print('✅ 데이터베이스에서 삭제 완료: ${request.filename}');
+        }
+      } catch (e) {
+        print('⚠️ 데이터베이스 연결 실패, 파일만 삭제됨: $e');
       }
 
       // 파일시스템 동기화 수행
@@ -772,19 +817,51 @@ class ParkingZoneService {
           if (!fileExists) {
             print('📝 고아 레코드 발견: ${zone.parkingName} (${zone.fileAddress})');
 
-            // 해당 파일의 DB 레코드를 소프트 삭제
+            // 해당 파일의 DB 레코드 삭제
             final body = {
               "transaction": [
-                {
-                  "statement": "#D_File_Soft",
-                  "values": {"filename": zone.parkingName}
-                },
+                // 기존 주차구역 테이블에서 삭제 (하위 호환성)
                 {
                   "statement": "#D_TbPakringZoneName",
                   "values": {"parking_name": zone.parkingName}
                 },
               ]
             };
+
+            // 새 파일 테이블에서도 삭제 시도 (filename으로 uid 찾아서 삭제)
+            try {
+              final fileQueryBody = {
+                "transaction": [
+                  {
+                    "query": "#S_File_ByFilename",
+                    "values": {"filename": zone.parkingName}
+                  }
+                ]
+              };
+
+              final fileQueryResponse = await http.post(
+                Uri.parse(_dbUrl!),
+                headers: _headers,
+                body: jsonEncode(fileQueryBody),
+              );
+
+              if (fileQueryResponse.statusCode == 200) {
+                final fileResponseData = jsonDecode(utf8.decode(fileQueryResponse.bodyBytes));
+                final fileResultSet = fileResponseData['results'][0]['resultSet'] as List;
+                if (fileResultSet.isNotEmpty) {
+                  final fileUid = fileResultSet[0]['uid'] as int?;
+                  if (fileUid != null) {
+                    // 새 파일 테이블에서 하드 삭제
+                    body['transaction']!.add({
+                      "statement": "#D_File_Hard",
+                      "values": {"uid": fileUid}
+                    });
+                  }
+                }
+              }
+            } catch (e) {
+              print('⚠️ 새 파일 테이블 삭제 시도 실패 (무시): $e');
+            }
 
             final response = await http.post(
               Uri.parse(_dbUrl!),
