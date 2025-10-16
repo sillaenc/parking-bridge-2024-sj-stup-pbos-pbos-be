@@ -846,8 +846,10 @@ class ParkingZoneService {
               );
 
               if (fileQueryResponse.statusCode == 200) {
-                final fileResponseData = jsonDecode(utf8.decode(fileQueryResponse.bodyBytes));
-                final fileResultSet = fileResponseData['results'][0]['resultSet'] as List;
+                final fileResponseData =
+                    jsonDecode(utf8.decode(fileQueryResponse.bodyBytes));
+                final fileResultSet =
+                    fileResponseData['results'][0]['resultSet'] as List;
                 if (fileResultSet.isNotEmpty) {
                   final fileUid = fileResultSet[0]['uid'] as int?;
                   if (fileUid != null) {
