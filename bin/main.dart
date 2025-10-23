@@ -47,19 +47,24 @@ void main() async {
         RouterConfig(manageAddress: serverConfig.manageAddress);
     routerConfig.printApiInfo();
 
-    // 3. RTSP 캡처 서비스 초기화 및 등록
+    // 3. 초기 DB 설정 완료 대기 (first_setting.dart 실행 완료)
+    print('⏳ 초기 DB 설정 완료 대기 중...');
+    await routerConfig.waitForInitialization();
+    print('✅ 초기 DB 설정 완료\n');
+
+    // 4. RTSP 캡처 서비스 초기화 및 등록 (DB 설정 완료 후)
     await _initializeRtspService(routerConfig, serverConfig);
 
-    // 4. 미들웨어 파이프라인 구성
+    // 5. 미들웨어 파이프라인 구성
     final handler = _createHandler(routerConfig.router);
 
-    // 5. 주기적 작업 서비스 시작
+    // 6. 주기적 작업 서비스 시작
     final periodicTaskService = PeriodicTaskService(
       manageAddress: serverConfig.manageAddress,
     );
     periodicTaskService.startPeriodicTask();
 
-    // 6. 서버 시작
+    // 7. 서버 시작
     final server = await serve(
       handler,
       serverConfig.host,
@@ -72,7 +77,7 @@ void main() async {
     print('   🔄 주기적 작업: ${periodicTaskService.isRunning ? '실행 중' : '중지됨'}');
     print('\n서버가 요청을 대기하고 있습니다...\n');
 
-    // 7. 서버 종료 처리 (선택사항)
+    // 8. 서버 종료 처리 (선택사항)
     _setupGracefulShutdown(server, periodicTaskService);
   } catch (e, stackTrace) {
     print('❌ 서버 시작 중 오류가 발생했습니다:');

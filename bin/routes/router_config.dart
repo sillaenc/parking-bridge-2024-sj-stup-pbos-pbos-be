@@ -59,11 +59,20 @@ class RouterConfig {
 
   final ManageAddress _manageAddress;
   late final Router _router;
+  late final Future<void> _initializationComplete;
 
   RouterConfig({required ManageAddress manageAddress})
       : _manageAddress = manageAddress {
     _router = Router();
     _configureRoutes();
+    // 초기 설정을 Future로 저장 (비동기 완료 대기 가능)
+    _initializationComplete = _initializeSettings();
+  }
+
+  /// 초기 설정이 완료될 때까지 대기하는 메서드
+  /// RTSP 서비스 등 DB 의존적인 서비스는 이 메서드 완료 후 시작해야 함
+  Future<void> waitForInitialization() async {
+    await _initializationComplete;
   }
 
   /// 모든 라우트를 설정하는 메인 함수
@@ -80,9 +89,6 @@ class RouterConfig {
     _configureRefactoredApiRoutes(); // 새로 리팩토링된 API들
     _configureSwaggerRoutes(); // Swagger 문서 서빙
     _configureLegacyRoutes(); // 기존 경로 호환성을 위해 임시 유지
-
-    // 초기 설정 실행
-    _initializeSettings();
   }
 
   /// 인증 관련 라우트 설정
@@ -412,10 +418,10 @@ class RouterConfig {
   }
 
   /// 초기 설정 실행
-  void _initializeSettings() {
+  Future<void> _initializeSettings() async {
     final displayDbAddr = _manageAddress.displayDbAddr;
     if (displayDbAddr != null) {
-      firstSetting(displayDbAddr);
+      await firstSetting(displayDbAddr);
       print('✅ 초기 설정이 완료되었습니다.');
     } else {
       print('⚠️  Display DB 주소가 설정되지 않아 초기 설정을 건너뛰었습니다.');
