@@ -100,7 +100,7 @@ Future<void> firstSetting(url) async {
               "transaction": [
                 {
                   "statement": "#I_TbLots",
-                  "VALUES": {
+                  "values": {
                     "tag": tag,
                     "lot_type": lotType,
                     "point": point,
@@ -132,7 +132,7 @@ Future<void> firstSetting(url) async {
               "transaction": [
                 {
                   "statement": "#I_display",
-                  "VALUES": {
+                  "values": {
                     "tag": tag,
                     "lot_type": lotType,
                     "point": point,
@@ -152,6 +152,82 @@ Future<void> firstSetting(url) async {
       }
       print('tb_lots insert progress complete!');
     }
+
+    // RTSP 캡처 설정 초기화
+    final rtspFolderPath = 'rtsp/';
+    final rtspDirectory = Directory(rtspFolderPath);
+
+    if (rtspDirectory.existsSync()) {
+      print('📸 RTSP 캡처 설정 초기화 시작...');
+
+      final rtspFiles = rtspDirectory.listSync();
+      int rtspInsertCount = 0;
+
+      for (var file in rtspFiles) {
+        if (file is File && file.path.endsWith('.json')) {
+          try {
+            final content = await file.readAsString();
+            final jsonData = jsonDecode(content);
+
+            // rtsp 키 확인
+            if (jsonData['rtsp'] != null) {
+              final rtspData = jsonData['rtsp'] as Map<String, dynamic>;
+
+              for (var entry in rtspData.values) {
+                final tag = entry['tag'] as String;
+                final rtspAddress = entry['rtsp_address'] as String;
+
+                // last_image_path는 rtsp_address로부터 생성
+                // 호스트와 포트만 추출하여 파일명 생성
+                String imagePath;
+                try {
+                  final uri = Uri.parse(rtspAddress);
+                  final host =
+                      uri.host.replaceAll('.', '_').replaceAll('-', '_');
+                  final port = uri.hasPort ? '_${uri.port}' : '';
+                  imagePath = 'camera/captures/cam_${host}${port}.jpg';
+                } catch (e) {
+                  // 파싱 실패 시 fallback
+                  imagePath =
+                      'camera/captures/cam_${rtspAddress.hashCode.abs()}.jpg';
+                }
+
+                var body = {
+                  "transaction": [
+                    {
+                      "statement": "#I_RtspCapture",
+                      "values": {
+                        "tag": tag,
+                        "rtsp_address": rtspAddress,
+                        "last_image_path": imagePath,
+                      }
+                    }
+                  ]
+                };
+
+                await http.post(
+                  Uri.parse(url!),
+                  headers: header,
+                  body: jsonEncode(body),
+                );
+
+                rtspInsertCount++;
+              }
+
+              print(
+                  '✅ ${file.path.split('/').last} 처리 완료 (${rtspData.length}개 항목)');
+            }
+          } catch (e) {
+            print('❌ ${file.path} 처리 중 오류 발생: $e');
+          }
+        }
+      }
+
+      print('✅ RTSP 캡처 설정 초기화 완료 (총 $rtspInsertCount개 항목)');
+    } else {
+      print('ℹ️  RTSP 디렉토리가 존재하지 않습니다: $rtspFolderPath');
+    }
+
     //
   } catch (e) {
     print('최초 세팅 문제 발생: $e');

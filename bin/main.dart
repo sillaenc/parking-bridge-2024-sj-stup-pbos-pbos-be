@@ -18,6 +18,10 @@ import 'config/server_config.dart';
 import 'routes/router_config.dart';
 import 'middleware/cors_middleware.dart';
 import 'services/periodic_task_service.dart';
+import 'services/database_client.dart';
+import 'services/rtsp_capture_service.dart';
+import 'services/rtsp_scheduler_service.dart';
+import 'routes/rtsp_capture_api.dart';
 
 /// 애플리케이션 메인 함수
 /// 서버 초기화, 설정 로드, 라우터 구성 및 서버 시작을 담당
@@ -43,16 +47,19 @@ void main() async {
         RouterConfig(manageAddress: serverConfig.manageAddress);
     routerConfig.printApiInfo();
 
-    // 3. 미들웨어 파이프라인 구성
+    // 3. RTSP 캡처 서비스 초기화 및 등록
+    await _initializeRtspService(routerConfig, serverConfig);
+
+    // 4. 미들웨어 파이프라인 구성
     final handler = _createHandler(routerConfig.router);
 
-    // 4. 주기적 작업 서비스 시작
+    // 5. 주기적 작업 서비스 시작
     final periodicTaskService = PeriodicTaskService(
       manageAddress: serverConfig.manageAddress,
     );
     periodicTaskService.startPeriodicTask();
 
-    // 5. 서버 시작
+    // 6. 서버 시작
     final server = await serve(
       handler,
       serverConfig.host,
@@ -65,7 +72,7 @@ void main() async {
     print('   🔄 주기적 작업: ${periodicTaskService.isRunning ? '실행 중' : '중지됨'}');
     print('\n서버가 요청을 대기하고 있습니다...\n');
 
-    // 6. 서버 종료 처리 (선택사항)
+    // 7. 서버 종료 처리 (선택사항)
     _setupGracefulShutdown(server, periodicTaskService);
   } catch (e, stackTrace) {
     print('❌ 서버 시작 중 오류가 발생했습니다:');
@@ -83,6 +90,65 @@ Handler _createHandler(Router router) {
       .addMiddleware(logRequests())
       .addMiddleware(CorsMiddleware.create())
       .addHandler(router);
+}
+
+/// RTSP 캡처 서비스 초기화 및 라우터 등록
+///
+/// DatabaseClient를 사용하여 RtspCaptureService를 생성하고,
+/// RtspSchedulerService를 시작하며, API를 라우터에 등록합니다.
+Future<void> _initializeRtspService(
+  RouterConfig routerConfig,
+  ServerConfig serverConfig,
+) async {
+  try {
+    print('\n🎬 RTSP 캡처 서비스 초기화 중...');
+
+    // DatabaseClient 생성
+    final databaseClient = DatabaseClient();
+
+    // RtspCaptureService 생성
+    final rtspCaptureService = RtspCaptureService(databaseClient);
+
+    // Database URL 확인
+    final databaseUrl = serverConfig.manageAddress.displayDbAddr;
+    if (databaseUrl == null) {
+      print('⚠️  Database URL이 설정되지 않아 RTSP 서비스를 건너뜁니다.');
+      return;
+    }
+
+    // RtspSchedulerService 생성
+    final rtspScheduler = RtspSchedulerService(
+      captureService: rtspCaptureService,
+      databaseUrl: databaseUrl,
+    );
+
+    // RtspCaptureApi 생성
+    final rtspApi = RtspCaptureApi(
+      manageAddress: serverConfig.manageAddress,
+      captureService: rtspCaptureService,
+    );
+
+    // 스케줄러를 API에 연결
+    rtspApi.setScheduler(rtspScheduler);
+
+    // API를 라우터에 등록
+    routerConfig.mountRtspApi(rtspApi);
+
+    // 스케줄러 시작
+    final started = await rtspScheduler.start();
+
+    if (started) {
+      print('✅ RTSP 캡처 서비스 초기화 완료');
+      print('   📸 캡처 주기: ${rtspScheduler.intervalSeconds}초');
+      print('   📂 저장 경로: camera/captures/');
+    } else {
+      print('⚠️  RTSP 캡처 서비스 시작 실패 (FFmpeg 미설치 또는 설정 오류)');
+    }
+  } catch (e, stackTrace) {
+    print('❌ RTSP 캡처 서비스 초기화 실패: $e');
+    print('   Stack trace: $stackTrace');
+    print('   서버는 RTSP 기능 없이 계속 실행됩니다.');
+  }
 }
 
 /// 우아한 서버 종료 처리를 설정하는 함수

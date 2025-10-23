@@ -225,6 +225,61 @@ class DatabaseClient {
     return [];
   }
 
+  /// 범용 쿼리 실행 메서드 (RTSP 등 신규 서비스용)
+  ///
+  /// ws4sqlite의 응답 형식을 그대로 반환하여 서비스에서 처리
+  /// [url] 데이터베이스 서버 URL
+  /// [queryId] stored statement ID (# 접두사 포함)
+  /// [values] 쿼리 파라미터 (선택사항)
+  /// Returns: ws4sqlite 응답 전체
+  Future<Map<String, dynamic>> query(
+    String url,
+    String queryId,
+    Map<String, dynamic>? values,
+  ) async {
+    try {
+      // queryId에 # 접두사 추가 (없는 경우)
+      final formattedQueryId = queryId.startsWith('#') ? queryId : '#$queryId';
+
+      final body = {
+        "transaction": [
+          {
+            "query": formattedQueryId,
+            if (values != null && values.isNotEmpty) "values": values,
+          }
+        ]
+      };
+
+      final response = await _httpClient.post(
+        Uri.parse(url),
+        headers: _defaultHeaders,
+        body: jsonEncode(body),
+      );
+
+      if (response.statusCode == 200) {
+        final responseData = jsonDecode(response.body);
+
+        // ws4sqlite 응답 형식 반환
+        return {
+          'success': true,
+          'results': responseData['results']?[0]?['resultSet'] ?? [],
+          'rowsAffected': responseData['results']?[0]?['rowsUpdated'] ?? 0,
+        };
+      } else {
+        return {
+          'success': false,
+          'error': 'Query failed with status code: ${response.statusCode}',
+          'statusCode': response.statusCode,
+        };
+      }
+    } catch (e) {
+      return {
+        'success': false,
+        'error': 'Query execution failed: $e',
+      };
+    }
+  }
+
   /// 클라이언트 리소스 해제
   void dispose() {
     _httpClient.close();

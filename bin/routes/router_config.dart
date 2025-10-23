@@ -50,6 +50,7 @@ import 'system_health_api.dart';
 import 'database_management_api.dart';
 import 'resource_management_api.dart';
 import 'monitoring_api.dart';
+import 'rtsp_capture_api.dart';
 
 /// OpenAPI 3.0 스타일의 라우터 설정을 관리하는 클래스
 /// 모든 API 엔드포인트를 /api/v1/ 형태로 체계적으로 구성
@@ -75,6 +76,7 @@ class RouterConfig {
     _configureSystemRoutes();
     _configureMonitoringRoutes();
     _configureResourceRoutes();
+    _configureRtspRoutes(); // RTSP 캡처 API
     _configureRefactoredApiRoutes(); // 새로 리팩토링된 API들
     _configureSwaggerRoutes(); // Swagger 문서 서빙
     _configureLegacyRoutes(); // 기존 경로 호환성을 위해 임시 유지
@@ -257,6 +259,14 @@ class RouterConfig {
     _router.mount('$API_PREFIX/resources/legacy', getResource.router);
   }
 
+  /// RTSP 캡처 관련 라우트 설정
+  void _configureRtspRoutes() {
+    // 주의: RTSP 캡처 서비스와 스케줄러는 main.dart에서 초기화되어 주입됨
+    // 여기서는 임시로 null 체크를 통해 초기화
+    print('⚠️  RTSP API 라우트 등록 준비 중...');
+    print('   실제 서비스는 main.dart에서 초기화 후 연결됩니다.');
+  }
+
   /// 새로 리팩토링된 API 라우트 설정 (OpenAPI 3.0 표준)
   void _configureRefactoredApiRoutes() {
     // 15단계 리팩토링으로 새로 생성된 RESTful API들
@@ -414,6 +424,16 @@ class RouterConfig {
 
   /// 설정된 라우터 반환
   Router get router => _router;
+
+  /// RTSP 캡처 API를 동적으로 등록 (main.dart에서 서비스 초기화 후 호출)
+  void mountRtspApi(RtspCaptureApi rtspApi) {
+    try {
+      _router.mount('$API_PREFIX/rtsp', rtspApi.router);
+      print('✅ RTSP 캡처 API 등록 완료: $API_PREFIX/rtsp');
+    } catch (e) {
+      print('❌ RTSP 캡처 API 등록 실패: $e');
+    }
+  }
 
   /// API 정보 출력 (개발용)
   void printApiInfo() {
