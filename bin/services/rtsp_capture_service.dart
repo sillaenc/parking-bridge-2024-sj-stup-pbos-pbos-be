@@ -192,12 +192,13 @@ class RtspCaptureService {
     }
   }
 
-  /// 모든 RTSP 주소에서 순차적으로 캡처
+  /// 모든 RTSP 주소에서 배치 방식으로 병렬 캡처
   ///
-  /// 중복 제거된 RTSP 주소 목록을 가져와 하나씩 처리
+  /// 시스템 부하를 고려하여 MAX_CONCURRENT_CAPTURES 개씩 배치로 나눠서 처리
+  /// 예: 80개 주소 → 20개씩 4배치로 처리
   Future<Map<String, dynamic>> captureAll(String databaseUrl) async {
     try {
-      print('🎬 전체 RTSP 캡처 시작...');
+      print('🎬 전체 RTSP 캡처 시작 (배치 병렬 실행)...');
       final startTime = DateTime.now();
 
       // 1. 고유 RTSP 주소 목록 조회
@@ -214,26 +215,53 @@ class RtspCaptureService {
         };
       }
 
-      print('📋 총 ${rtspAddresses.length}개의 고유 RTSP 주소 발견');
+      final totalAddresses = rtspAddresses.length;
+      final batchSize = RtspConfig.MAX_CONCURRENT_CAPTURES;
+      final batchCount = (totalAddresses / batchSize).ceil();
 
-      // 2. 각 RTSP 주소에서 순차적으로 캡처
-      int successCount = 0;
-      int failCount = 0;
+      print('📋 총 $totalAddresses개의 고유 RTSP 주소 발견');
+      print('⚡ 배치 병렬 캡처 시작 (배치 크기: $batchSize, 배치 수: $batchCount)...');
 
-      for (int i = 0; i < rtspAddresses.length; i++) {
-        final rtspAddress = rtspAddresses[i];
-        print('🔄 캡처 진행: ${i + 1}/${rtspAddresses.length} - $rtspAddress');
+      // 2. 배치별로 처리
+      int totalSuccessCount = 0;
+      int totalFailCount = 0;
 
-        final success = await captureFromRtsp(databaseUrl, rtspAddress);
-        if (success) {
-          successCount++;
-        } else {
-          failCount++;
-        }
+      for (int batchIndex = 0; batchIndex < batchCount; batchIndex++) {
+        final startIdx = batchIndex * batchSize;
+        final endIdx = (startIdx + batchSize > totalAddresses)
+            ? totalAddresses
+            : startIdx + batchSize;
+        final batch = rtspAddresses.sublist(startIdx, endIdx);
 
-        // 과도한 부하 방지를 위한 짧은 대기
-        if (i < rtspAddresses.length - 1) {
-          await Future.delayed(Duration(milliseconds: 500));
+        print(
+            '\n📦 배치 ${batchIndex + 1}/$batchCount 처리 중 (${batch.length}개 주소)...');
+
+        // 현재 배치의 모든 주소를 병렬로 캡처
+        final captureFutures = batch.asMap().entries.map((entry) {
+          final globalIndex = startIdx + entry.key;
+          final rtspAddress = entry.value;
+          print(
+              '🔄 캡처 시작: ${globalIndex + 1}/$totalAddresses - $rtspAddress');
+          return captureFromRtsp(databaseUrl, rtspAddress);
+        }).toList();
+
+        // 현재 배치의 모든 작업이 완료될 때까지 대기
+        final batchResults = await Future.wait(captureFutures);
+
+        // 배치 결과 집계
+        final batchSuccessCount =
+            batchResults.where((success) => success).length;
+        final batchFailCount = batchResults.where((success) => !success).length;
+
+        totalSuccessCount += batchSuccessCount;
+        totalFailCount += batchFailCount;
+
+        print(
+            '✅ 배치 ${batchIndex + 1}/$batchCount 완료 (성공: $batchSuccessCount, 실패: $batchFailCount)');
+
+        // 마지막 배치가 아니면 짧은 대기 (시스템 안정화)
+        if (batchIndex < batchCount - 1) {
+          await Future.delayed(Duration(milliseconds: 100));
         }
       }
 
@@ -243,19 +271,22 @@ class RtspCaptureService {
       _lastCaptureTime = endTime;
       _totalCaptures++;
 
-      print('✅ 전체 RTSP 캡처 완료');
-      print('   총 주소: ${rtspAddresses.length}');
-      print('   성공: $successCount');
-      print('   실패: $failCount');
+      print('\n✅ 전체 RTSP 캡처 완료 (배치 병렬 실행)');
+      print('   총 주소: $totalAddresses');
+      print('   성공: $totalSuccessCount');
+      print('   실패: $totalFailCount');
       print('   소요 시간: ${duration.inSeconds}초');
+      print('   배치 처리: $batchCount개 배치 × 최대 $batchSize개');
 
       return {
         'success': true,
-        'message': '전체 캡처 완료',
-        'total': rtspAddresses.length,
-        'successful': successCount,
-        'failed': failCount,
+        'message': '전체 캡처 완료 (배치 병렬)',
+        'total': totalAddresses,
+        'successful': totalSuccessCount,
+        'failed': totalFailCount,
         'duration_seconds': duration.inSeconds,
+        'batch_count': batchCount,
+        'batch_size': batchSize,
         'timestamp': endTime.toIso8601String(),
       };
     } catch (e, stackTrace) {

@@ -13,7 +13,8 @@ class RtspConfig {
 
   /// FFmpeg 타임아웃 (초)
   /// RTSP 연결 및 캡처 작업의 최대 대기 시간
-  static const int CAPTURE_TIMEOUT_SECONDS = 10;
+  /// 병렬 실행을 고려하여 짧게 설정
+  static const int CAPTURE_TIMEOUT_SECONDS = 5;
 
   /// 이미지 품질 (1-31, 낮을수록 고품질)
   /// q:v 파라미터에 사용 (2 = 매우 높은 품질)
@@ -52,10 +53,16 @@ class RtspConfig {
   static const int MAX_RETRY_COUNT = 3;
 
   /// 재시도 간격 (초)
-  static const int RETRY_DELAY_SECONDS = 5;
+  /// 병렬 실행으로 빠른 재시도 가능
+  static const int RETRY_DELAY_SECONDS = 2;
 
   /// 서비스 상태 확인 주기 (초)
   static const int HEALTH_CHECK_INTERVAL_SECONDS = 30;
+
+  /// 동시 캡처 최대 개수
+  /// 시스템 부하를 고려하여 한 번에 처리할 최대 RTSP 주소 수를 제한
+  /// 80개 주소가 있어도 20개씩 4배치로 나눠서 처리
+  static const int MAX_CONCURRENT_CAPTURES = 20;
 
   /// 이미지 파일 확장자
   static String get imageExtension => '.$IMAGE_FORMAT';
