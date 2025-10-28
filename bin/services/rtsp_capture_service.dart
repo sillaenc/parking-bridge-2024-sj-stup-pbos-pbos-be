@@ -157,8 +157,6 @@ class RtspCaptureService {
   /// 해당 RTSP 주소를 사용하는 모든 태그의 last_image_path를 업데이트
   Future<bool> captureFromRtsp(String databaseUrl, String rtspAddress) async {
     try {
-      print('📸 RTSP 캡처 시작: $rtspAddress');
-
       // 1. 출력 파일 경로 생성
       final outputPath = rtspToFullPath(rtspAddress);
 
@@ -167,6 +165,7 @@ class RtspCaptureService {
 
       if (!success) {
         _failedCaptures++;
+        print('   ❌ 실패: $rtspAddress');
         return false;
       }
 
@@ -181,12 +180,10 @@ class RtspCaptureService {
       );
 
       _successfulCaptures++;
-      print('✅ RTSP 캡처 완료: $rtspAddress → $outputPath');
+      print('   ✅ 성공: $rtspAddress');
       return true;
-    } catch (e, stackTrace) {
-      print('❌ RTSP 캡처 실패: $rtspAddress');
-      print('   에러: $e');
-      print('   Stack trace: $stackTrace');
+    } catch (e) {
+      print('   ❌ 실패: $rtspAddress (에러: $e)');
       _failedCaptures++;
       return false;
     }
@@ -233,20 +230,27 @@ class RtspCaptureService {
             : startIdx + batchSize;
         final batch = rtspAddresses.sublist(startIdx, endIdx);
 
+        final batchStartTime = DateTime.now();
         print(
-            '\n📦 배치 ${batchIndex + 1}/$batchCount 처리 중 (${batch.length}개 주소)...');
+            '\n📦 배치 ${batchIndex + 1}/$batchCount 시작 (${batch.length}개 주소, ${batchStartTime.toString().substring(11, 19)})');
 
-        // 현재 배치의 모든 주소를 병렬로 캡처
-        final captureFutures = batch.asMap().entries.map((entry) {
-          final globalIndex = startIdx + entry.key;
-          final rtspAddress = entry.value;
-          print(
-              '🔄 캡처 시작: ${globalIndex + 1}/$totalAddresses - $rtspAddress');
-          return captureFromRtsp(databaseUrl, rtspAddress);
-        }).toList();
+        // 배치 내 모든 주소 목록 출력
+        for (int i = 0; i < batch.length; i++) {
+          print('   ${startIdx + i + 1}/$totalAddresses: ${batch[i]}');
+        }
+
+        print('⚡ ${batch.length}개 주소를 동시에 캡처 시작...\n');
+
+        // 현재 배치의 모든 주소를 병렬로 캡처 (Future 생성)
+        final captureFutures = batch
+            .map((rtspAddress) => captureFromRtsp(databaseUrl, rtspAddress))
+            .toList();
 
         // 현재 배치의 모든 작업이 완료될 때까지 대기
         final batchResults = await Future.wait(captureFutures);
+
+        final batchEndTime = DateTime.now();
+        final batchDuration = batchEndTime.difference(batchStartTime);
 
         // 배치 결과 집계
         final batchSuccessCount =
@@ -257,10 +261,13 @@ class RtspCaptureService {
         totalFailCount += batchFailCount;
 
         print(
-            '✅ 배치 ${batchIndex + 1}/$batchCount 완료 (성공: $batchSuccessCount, 실패: $batchFailCount)');
+            '\n✅ 배치 ${batchIndex + 1}/$batchCount 완료 (${batchEndTime.toString().substring(11, 19)})');
+        print('   성공: $batchSuccessCount, 실패: $batchFailCount');
+        print('   소요 시간: ${batchDuration.inSeconds}초');
 
         // 마지막 배치가 아니면 짧은 대기 (시스템 안정화)
         if (batchIndex < batchCount - 1) {
+          print('⏸️  배치 간 대기 100ms...\n');
           await Future.delayed(Duration(milliseconds: 100));
         }
       }

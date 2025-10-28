@@ -165,8 +165,6 @@ Future<String?> getFFmpegVersion() async {
 /// 반환값: 성공 여부
 Future<bool> captureFrameFromRtsp(String rtspAddress, String outputPath) async {
   try {
-    print('📸 캡처 시작: $rtspAddress → $outputPath');
-
     // FFmpeg 명령어 구성
     final args = [
       '-rtsp_transport', RtspConfig.RTSP_TRANSPORT, // TCP 전송
@@ -179,8 +177,6 @@ Future<bool> captureFrameFromRtsp(String rtspAddress, String outputPath) async {
       outputPath, // 출력 경로
     ];
 
-    print('🎬 FFmpeg 실행: ${RtspConfig.FFMPEG_EXECUTABLE} ${args.join(" ")}');
-
     // FFmpeg 실행
     final result = await Process.run(
       RtspConfig.FFMPEG_EXECUTABLE,
@@ -192,21 +188,18 @@ Future<bool> captureFrameFromRtsp(String rtspAddress, String outputPath) async {
       // 파일 생성 확인
       final file = File(outputPath);
       if (await file.exists()) {
-        final fileSize = await file.length();
-        print('✅ 캡처 성공: ${outputPath} (${fileSize} bytes)');
         return true;
       } else {
-        print('❌ 캡처 실패: 파일이 생성되지 않았습니다');
         return false;
       }
     } else {
-      print('❌ FFmpeg 실행 실패 (exit code: ${result.exitCode})');
-      print('   stderr: ${result.stderr}');
+      // 에러 발생 시에만 로그 출력
+      if (result.stderr.toString().isNotEmpty) {
+        print('      FFmpeg 에러: ${result.stderr.toString().split('\n').first}');
+      }
       return false;
     }
-  } catch (e, stackTrace) {
-    print('❌ 캡처 중 예외 발생: $e');
-    print('   Stack trace: $stackTrace');
+  } catch (e) {
     return false;
   }
 }
@@ -226,8 +219,6 @@ Future<bool> captureFrameWithRetry(
   final maxRetries = retryCount ?? RtspConfig.MAX_RETRY_COUNT;
 
   for (int attempt = 1; attempt <= maxRetries; attempt++) {
-    print('🔄 캡처 시도 $attempt/$maxRetries: $rtspAddress');
-
     final success = await captureFrameFromRtsp(rtspAddress, outputPath);
 
     if (success) {
@@ -236,12 +227,10 @@ Future<bool> captureFrameWithRetry(
 
     // 마지막 시도가 아니면 대기 후 재시도
     if (attempt < maxRetries) {
-      print('⏳ ${RtspConfig.RETRY_DELAY_SECONDS}초 후 재시도...');
       await Future.delayed(Duration(seconds: RtspConfig.RETRY_DELAY_SECONDS));
     }
   }
 
-  print('❌ 최대 재시도 횟수 초과: $rtspAddress');
   return false;
 }
 
@@ -268,14 +257,11 @@ Future<bool> atomicCapture(String rtspAddress, String finalPath) async {
     final tempFile = File(tempPath);
     if (await tempFile.exists()) {
       await tempFile.rename(finalPath);
-      print('✅ 원자적 파일 쓰기 완료: $finalPath');
       return true;
     } else {
-      print('❌ 임시 파일이 존재하지 않습니다: $tempPath');
       return false;
     }
   } catch (e) {
-    print('❌ 원자적 캡처 실패: $e');
     return false;
   }
 }
