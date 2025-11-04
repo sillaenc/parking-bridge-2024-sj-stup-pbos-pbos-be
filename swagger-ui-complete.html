@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <title>🎯 스마트 파킹 API 문서 (90+ 엔드포인트) - RTSP 지원</title>
+  <title>🎯 스마트 파킹 API 문서 (177개 엔드포인트) - 완전판</title>
   <link rel="stylesheet" type="text/css" href="https://unpkg.com/swagger-ui-dist@4.15.5/swagger-ui.css" />
   <style>
     html {
@@ -157,20 +157,20 @@
 <body>
   <!-- 커스텀 헤더 -->
   <div class="custom-header">
-    <h1>🎯 스마트 파킹 API 문서 (90+개)</h1>
-    <p class="subtitle">Smart Parking Backend API - Complete Documentation with RTSP</p>
+    <h1>🎯 스마트 파킹 API 문서 (177개)</h1>
+    <p class="subtitle">Smart Parking Backend API - Complete Documentation (177 Endpoints)</p>
     
     <div class="stats-grid">
       <div class="stat-card">
-        <span class="stat-number">90+</span>
+        <span class="stat-number">177</span>
         <span class="stat-label">Total API Endpoints</span>
       </div>
       <div class="stat-card">
-        <span class="stat-number">17</span>
+        <span class="stat-number">15</span>
         <span class="stat-label">API Categories</span>
       </div>
       <div class="stat-card">
-        <span class="stat-number">10</span>
+        <span class="stat-number">13</span>
         <span class="stat-label">🆕 RTSP Capture APIs</span>
       </div>
       <div class="stat-card">
@@ -178,12 +178,12 @@
         <span class="stat-label">Statistics APIs</span>
       </div>
       <div class="stat-card">
-        <span class="stat-number">13</span>
-        <span class="stat-label">File Management APIs</span>
+        <span class="stat-number">17</span>
+        <span class="stat-label">User Management APIs</span>
       </div>
       <div class="stat-card">
-        <span class="stat-number">9</span>
-        <span class="stat-label">User Management APIs</span>
+        <span class="stat-number">54</span>
+        <span class="stat-label">File & Parking APIs</span>
       </div>
     </div>
   </div>
@@ -222,14 +222,14 @@
       
       // 현재 호스트를 기준으로 동적 URL 생성
       const currentHost = window.location.origin;
-      const swaggerUrl = `${currentHost}/swagger.yaml`; // 최신 swagger.yaml 사용
+      const swaggerUrl = `${currentHost}/swagger-complete.yaml`; // 완전판 177개 API
       
       console.log('🌐 현재 호스트:', currentHost);
       console.log('📄 Swagger 스펙 URL:', swaggerUrl);
       
       // Swagger UI 설정
       const ui = SwaggerUIBundle({
-        url: swaggerUrl, // 최신 swagger.yaml 사용 (RTSP API 포함)
+        url: swaggerUrl, // 완전판 swagger-complete.yaml 사용 (177개 전체 API)
         dom_id: '#swagger-ui',
         deepLinking: true,
         presets: [
