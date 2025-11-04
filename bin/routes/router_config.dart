@@ -392,43 +392,120 @@ class RouterConfig {
   /// 기존 경로 호환성을 위한 임시 라우트 (단계적 마이그레이션용)
   void _configureLegacyRoutes() {
     // TODO: 클라이언트 마이그레이션 완료 후 제거 예정
+    
+    // 인증 및 사용자 관리
     final confirmAccountList =
         ConfirmAccountList(manageAddress: _manageAddress);
     final createAdmin = CreateAdmin(confirmAccountList: confirmAccountList);
     final loginMain = LoginMain(manageAddress: _manageAddress);
     final loginSetting = LoginSetting(confirmAccountList: confirmAccountList);
     final settingsAccount = SettingsAccount(manageAddress: _manageAddress);
+    
+    // 주차 관리
     final settingsParkingArea =
         SettingsParkingArea(manageAddress: _manageAddress);
     final settingsCamParkingArea =
         SettingsCamParkingArea(manageAddress: _manageAddress);
     final baseInformation = BaseInformation(manageAddress: _manageAddress);
+    
+    // 전광판 및 디스플레이
     final multipleElectricSigns =
         MultipleElectricSigns(manageAddress: _manageAddress);
+    final billBoard = BillBoard(manageAddress: _manageAddress);
+    final display = Display(manageAddress: _manageAddress);
+    final ledCal = LedCal(manageAddress: _manageAddress);
+    
+    // 통계 및 데이터
+    final statisticsCamParkingArea =
+        StatisticsCamParkingArea(manageAddress: _manageAddress);
+    final graphDataInstance = graphData(manageAddress: _manageAddress);
+    final central = Central(manageAddress: _manageAddress);
+    
+    // 시스템 및 모니터링
+    final settingsDbManagement =
+        SettingsDbManagement(manageAddress: _manageAddress);
+    final settings = Settings(manageAddress: _manageAddress);
+    final isalive = Isalive(manageAddress: _manageAddress);
+    final ping = Ping(manageAddress: _manageAddress);
+    final getResource = GetResource(manageAddress: _manageAddress);
 
     // 레거시 호환성 레이어 (리팩토링된 서비스 사용)
     final legacyPabi = LegacyPabi(manageAddress: _manageAddress);
 
-    // 기존 경로들을 임시로 유지 (Deprecated)
+    // ========== 레거시 경로 마운트 (23개) ==========
+    
+    // 인증 및 사용자 (5개)
     _router.mount('/confirm_account_list', confirmAccountList.router);
     _router.mount('/create_admin', createAdmin.router);
     _router.mount('/parking_status', loginMain.router);
     _router.mount('/login_setting', loginSetting.router);
-    _router.mount('/settings_account', settingsAccount.router);
+    _router.mount('/settings_account', settingsAccount.router); // /settings/account 버전
+    
+    // 주차 관리 (3개)
     _router.mount('/settings_parking_area', settingsParkingArea.router);
     _router.mount('/settings_cam_parking_area', settingsCamParkingArea.router);
     _router.mount('/base_information', baseInformation.router);
-    _router.mount('/multiple_electric_signs', multipleElectricSigns.router);
+    _router.mount('/base', baseInformation.router); // 추가: /base 경로
     
-    // 레거시 차량 정보 API (/pabi/tag, /pabi/car)
-    _router.mount('/pabi', legacyPabi.router);
+    // 차량 정보 (1개)
+    _router.mount('/pabi', legacyPabi.router); // /pabi/tag, /pabi/car
+    
+    // 전광판 및 디스플레이 (4개)
+    _router.mount('/multiple_electric_signs', multipleElectricSigns.router);
+    _router.mount('/billboard', billBoard.router); // 추가
+    _router.mount('/display', display.router); // 추가
+    _router.mount('/led_cal', ledCal.router); // 추가
+    
+    // 통계 및 데이터 (3개)
+    _router.mount('/statistics/cam_parking_area', statisticsCamParkingArea.router); // 추가
+    _router.mount('/graphData', graphDataInstance.router); // 추가
+    _router.mount('/central', central.router); // 추가
+    
+    // 시스템 및 설정 (6개)
+    _router.mount('/settings/db_management', settingsDbManagement.router); // 추가
+    _router.mount('/settings', settings.router); // 추가
+    _router.mount('/isalive', isalive.router); // 추가
+    _router.mount('/ping', ping.router); // 추가
+    _router.mount('/getResource', getResource.router); // 추가
 
-    print('⚠️  레거시 라우트가 활성화되었습니다. 향후 버전에서 제거될 예정입니다.');
-    print('   • /login_setting - 로그인 및 인증');
-    print('   • /pabi - 차량 정보 조회 (tag/car)');
-    print('   • /settings_account - 사용자 관리');
-    print('   • /settings_parking_area - 주차 구역 관리');
-    print('   • ... 기타 레거시 경로');
+    print('');
+    print('⚠️  레거시 라우트 23개가 활성화되었습니다. 향후 버전에서 제거될 예정입니다.');
+    print('');
+    print('📋 레거시 API 경로 목록:');
+    print('   🔐 인증 & 사용자 (5개)');
+    print('      • /login_setting - 로그인 및 인증');
+    print('      • /parking_status - 로그인 메인');
+    print('      • /confirm_account_list - 계정 확인');
+    print('      • /create_admin - 관리자 생성');
+    print('      • /settings_account - 사용자 관리');
+    print('');
+    print('   🅿️  주차 관리 (4개)');
+    print('      • /base - 주차장 기본 정보');
+    print('      • /base_information - 주차장 기본 정보 (별칭)');
+    print('      • /settings_parking_area - 주차 구역 관리');
+    print('      • /settings_cam_parking_area - 카메라 주차 구역');
+    print('');
+    print('   🚗 차량 정보 (1개)');
+    print('      • /pabi - 차량 정보 조회 (tag/car)');
+    print('');
+    print('   📺 전광판 & 디스플레이 (4개)');
+    print('      • /billboard - 전광판');
+    print('      • /display - 디스플레이');
+    print('      • /led_cal - LED 계산');
+    print('      • /multiple_electric_signs - 다중 전광판');
+    print('');
+    print('   📊 통계 & 데이터 (3개)');
+    print('      • /central - 중앙 대시보드');
+    print('      • /statistics/cam_parking_area - 카메라 주차 통계');
+    print('      • /graphData - 그래프 데이터');
+    print('');
+    print('   ⚙️  시스템 & 설정 (6개)');
+    print('      • /settings - 일반 설정');
+    print('      • /settings/db_management - DB 관리');
+    print('      • /isalive - 서비스 상태');
+    print('      • /ping - DB Ping');
+    print('      • /getResource - 리소스 조회');
+    print('');
   }
 
   /// 초기 설정 실행
