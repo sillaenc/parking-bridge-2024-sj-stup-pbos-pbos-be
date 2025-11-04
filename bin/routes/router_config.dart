@@ -40,6 +40,9 @@ import 'led_cal.dart';
 import 'ping.dart';
 import 'error.dart';
 
+// 레거시 호환성 레이어 import
+import 'legacy/legacy_pabi.dart'; // 레거시 /pabi 경로 호환
+
 // 새로 리팩토링된 API들 import
 import 'central_dashboard_api.dart';
 import 'vehicle_info_api.dart';
@@ -403,6 +406,9 @@ class RouterConfig {
     final multipleElectricSigns =
         MultipleElectricSigns(manageAddress: _manageAddress);
 
+    // 레거시 호환성 레이어 (리팩토링된 서비스 사용)
+    final legacyPabi = LegacyPabi(manageAddress: _manageAddress);
+
     // 기존 경로들을 임시로 유지 (Deprecated)
     _router.mount('/confirm_account_list', confirmAccountList.router);
     _router.mount('/create_admin', createAdmin.router);
@@ -413,8 +419,16 @@ class RouterConfig {
     _router.mount('/settings_cam_parking_area', settingsCamParkingArea.router);
     _router.mount('/base_information', baseInformation.router);
     _router.mount('/multiple_electric_signs', multipleElectricSigns.router);
+    
+    // 레거시 차량 정보 API (/pabi/tag, /pabi/car)
+    _router.mount('/pabi', legacyPabi.router);
 
     print('⚠️  레거시 라우트가 활성화되었습니다. 향후 버전에서 제거될 예정입니다.');
+    print('   • /login_setting - 로그인 및 인증');
+    print('   • /pabi - 차량 정보 조회 (tag/car)');
+    print('   • /settings_account - 사용자 관리');
+    print('   • /settings_parking_area - 주차 구역 관리');
+    print('   • ... 기타 레거시 경로');
   }
 
   /// 초기 설정 실행
