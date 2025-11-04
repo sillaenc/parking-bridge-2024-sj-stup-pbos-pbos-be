@@ -41,32 +41,62 @@ class Settings {
         return Response.badRequest(body: 'Error: $e');
       }
     });
-    router.post('/get', (Request request) async{
+    /// GET 요청으로 설정값 조회
+    /// Query parameter로 key를 받음: GET /api/v1/settings/general/get?key=somekey
+    router.get('/get', (Request request) async{
       try {
-        var payload = await request.readAsString();
-        var input = jsonDecode(payload);
-        var check = input['key'];
+        // Query parameter에서 key 추출
+        final key = request.url.queryParameters['key'];
+        
+        // key가 없는 경우 400 에러 반환
+        if (key == null || key.isEmpty) {
+          return Response.badRequest(
+            body: jsonEncode({
+              'success': false,
+              'message': 'key 파라미터가 필요합니다.',
+              'error': 'MISSING_KEY_PARAMETER',
+              'timestamp': DateTime.now().toIso8601String(),
+            }),
+            headers: {'Content-Type': 'application/json'},
+          );
+        }
+        
+        // DB 쿼리 실행
         var body = {
           "transaction": [
             {
               "query": "#get_settings",
-                "values": {"key": check}
+              "values": {"key": key}
             }
           ]
         };
+        
         var result = await http.post(
           Uri.parse(url!),
           headers: headers,
           body: jsonEncode(body),
         );
+        
         var decodedresult = jsonDecode(utf8.decode(result.bodyBytes));
         var resultSet = decodedresult['results'][0]['resultSet'][0];
-        print(resultSet);
-        return Response.ok(jsonEncode(resultSet), headers: {'Content-Type': 'application/json'});
+        print('Settings.get - key: $key, result: $resultSet');
+        
+        return Response.ok(
+          jsonEncode(resultSet), 
+          headers: {'Content-Type': 'application/json'}
+        );
       } catch (e, stackTrace) {
-        print('Error: $e');
-        print('StackTrace: $stackTrace');
-        return Response.badRequest(body: 'Error: $e');
+        print('Settings.get 오류: $e');
+        print('스택 트레이스: $stackTrace');
+        return Response.internalServerError(
+          body: jsonEncode({
+            'success': false,
+            'message': '설정 조회 중 오류가 발생했습니다.',
+            'error': e.toString(),
+            'timestamp': DateTime.now().toIso8601String(),
+          }),
+          headers: {'Content-Type': 'application/json'},
+        );
       }
     });
 

@@ -3026,6 +3026,106 @@ paths:
         '200':
           description: 서비스 정보
 
+  # ======== 일반 설정 관리 API ========
+  /api/v1/settings/general/get:
+    get:
+      tags: [settings]
+      summary: 설정값 조회 (GET)
+      description: |
+        특정 키의 설정값을 조회합니다.
+        쿼리 파라미터로 key를 전달합니다.
+      parameters:
+        - name: key
+          in: query
+          required: true
+          schema:
+            type: string
+          description: 조회할 설정의 키
+          example: "display_mode"
+      responses:
+        '200':
+          description: 설정값 조회 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  key:
+                    type: string
+                    description: 설정 키
+                  value:
+                    type: string
+                    description: 설정 값 (JSON 문자열)
+              example:
+                key: "display_mode"
+                value: "{\"mode\":\"full\",\"refresh\":5000}"
+        '400':
+          description: key 파라미터 누락
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "key 파라미터가 필요합니다."
+                  error:
+                    type: string
+                    example: "MISSING_KEY_PARAMETER"
+                  timestamp:
+                    type: string
+                    format: date-time
+        '500':
+          description: 서버 오류
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  error:
+                    type: string
+                  timestamp:
+                    type: string
+
+  /api/v1/settings/general:
+    post:
+      tags: [settings]
+      summary: 설정값 저장/업데이트
+      description: |
+        키-값 형태의 설정을 저장하거나 업데이트합니다.
+        설정값은 자동으로 JSON 문자열로 변환되어 저장됩니다.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - key
+                - value
+              properties:
+                key:
+                  type: string
+                  description: 설정 키
+                  example: "display_mode"
+                value:
+                  description: 설정 값 (모든 타입 가능, JSON으로 변환됨)
+                  example: {"mode": "full", "refresh": 5000}
+      responses:
+        '200':
+          description: 설정 저장 성공
+        '400':
+          description: 잘못된 요청
+        '500':
+          description: 서버 오류
+
   # ======== 추가 모니터링 API ========
   /api/v1/monitoring/health/isalive:
     get:
@@ -3233,6 +3333,42 @@ paths:
       responses:
         '200':
           description: 설정 저장 완료
+
+  /settings/get:
+    post:
+      tags: [settings]
+      summary: 레거시 설정 조회 (최상위 경로 - POST 방식)
+      deprecated: true
+      description: |
+        레거시 방식으로 POST 요청으로 설정값을 조회합니다.
+        새로운 API는 GET /api/v1/settings/general/get?key=xxx 를 사용하세요.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - key
+              properties:
+                key:
+                  type: string
+                  description: 조회할 설정의 키
+                  example: "display_mode"
+      responses:
+        '200':
+          description: 설정값 조회 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  key:
+                    type: string
+                  value:
+                    type: string
+        '400':
+          description: 잘못된 요청
 
   # ======== Swagger 문서 제공 API ========
   /docs:
