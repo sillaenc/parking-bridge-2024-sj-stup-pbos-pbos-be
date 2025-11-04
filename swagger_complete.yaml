@@ -84,6 +84,8 @@ tags:
     description: 엔진 데이터 처리 (6개 엔드포인트)
   - name: utilities
     description: 리소스 관리 및 유틸리티 (10개 엔드포인트) - 주차장 리소스, 그래프 데이터
+  - name: rtsp
+    description: RTSP 캡처 관리 (10개 엔드포인트) - 적응형 배치 처리, 블랙리스트 관리
 
 paths:
   # ======== 1. 인증 API (7개 신규 + 10개 레거시) ========
@@ -1509,6 +1511,308 @@ paths:
                     type: integer
                   blinkPattern:
                     type: string
+
+  # ======== RTSP 캡처 API (RTSP Capture) ========
+  /api/v1/rtsp/info:
+    get:
+      tags: [rtsp]
+      summary: RTSP 서비스 정보 조회
+      description: RTSP 캡처 서비스의 설정 및 상태 정보를 조회합니다.
+      responses:
+        '200':
+          description: 서비스 정보
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+
+  /api/v1/rtsp/stats:
+    get:
+      tags: [rtsp]
+      summary: RTSP 캡처 통계 조회
+      description: 기본 RTSP 캡처 통계를 조회합니다.
+      responses:
+        '200':
+          description: 통계 정보
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+
+  /api/v1/rtsp/adaptive-stats:
+    get:
+      tags: [rtsp]
+      summary: 적응형 통계 정보 조회 (신규)
+      description: |
+        적응형 배치 처리 모드의 상세 통계를 조회합니다.
+        - 현재 배치 크기 (5~40개 동적 조정)
+        - 블랙리스트 정보
+        - 주소별 평균 응답 시간
+        - 실패 횟수 및 배치 조정 횟수
+      responses:
+        '200':
+          description: 적응형 통계 정보
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      adaptive_mode:
+                        type: boolean
+                        description: 적응형 모드 활성화 여부
+                      current_batch_size:
+                        type: integer
+                        description: 현재 배치 크기
+                      batch_size_range:
+                        type: object
+                        properties:
+                          min:
+                            type: integer
+                            example: 5
+                          max:
+                            type: integer
+                            example: 40
+                      blacklist:
+                        type: object
+                        properties:
+                          count:
+                            type: integer
+                          addresses:
+                            type: array
+                            items:
+                              type: string
+                          last_reset:
+                            type: string
+                            format: date-time
+                      statistics:
+                        type: object
+                        properties:
+                          tracked_addresses:
+                            type: integer
+                          batch_adjustments:
+                            type: integer
+                          blacklist_additions:
+                            type: integer
+                          blacklist_removals:
+                            type: integer
+                      performance:
+                        type: object
+                        properties:
+                          average_response_times:
+                            type: object
+                            additionalProperties:
+                              type: integer
+                          failure_counts:
+                            type: object
+                            additionalProperties:
+                              type: integer
+
+  /api/v1/rtsp/health:
+    get:
+      tags: [rtsp]
+      summary: RTSP 서비스 상태 확인
+      description: RTSP 캡처 서비스의 헬스 체크를 수행합니다.
+      responses:
+        '200':
+          description: 서비스 정상
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+
+  /api/v1/rtsp/trigger:
+    post:
+      tags: [rtsp]
+      summary: 수동 캡처 실행
+      description: 스케줄과 무관하게 즉시 RTSP 캡처를 실행합니다.
+      responses:
+        '200':
+          description: 캡처 시작됨
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+
+  /api/v1/rtsp/scheduler:
+    get:
+      tags: [rtsp]
+      summary: 스케줄러 상태 조회
+      description: RTSP 캡처 스케줄러의 상태를 조회합니다.
+      responses:
+        '200':
+          description: 스케줄러 상태
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+
+  /api/v1/rtsp/blacklist/reset:
+    post:
+      tags: [rtsp]
+      summary: 블랙리스트 초기화 (신규)
+      description: |
+        모든 블랙리스트와 실패 카운트를 초기화합니다.
+        연속 실패로 제외된 카메라들을 다시 시도하고 싶을 때 사용합니다.
+      responses:
+        '200':
+          description: 블랙리스트 초기화 완료
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "블랙리스트가 초기화되었습니다"
+        '400':
+          description: 적응형 모드가 비활성화됨
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "적응형 모드가 활성화되지 않았습니다"
+
+  /api/v1/rtsp/blacklist/{address}:
+    delete:
+      tags: [rtsp]
+      summary: 블랙리스트에서 특정 주소 제거 (신규)
+      description: |
+        지정된 RTSP 주소를 블랙리스트에서 제거합니다.
+        특정 카메라가 복구되었을 때 수동으로 블랙리스트에서 제거할 수 있습니다.
+      parameters:
+        - name: address
+          in: path
+          required: true
+          description: 제거할 RTSP 주소 (URL 인코딩 필요)
+          schema:
+            type: string
+          example: "rtsp%3A%2F%2Fadmin%3Apassword%40192.168.1.100%3A554%2Fstream"
+      responses:
+        '200':
+          description: 블랙리스트에서 제거됨
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "블랙리스트에서 제거되었습니다"
+                  data:
+                    type: object
+                    properties:
+                      address:
+                        type: string
+        '404':
+          description: 블랙리스트에 해당 주소 없음
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "블랙리스트에 해당 주소가 없습니다"
+
+  /api/v1/rtsp/image/{tag}:
+    get:
+      tags: [rtsp]
+      summary: 특정 태그의 최신 캡처 이미지 조회
+      description: 지정된 태그의 가장 최근에 캡처된 이미지를 조회합니다.
+      parameters:
+        - name: tag
+          in: path
+          required: true
+          description: 주차 구역 태그
+          schema:
+            type: string
+          example: "F1_S17_1_N177"
+      responses:
+        '200':
+          description: 이미지 조회 성공
+          content:
+            image/jpeg:
+              schema:
+                type: string
+                format: binary
+        '404':
+          description: 태그를 찾을 수 없음
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+
+  /api/v1/rtsp/list:
+    get:
+      tags: [rtsp]
+      summary: 모든 RTSP 설정 조회
+      description: 등록된 모든 RTSP 주소와 설정을 조회합니다.
+      responses:
+        '200':
+          description: RTSP 설정 목록
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: array
+                    items:
+                      type: object
 
 components:
   securitySchemes:

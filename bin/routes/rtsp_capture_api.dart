@@ -11,6 +11,7 @@ import '../config/rtsp_config.dart';
 import '../data/manage_address.dart';
 import '../models/rtsp_capture_models.dart';
 import '../services/rtsp_capture_service.dart';
+import '../services/rtsp_adaptive_capture_service.dart'; // 적응형 서비스
 import '../services/rtsp_scheduler_service.dart';
 import '../utils/rtsp_utils.dart';
 
@@ -61,6 +62,15 @@ class RtspCaptureApi {
 
     // GET /api/v1/rtsp/stats - 통계 정보
     router.get('/stats', _handleStats);
+
+    // GET /api/v1/rtsp/adaptive-stats - 적응형 통계 정보
+    router.get('/adaptive-stats', _handleAdaptiveStats);
+
+    // POST /api/v1/rtsp/blacklist/reset - 블랙리스트 초기화
+    router.post('/blacklist/reset', _handleBlacklistReset);
+
+    // DELETE /api/v1/rtsp/blacklist/<address> - 블랙리스트에서 제거
+    router.delete('/blacklist/<address>', _handleBlacklistRemove);
 
     // GET /api/v1/rtsp/scheduler - 스케줄러 상태
     router.get('/scheduler', _handleSchedulerStatus);
@@ -427,6 +437,128 @@ class RtspCaptureApi {
       print('Error in stats: $e');
       return _createErrorResponse(
         'Failed to retrieve stats',
+        statusCode: 500,
+      );
+    }
+  }
+
+  /// 적응형 통계 정보 조회
+  ///
+  /// RtspAdaptiveCaptureService의 상세 통계를 반환합니다.
+  /// - 현재 배치 크기
+  /// - 블랙리스트 정보
+  /// - 주소별 응답 시간
+  /// - 실패 횟수
+  Future<Response> _handleAdaptiveStats(Request request) async {
+    try {
+      // 적응형 서비스 타입 확인
+      final service = _captureService;
+      if (service is! RtspAdaptiveCaptureService) {
+        return Response.ok(
+          jsonEncode({
+            'success': false,
+            'message': '적응형 모드가 활성화되지 않았습니다',
+            'data': {
+              'adaptive_mode': false,
+              'service_type': 'basic',
+            },
+          }),
+          headers: _getCorsHeaders(),
+        );
+      }
+
+      final adaptiveStats = service.getAdaptiveStats();
+
+      return Response.ok(
+        jsonEncode({
+          'success': true,
+          'message': '적응형 통계 조회 성공',
+          'data': adaptiveStats,
+        }),
+        headers: _getCorsHeaders(),
+      );
+    } catch (e) {
+      print('Error in adaptive stats: $e');
+      return _createErrorResponse(
+        'Failed to retrieve adaptive stats',
+        statusCode: 500,
+      );
+    }
+  }
+
+  /// 블랙리스트 초기화
+  ///
+  /// 모든 블랙리스트와 실패 카운트를 초기화합니다.
+  Future<Response> _handleBlacklistReset(Request request) async {
+    try {
+      final service = _captureService;
+      if (service is! RtspAdaptiveCaptureService) {
+        return _createErrorResponse(
+          '적응형 모드가 활성화되지 않았습니다',
+          statusCode: 400,
+        );
+      }
+
+      service.resetBlacklist();
+
+      return Response.ok(
+        jsonEncode({
+          'success': true,
+          'message': '블랙리스트가 초기화되었습니다',
+        }),
+        headers: _getCorsHeaders(),
+      );
+    } catch (e) {
+      print('Error in blacklist reset: $e');
+      return _createErrorResponse(
+        'Failed to reset blacklist',
+        statusCode: 500,
+      );
+    }
+  }
+
+  /// 블랙리스트에서 특정 주소 제거
+  ///
+  /// 지정된 RTSP 주소를 블랙리스트에서 제거합니다.
+  Future<Response> _handleBlacklistRemove(
+      Request request, String address) async {
+    try {
+      final service = _captureService;
+      if (service is! RtspAdaptiveCaptureService) {
+        return _createErrorResponse(
+          '적응형 모드가 활성화되지 않았습니다',
+          statusCode: 400,
+        );
+      }
+
+      // URL 디코딩 (경로 파라미터로 전달된 경우)
+      final decodedAddress = Uri.decodeComponent(address);
+
+      final removed = service.removeFromBlacklist(decodedAddress);
+
+      if (removed) {
+        return Response.ok(
+          jsonEncode({
+            'success': true,
+            'message': '블랙리스트에서 제거되었습니다',
+            'data': {'address': decodedAddress},
+          }),
+          headers: _getCorsHeaders(),
+        );
+      } else {
+        return Response.notFound(
+          jsonEncode({
+            'success': false,
+            'message': '블랙리스트에 해당 주소가 없습니다',
+            'data': {'address': decodedAddress},
+          }),
+          headers: _getCorsHeaders(),
+        );
+      }
+    } catch (e) {
+      print('Error in blacklist remove: $e');
+      return _createErrorResponse(
+        'Failed to remove from blacklist',
         statusCode: 500,
       );
     }

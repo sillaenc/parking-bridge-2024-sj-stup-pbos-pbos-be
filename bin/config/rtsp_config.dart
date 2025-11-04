@@ -59,10 +59,60 @@ class RtspConfig {
   /// 서비스 상태 확인 주기 (초)
   static const int HEALTH_CHECK_INTERVAL_SECONDS = 30;
 
-  /// 동시 캡처 최대 개수
+  /// 동시 캡처 최대 개수 (기존 방식용)
   /// 시스템 부하를 고려하여 한 번에 처리할 최대 RTSP 주소 수를 제한
   /// 80개 주소가 있어도 20개씩 4배치로 나눠서 처리
   static const int MAX_CONCURRENT_CAPTURES = 20;
+
+  // === 적응형 배치 처리 설정 ===
+
+  /// 최소 동시 캡처 개수 (적응형)
+  /// 성공률이 낮을 때 배치 크기의 하한선
+  static const int MIN_CONCURRENT_CAPTURES = 5;
+
+  /// 최대 동시 캡처 개수 (적응형)
+  /// 성공률이 높을 때 배치 크기의 상한선
+  static const int MAX_CONCURRENT_CAPTURES_ADAPTIVE = 40;
+
+  /// 초기 동시 캡처 개수 (적응형)
+  /// 적응형 배치 처리 시작 시 초기 배치 크기
+  static const int INITIAL_CONCURRENT_CAPTURES = 20;
+
+  /// 배치 성공률 임계값 - 높음
+  /// 이 값 이상이면 배치 크기 증가
+  static const double BATCH_SUCCESS_THRESHOLD_HIGH = 0.9;
+
+  /// 배치 성공률 임계값 - 낮음
+  /// 이 값 미만이면 배치 크기 감소
+  static const double BATCH_SUCCESS_THRESHOLD_LOW = 0.6;
+
+  /// 배치 크기 조정 단위
+  /// 한 번에 증가/감소시킬 배치 크기
+  static const int BATCH_SIZE_ADJUSTMENT_STEP = 5;
+
+  /// 최대 연속 실패 허용 횟수
+  /// 이 횟수 이상 연속 실패 시 블랙리스트에 추가
+  static const int MAX_CONSECUTIVE_FAILURES = 5;
+
+  /// 블랙리스트 리셋 주기 (분)
+  /// 이 시간마다 블랙리스트 초기화 (재시도 기회 제공)
+  static const int BLACKLIST_RESET_MINUTES = 30;
+
+  /// 배치 간 대기 시간 - 성공률 매우 높음 (밀리초)
+  static const int BATCH_WAIT_TIME_EXCELLENT = 50;
+
+  /// 배치 간 대기 시간 - 성공률 높음 (밀리초)
+  static const int BATCH_WAIT_TIME_GOOD = 100;
+
+  /// 배치 간 대기 시간 - 성공률 보통 (밀리초)
+  static const int BATCH_WAIT_TIME_FAIR = 200;
+
+  /// 배치 간 대기 시간 - 성공률 낮음 (밀리초)
+  static const int BATCH_WAIT_TIME_POOR = 500;
+
+  /// 배치 소요 시간 임계값 (초)
+  /// 배치 크기 증가 시 이 값보다 빨라야 함
+  static const int BATCH_DURATION_THRESHOLD_SECONDS = 10;
 
   /// 이미지 파일 확장자
   static String get imageExtension => '.$IMAGE_FORMAT';

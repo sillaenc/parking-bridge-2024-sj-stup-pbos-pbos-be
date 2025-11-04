@@ -19,7 +19,7 @@ import 'routes/router_config.dart';
 import 'middleware/cors_middleware.dart';
 import 'services/periodic_task_service.dart';
 import 'services/database_client.dart';
-import 'services/rtsp_capture_service.dart';
+import 'services/rtsp_adaptive_capture_service.dart'; // 적응형 캡처 서비스
 import 'services/rtsp_scheduler_service.dart';
 import 'routes/rtsp_capture_api.dart';
 
@@ -106,13 +106,17 @@ Future<void> _initializeRtspService(
   ServerConfig serverConfig,
 ) async {
   try {
-    print('\n🎬 RTSP 캡처 서비스 초기화 중...');
+    print('\n🎬 RTSP 적응형 캡처 서비스 초기화 중...');
 
     // DatabaseClient 생성
     final databaseClient = DatabaseClient();
 
-    // RtspCaptureService 생성
-    final rtspCaptureService = RtspCaptureService(databaseClient);
+    // RtspAdaptiveCaptureService 생성 (동적 배치 크기 조정)
+    final rtspCaptureService = RtspAdaptiveCaptureService(databaseClient);
+    print('✨ 적응형 배치 처리 모드 활성화');
+    print('   배치 크기: 5~40개 동적 조정');
+    print('   블랙리스트 관리: 연속 5회 실패 시 제외');
+    print('   우선순위 정렬: 응답 시간 빠른 순');
 
     // Database URL 확인
     final databaseUrl = serverConfig.manageAddress.displayDbAddr;
