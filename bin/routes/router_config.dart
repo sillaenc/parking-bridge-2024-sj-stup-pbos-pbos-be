@@ -392,7 +392,7 @@ class RouterConfig {
   /// 기존 경로 호환성을 위한 임시 라우트 (단계적 마이그레이션용)
   void _configureLegacyRoutes() {
     // TODO: 클라이언트 마이그레이션 완료 후 제거 예정
-    
+
     // 인증 및 사용자 관리
     final confirmAccountList =
         ConfirmAccountList(manageAddress: _manageAddress);
@@ -400,27 +400,27 @@ class RouterConfig {
     final loginMain = LoginMain(manageAddress: _manageAddress);
     final loginSetting = LoginSetting(confirmAccountList: confirmAccountList);
     final settingsAccount = SettingsAccount(manageAddress: _manageAddress);
-    
+
     // 주차 관리
     final settingsParkingArea =
         SettingsParkingArea(manageAddress: _manageAddress);
     final settingsCamParkingArea =
         SettingsCamParkingArea(manageAddress: _manageAddress);
     final baseInformation = BaseInformation(manageAddress: _manageAddress);
-    
+
     // 전광판 및 디스플레이
     final multipleElectricSigns =
         MultipleElectricSigns(manageAddress: _manageAddress);
     final billBoard = BillBoard(manageAddress: _manageAddress);
     final display = Display(manageAddress: _manageAddress);
     final ledCal = LedCal(manageAddress: _manageAddress);
-    
+
     // 통계 및 데이터
     final statisticsCamParkingArea =
         StatisticsCamParkingArea(manageAddress: _manageAddress);
     final graphDataInstance = graphData(manageAddress: _manageAddress);
     final central = Central(manageAddress: _manageAddress);
-    
+
     // 시스템 및 모니터링
     final settingsDbManagement =
         SettingsDbManagement(manageAddress: _manageAddress);
@@ -433,34 +433,38 @@ class RouterConfig {
     final legacyPabi = LegacyPabi(manageAddress: _manageAddress);
 
     // ========== 레거시 경로 마운트 (23개) ==========
-    
-    // 인증 및 사용자 (5개)
+
+    // 인증 및 사용자 (6개)
     _router.mount('/confirm_account_list', confirmAccountList.router);
     _router.mount('/create_admin', createAdmin.router);
     _router.mount('/parking_status', loginMain.router);
     _router.mount('/login_setting', loginSetting.router);
-    _router.mount('/settings_account', settingsAccount.router); // /settings/account 버전
-    
-    // 주차 관리 (3개)
-    _router.mount('/settings_parking_area', settingsParkingArea.router);
-    _router.mount('/settings_cam_parking_area', settingsCamParkingArea.router);
+    _router.mount('/settings_account', settingsAccount.router); // 언더스코어 버전
+    _router.mount('/settings/account', settingsAccount.router); // 슬래시 버전 (레거시)
+
+    // 주차 관리 (5개)
+    _router.mount('/settings_parking_area', settingsParkingArea.router); // 언더스코어 버전
+    _router.mount('/settings/parking_area', settingsParkingArea.router); // 슬래시 버전 (레거시)
+    _router.mount('/settings_cam_parking_area', settingsCamParkingArea.router); // 언더스코어 버전
+    _router.mount('/settings/cam_parking_area', settingsCamParkingArea.router); // 슬래시 버전 (레거시)
     _router.mount('/base_information', baseInformation.router);
     _router.mount('/base', baseInformation.router); // 추가: /base 경로
-    
+
     // 차량 정보 (1개)
     _router.mount('/pabi', legacyPabi.router); // /pabi/tag, /pabi/car
-    
+
     // 전광판 및 디스플레이 (4개)
     _router.mount('/multiple_electric_signs', multipleElectricSigns.router);
     _router.mount('/billboard', billBoard.router); // 추가
     _router.mount('/display', display.router); // 추가
     _router.mount('/led_cal', ledCal.router); // 추가
-    
+
     // 통계 및 데이터 (3개)
-    _router.mount('/statistics/cam_parking_area', statisticsCamParkingArea.router); // 추가
+    _router.mount(
+        '/statistics/cam_parking_area', statisticsCamParkingArea.router); // 추가
     _router.mount('/graphData', graphDataInstance.router); // 추가
     _router.mount('/central', central.router); // 추가
-    
+
     // 시스템 및 설정 (6개)
     _router.mount('/settings/db_management', settingsDbManagement.router); // 추가
     _router.mount('/settings', settings.router); // 추가
@@ -469,21 +473,24 @@ class RouterConfig {
     _router.mount('/getResource', getResource.router); // 추가
 
     print('');
-    print('⚠️  레거시 라우트 23개가 활성화되었습니다. 향후 버전에서 제거될 예정입니다.');
+    print('⚠️  레거시 라우트 26개가 활성화되었습니다. 향후 버전에서 제거될 예정입니다.');
     print('');
     print('📋 레거시 API 경로 목록:');
-    print('   🔐 인증 & 사용자 (5개)');
+    print('   🔐 인증 & 사용자 (6개)');
     print('      • /login_setting - 로그인 및 인증');
     print('      • /parking_status - 로그인 메인');
     print('      • /confirm_account_list - 계정 확인');
     print('      • /create_admin - 관리자 생성');
-    print('      • /settings_account - 사용자 관리');
+    print('      • /settings_account - 사용자 관리 (언더스코어)');
+    print('      • /settings/account - 사용자 관리 (슬래시) ✅');
     print('');
-    print('   🅿️  주차 관리 (4개)');
+    print('   🅿️  주차 관리 (6개)');
     print('      • /base - 주차장 기본 정보');
     print('      • /base_information - 주차장 기본 정보 (별칭)');
-    print('      • /settings_parking_area - 주차 구역 관리');
-    print('      • /settings_cam_parking_area - 카메라 주차 구역');
+    print('      • /settings_parking_area - 주차 구역 (언더스코어)');
+    print('      • /settings/parking_area - 주차 구역 (슬래시) ✅');
+    print('      • /settings_cam_parking_area - 카메라 주차 (언더스코어)');
+    print('      • /settings/cam_parking_area - 카메라 주차 (슬래시) ✅');
     print('');
     print('   🚗 차량 정보 (1개)');
     print('      • /pabi - 차량 정보 조회 (tag/car)');
