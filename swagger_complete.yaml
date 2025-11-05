@@ -394,9 +394,13 @@ paths:
                   example: "홍길동"
                 userlevel:
                   type: integer
+                  description: 사용자 레벨 (0=Super Admin, 1=Admin, 2=User, 3=Guest)
+                  enum: [0, 1, 2, 3]
                   example: 1
                 isActivated:
                   type: integer
+                  description: 활성화 상태 (0=비활성, 1=활성)
+                  enum: [0, 1]
                   example: 1
       responses:
         '201':
@@ -441,7 +445,8 @@ paths:
                   example: "김철수"
                 userlevel:
                   type: integer
-                  description: 사용자 레벨 (1=일반, 2=관리자)
+                  description: 사용자 레벨 (0=Super Admin, 1=Admin, 2=User, 3=Guest)
+                  enum: [0, 1, 2, 3]
                   example: 2
                 isActivated:
                   type: integer

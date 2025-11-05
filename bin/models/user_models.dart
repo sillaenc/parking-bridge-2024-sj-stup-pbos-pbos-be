@@ -284,6 +284,7 @@ class UserConstants {
   static const int maxPasswordLength = 100;
 
   // 사용자 레벨 상수
+  static const int userLevelSuper = 0;  // 최고 관리자
   static const int userLevelAdmin = 1;
   static const int userLevelUser = 2;
   static const int userLevelGuest = 3;

@@ -48,8 +48,9 @@ class UserValidator {
   }
 
   /// 사용자 레벨 유효성 검사
+  /// 0 (Super Admin), 1 (Admin), 2 (User), 3 (Guest) 허용
   static bool isValidUserLevel(int userLevel) {
-    return userLevel >= UserConstants.userLevelAdmin &&
+    return userLevel >= UserConstants.userLevelSuper &&
         userLevel <= UserConstants.userLevelGuest;
   }
 
