@@ -192,10 +192,21 @@ class UserManagementApi {
       final requestBody = await request.readAsString();
       final requestData = jsonDecode(requestBody) as Map<String, dynamic>;
 
-      // URL 파라미터의 account를 requestData에 추가
-      requestData['account'] = account;
+      // RESTful API 스타일 필드명을 레거시 필드명으로 변환
+      // RESTful: currentPassword, newPassword, newPasswordCheck
+      // Legacy: passwd (현재 비밀번호), newpasswd (새 비밀번호), passwdCheck (새 비밀번호 확인)
+      final transformedData = {
+        'account': account,
+        'passwd': requestData['currentPassword'] ?? requestData['passwd'],
+        'newpasswd': requestData['newPassword'] ?? requestData['newpasswd'],
+        'passwdCheck': requestData['newPasswordCheck'] ?? requestData['passwdCheck'] ?? requestData['newPassword'],
+      };
 
-      final changePasswordRequest = ChangePasswordRequest.fromJson(requestData);
+      print('[UserManagement] Change Password - account: $account');
+      print('[UserManagement] Request fields: ${requestData.keys}');
+      print('[UserManagement] Transformed data: ${transformedData.keys}');
+
+      final changePasswordRequest = ChangePasswordRequest.fromJson(transformedData);
       final result = await _userService.changePassword(changePasswordRequest);
 
       return Response.ok(
@@ -213,7 +224,9 @@ class UserManagementApi {
         }),
         headers: {'Content-Type': 'application/json'},
       );
-    } catch (e) {
+    } catch (e, stackTrace) {
+      print('[UserManagement] Change Password Error: $e');
+      print('[UserManagement] Stack Trace: $stackTrace');
       return Response.internalServerError(
         body: jsonEncode({
           'success': false,

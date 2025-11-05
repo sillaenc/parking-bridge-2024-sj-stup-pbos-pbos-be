@@ -260,6 +260,16 @@ class UserService {
         );
       }
 
+      // 현재 비밀번호 검증
+      final currentHashedPassword = PasswordHasher.hashPassword(request.passwd);
+      if (existingUser.passwd != currentHashedPassword) {
+        throw UserServiceException(
+          UserConstants.messagePasswordWrong,
+          UserConstants.errorUnauthorized,
+          401,
+        );
+      }
+
       // 새 비밀번호 해싱
       final newHashedPassword = PasswordHasher.hashPassword(request.newpasswd);
 

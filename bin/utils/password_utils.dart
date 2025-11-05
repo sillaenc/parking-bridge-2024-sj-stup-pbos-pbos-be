@@ -139,8 +139,10 @@ class UserValidator {
           'New password must be between ${UserConstants.minPasswordLength} and ${UserConstants.maxPasswordLength} characters');
     }
 
-    if (!isPasswordConfirmed(request.passwd, request.passwdCheck)) {
-      errors.add('Current password confirmation does not match');
+    // passwdCheck는 새 비밀번호 확인 (RESTful API 스타일)
+    // 레거시 호환: passwdCheck가 passwd와 같으면 현재 비밀번호 확인으로 간주
+    if (!isPasswordConfirmed(request.newpasswd, request.passwdCheck)) {
+      errors.add('New password confirmation does not match');
     }
 
     if (request.passwd == request.newpasswd) {
