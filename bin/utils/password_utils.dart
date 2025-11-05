@@ -48,10 +48,10 @@ class UserValidator {
   }
 
   /// 사용자 레벨 유효성 검사
-  /// 0 (Super Admin), 1 (Admin), 2 (User), 3 (Guest) 허용
-  static bool isValidUserLevel(int userLevel) {
-    return userLevel >= UserConstants.userLevelSuper &&
-        userLevel <= UserConstants.userLevelGuest;
+  /// 1 (User), 2 (Control), 3 (Desk), 4 (Display) 허용
+  static bool isValidUserLevel(int level) {
+    return level >= UserConstants.userLevel &&
+        level <= UserConstants.displayLevel;
   }
 
   /// 활성화 상태 유효성 검사

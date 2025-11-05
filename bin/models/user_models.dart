@@ -284,10 +284,10 @@ class UserConstants {
   static const int maxPasswordLength = 100;
 
   // 사용자 레벨 상수
-  static const int userLevelSuper = 0;  // 최고 관리자
-  static const int userLevelAdmin = 1;
-  static const int userLevelUser = 2;
-  static const int userLevelGuest = 3;
+  static const int userLevel = 1;      // 일반 사용자
+  static const int controlLevel = 2;   // 제어 레벨
+  static const int deskLevel = 3;      // 데스크 레벨
+  static const int displayLevel = 4;   // 디스플레이 레벨
 
   // 활성화 상태
   static const int userActivated = 1;
