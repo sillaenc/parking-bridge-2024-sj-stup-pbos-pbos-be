@@ -18,29 +18,91 @@
 
 ---
 
+## 🔄 주요 레거시 → RESTful API 매핑
+
+### ⭐ 핵심 변경사항
+
+#### 1. **설정 조회 API** (가장 중요!)
+```
+레거시: POST /settings/get
+        Body: {"key": "display_mode"}
+
+   ↓↓↓
+
+RESTful: GET /api/v1/settings/general/get?key=display_mode
+         Query Parameter 사용
+
+✅ 두 방식 모두 지원 (하위 호환)
+```
+
+#### 2. **차량 정보 조회**
+```
+레거시: POST /pabi/tag
+        Body: {"tag": "ABC123"}
+
+   ↓↓↓
+
+RESTful: GET /api/v1/vehicle/by-tag?tag=ABC123
+         또는
+         POST /api/v1/vehicle/by-tag
+         Body: {"tag": "ABC123"}
+```
+
+#### 3. **사용자 관리**
+```
+레거시: POST /settings/account/deleteUser
+        Body: {"account": "user123"}
+
+   ↓↓↓
+
+RESTful: DELETE /api/v1/users/user123
+         Path Parameter 사용
+```
+
+#### 4. **통계 API**
+```
+레거시: GET /statistics/cam_parking_area/oneDay
+
+   ↓↓↓
+
+RESTful: GET /api/v1/statistics/daily
+         더 간결한 경로
+```
+
+#### 5. **인증 API**
+```
+레거시: POST /login_setting
+        Body: {username, password}
+
+   ↓↓↓
+
+RESTful: POST /api/v1/auth/login
+         Body: {username, password}
+         Response: JWT 토큰 포함
+```
+
+---
+
 ## 1️⃣ 그래프/통계 엔드포인트 (graphEndPoint)
 
 ### ✅ 완전 호환 (7/7)
 
-| 키 | 레거시 경로 | 현재 상태 | 리팩토링 경로 |
-|---|------------|----------|--------------|
-| `oneDay` | `/statistics/cam_parking_area/oneDay` | ✅ 작동 | 동일 |
-| `week` | `/statistics/cam_parking_area/oneWeek` | ✅ 작동 | 동일 |
-| `month` | `/statistics/cam_parking_area/oneMonth` | ✅ 작동 | 동일 |
-| `year` | `/statistics/cam_parking_area/oneYear` | ✅ 작동 | 동일 |
-| `search` | `/statistics/cam_parking_area/searchDay` | ✅ 작동 | 동일 |
-| `graphData` | `/graphData` | ✅ 작동 | 동일 |
-| `graphRangeData` | `/statistics/cam_parking_area/searchgraph` | ✅ 작동 | 동일 |
+| 키 | 레거시 경로 | 현재 상태 | RESTful API 경로 |
+|---|------------|----------|------------------|
+| `oneDay` | `GET /statistics/cam_parking_area/oneDay` | ✅ 작동 | `GET /api/v1/statistics/daily` |
+| `week` | `GET /statistics/cam_parking_area/oneWeek` | ✅ 작동 | `GET /api/v1/statistics/weekly` |
+| `month` | `GET /statistics/cam_parking_area/oneMonth` | ✅ 작동 | `GET /api/v1/statistics/monthly` |
+| `year` | `GET /statistics/cam_parking_area/oneYear` | ✅ 작동 | `GET /api/v1/statistics/yearly` |
+| `search` | `POST /statistics/cam_parking_area/searchDay` | ✅ 작동 | `POST /api/v1/statistics/custom-period` |
+| `graphData` | `POST /graphData` | ✅ 작동 | `POST /api/v1/statistics/graph-data` |
+| `graphRangeData` | `POST /statistics/cam_parking_area/searchgraph` | ✅ 작동 | `POST /api/v1/statistics/graph` |
 
 **마운트 위치**:
-- `/statistics/cam_parking_area` → `StatisticsCamParkingArea` 클래스
-- `/graphData` → `graphData` 클래스
+- `/statistics/cam_parking_area` → `StatisticsCamParkingArea` 클래스 (레거시)
+- `/graphData` → `graphData` 클래스 (레거시)
+- `/api/v1/statistics/*` → `StatisticsApi` 클래스 (RESTful)
 
-**RESTful 경로** (추가):
-- `/api/v1/statistics/parking-areas/*`
-- `/api/v1/statistics/graphs/*`
-
-**메서드**: GET (일부 POST 지원)
+**메서드**: GET (일반 조회), POST (커스텀 기간/그래프 데이터)
 
 ---
 
@@ -48,26 +110,23 @@
 
 ### ✅ 완전 호환 (5/5)
 
-| 키 | 레거시 경로 | 현재 상태 | 리팩토링 경로 |
-|---|------------|----------|--------------|
-| `login` | `/login_setting` | ✅ 작동 | 동일 |
-| `create` | `/create_admin` | ✅ 작동 | 동일 |
-| `confirm` | `/confirm_account_list` | ✅ 작동 | 동일 |
-| `modifypassword` | `/settings/account/changePassword` | ✅ 작동 | 동일 |
-| `insertUser` | `/settings/account/insertUser` | ✅ 작동 | 동일 |
+| 키 | 레거시 경로 | 현재 상태 | RESTful API 경로 |
+|---|------------|----------|------------------|
+| `login` | `POST /login_setting` | ✅ 작동 | `POST /api/v1/auth/login` |
+| `create` | `POST /create_admin` | ✅ 작동 | `POST /api/v1/users` (관리자) |
+| `confirm` | `POST /confirm_account_list` | ✅ 작동 | `GET /api/v1/users` |
+| `modifypassword` | `POST /settings/account/changePassword` | ✅ 작동 | `PATCH /api/v1/users/{account}/password` |
+| `insertUser` | `POST /settings/account/insertUser` | ✅ 작동 | `POST /api/v1/users` |
 
 **마운트 위치**:
-- `/login_setting` → `LoginSetting` 클래스
-- `/create_admin` → `CreateAdmin` 클래스
-- `/confirm_account_list` → `ConfirmAccountList` 클래스
-- `/settings/account/*` → `SettingsAccount` 클래스
+- `/login_setting` → `LoginSetting` 클래스 (레거시)
+- `/create_admin` → `CreateAdmin` 클래스 (레거시)
+- `/confirm_account_list` → `ConfirmAccountList` 클래스 (레거시)
+- `/settings/account/*` → `SettingsAccount` 클래스 (레거시)
+- `/api/v1/auth/*` → `AuthApi` 클래스 (RESTful)
+- `/api/v1/users/*` → `UserManagementApi` 클래스 (RESTful)
 
-**RESTful 경로** (추가):
-- `/api/v1/auth/login` (신규)
-- `/api/v1/users/*` (신규)
-- `/api/v1/users/legacy/*` (레거시 호환)
-
-**메서드**: POST
+**메서드**: POST (생성/수정), GET (조회), PATCH (부분 수정)
 
 **보안**:
 - ✅ 이중 SHA-256 해싱
@@ -80,32 +139,28 @@
 
 ### ✅ 완전 호환 (4/4)
 
-| 키 | 레거시 경로 | 현재 상태 | 리팩토링 경로 |
-|---|------------|----------|--------------|
-| `base` | `/login_setting/base` | ✅ 작동 | 동일 |
-| `area` | `/settings/parking_area` | ✅ 작동 | `/settings/parking_area` ✅<br>`/settings_parking_area` ✅ |
-| `tag` | `/pabi/tag` | ✅ 작동 | 동일 |
-| `car` | `/pabi/car` | ✅ 작동 | 동일 |
+| 키 | 레거시 경로 | 현재 상태 | RESTful API 경로 |
+|---|------------|----------|------------------|
+| `base` | `GET /login_setting/base` | ✅ 작동 | `GET /api/v1/auth/base-info` |
+| `area` | `GET/POST /settings/parking_area` | ✅ 작동 | `GET /api/v1/parking-zones`<br>`POST /api/v1/parking-zones/{zoneId}` |
+| `tag` | `POST /pabi/tag` | ✅ 작동 | `GET /api/v1/vehicle/by-tag?tag={tag}`<br>`POST /api/v1/vehicle/by-tag` |
+| `car` | `POST /pabi/car` | ✅ 작동 | `GET /api/v1/vehicle/by-plate?plate={plate}`<br>`POST /api/v1/vehicle/by-plate` |
 
 **마운트 위치**:
-- `/login_setting/base` → `LoginSetting.router.get('/base')`
-- `/settings/parking_area` → `SettingsParkingArea` 클래스 (슬래시 경로 추가됨)
+- `/login_setting/base` → `LoginSetting.router.get('/base')` (레거시)
+- `/settings/parking_area` → `SettingsParkingArea` 클래스 (레거시 - 슬래시/언더스코어 모두)
 - `/pabi/*` → `LegacyPabi` 클래스 (레거시 호환 레이어)
-
-**RESTful 경로** (추가):
-- `/api/v1/parking/information/*` (신규)
-- `/api/v1/parking-zones/*` (신규)
-- `/api/v1/vehicle/by-tag` (신규)
-- `/api/v1/vehicle/by-plate` (신규)
+- `/api/v1/vehicle/*` → `VehicleInfoApi` 클래스 (RESTful)
+- `/api/v1/parking-zones/*` → `ParkingZonesApi` 클래스 (RESTful)
 
 **메서드**: 
-- GET: `/login_setting/base`
-- POST: `/pabi/tag`, `/pabi/car`
-- GET/POST: `/settings/parking_area/*`
+- 레거시: GET `/login_setting/base`, POST `/pabi/tag`, `/pabi/car`
+- RESTful: GET (조회), POST (생성/검색)
 
 **특징**:
 - `/pabi` API는 레거시 방식 그대로 DB 쿼리 사용
 - 응답 형식 완벽 재현 (레거시 "없어" 메시지 포함)
+- RESTful은 GET/POST 메서드로 구분하여 REST 원칙 준수
 
 ---
 
@@ -113,28 +168,38 @@
 
 ### ✅ 거의 완전 호환 (8/9 - 89%)
 
-| 키 | 레거시 경로 | 현재 상태 | 리팩토링 경로 | 비고 |
-|---|------------|----------|--------------|------|
-| `list` | `/settings/account` | ✅ 작동 | `/settings/account` ✅<br>`/settings_account` ✅ | 슬래시/언더스코어 모두 지원 |
-| `delete` | `/settings/account/deleteUser` | ✅ 작동 | 동일 | |
-| `update` | `/settings/account/updateUser` | ✅ 작동 | 동일 | |
-| `reset` | `/settings/account/resetPassword` | ✅ 작동 | 동일 | |
-| `postparkData` | `/base` | ✅ 작동 | 동일 | POST 방식 |
-| `getparkData` | `/base/get` | ✅ 작동 | 동일 | GET 방식 |
-| `postBujeValue` | `/setOverride` | ⚠️ 외부 | 이 서버 엔드포인트 아님 | 전광판 장치로 전송 |
-| `ping` | `/ping` | ✅ 작동 | 동일 | |
-| `isalive` | `/isalive/isalive` | ✅ 작동 | 동일 | `GET` 서버 상태 확인 |
+| 키 | 레거시 경로 | 현재 상태 | RESTful API 경로 | 비고 |
+|---|------------|----------|------------------|------|
+| `list` | `GET /settings/account` | ✅ 작동 | `GET /api/v1/users` | 전체 사용자 목록 |
+| `delete` | `POST /settings/account/deleteUser` | ✅ 작동 | `DELETE /api/v1/users/{account}` | |
+| `update` | `POST /settings/account/updateUser` | ✅ 작동 | `PUT /api/v1/users/{account}` | |
+| `reset` | `POST /settings/account/resetPassword` | ✅ 작동 | `PATCH /api/v1/users/{account}/password/reset` | |
+| `postparkData` | `POST /base` | ✅ 작동 | `POST /api/v1/parking/information` | 주차장 정보 저장 |
+| `getparkData` | `GET /base/get` | ✅ 작동 | `GET /api/v1/parking/information` | 주차장 정보 조회 |
+| `postBujeValue` | `/setOverride` | ⚠️ 외부 | 없음 (전광판 장치 직접) | 이 서버 API 아님 |
+| `ping` | `GET /ping` | ✅ 작동 | `GET /api/v1/monitoring/ping` | 서버 핑 체크 |
+| `isalive` | `GET /isalive/isalive` | ✅ 작동 | `GET /api/v1/monitoring/health` | 헬스 체크 |
+
+**⭐ 중요한 변경사항**:
+
+클라이언트 JSON에는 없지만 연관된 중요 API:
+```
+POST /settings/get → GET /api/v1/settings/general/get?key={key}
+```
+- 레거시: `POST /settings/get` (JSON body로 key 전달)
+- RESTful: `GET /api/v1/settings/general/get?key={key}` (Query parameter)
+- **두 방식 모두 지원됨** (하위 호환성)
 
 **마운트 위치**:
-- `/settings/account/*` → `SettingsAccount` 클래스
-- `/base` → `BaseInformation` 클래스
-- `/ping` → `Ping` 클래스
-- `/isalive` → `Isalive` 클래스
-
-**RESTful 경로** (추가):
-- `/api/v1/users/*` (신규)
-- `/api/v1/parking/information/*` (신규)
-- `/api/v1/monitoring/*` (신규)
+- `/settings/account/*` → `SettingsAccount` 클래스 (레거시)
+- `/settings/get` → `Settings` 클래스 (레거시 POST 방식)
+- `/base` → `BaseInformation` 클래스 (레거시)
+- `/ping` → `Ping` 클래스 (레거시)
+- `/isalive` → `Isalive` 클래스 (레거시)
+- `/api/v1/users/*` → `UserManagementApi` 클래스 (RESTful)
+- `/api/v1/parking/information/*` → `BaseInformationApi` 클래스 (RESTful)
+- `/api/v1/monitoring/*` → `MonitoringApi` 클래스 (RESTful)
+- `/api/v1/settings/*` → `SettingsApi` 클래스 (RESTful)
 
 **메서드**: GET, POST
 
@@ -155,20 +220,20 @@
 
 ### ✅ 완전 호환 (2/2)
 
-| 키 | 레거시 경로 | 현재 상태 | 리팩토링 경로 |
-|---|------------|----------|--------------|
-| `display` | `/display` | ✅ 작동 | 동일 |
-| `led` | `/led_cal` | ✅ 작동 | 동일 |
+| 키 | 레거시 경로 | 현재 상태 | RESTful API 경로 |
+|---|------------|----------|------------------|
+| `display` | `POST /display` | ✅ 작동 | `GET /api/v1/display/{displayId}`<br>`POST /api/v1/display/config` |
+| `led` | `POST /led_cal` | ✅ 작동 | `GET /api/v1/led/calibration`<br>`POST /api/v1/led/calibration` |
 
 **마운트 위치**:
-- `/display` → `Display` 클래스
-- `/led_cal` → `LedCal` 클래스
+- `/display` → `Display` 클래스 (레거시)
+- `/led_cal` → `LedCal` 클래스 (레거시)
+- `/api/v1/display/*` → `DisplayApi` 클래스 (RESTful)
+- `/api/v1/led/*` → `LedApi` 클래스 (RESTful)
 
-**RESTful 경로** (추가):
-- `/api/v1/display/*` (신규)
-- `/api/v1/led/*` (신규)
-
-**메서드**: POST
+**메서드**: 
+- 레거시: POST (설정 저장/업데이트)
+- RESTful: GET (조회), POST (생성/업데이트)
 
 ---
 
@@ -390,7 +455,127 @@ fetch('/billboard/part_system', {
 
 ---
 
+## 📋 전체 레거시 → RESTful 매핑 테이블
+
+### 클라이언트 JSON의 27개 API 전체 매핑
+
+| # | 레거시 API | RESTful API | 메서드 변경 | 비고 |
+|---|-----------|-------------|------------|------|
+| **그래프/통계** |
+| 1 | `GET /statistics/cam_parking_area/oneDay` | `GET /api/v1/statistics/daily` | 동일 | 경로 간소화 |
+| 2 | `GET /statistics/cam_parking_area/oneWeek` | `GET /api/v1/statistics/weekly` | 동일 | 경로 간소화 |
+| 3 | `GET /statistics/cam_parking_area/oneMonth` | `GET /api/v1/statistics/monthly` | 동일 | 경로 간소화 |
+| 4 | `GET /statistics/cam_parking_area/oneYear` | `GET /api/v1/statistics/yearly` | 동일 | 경로 간소화 |
+| 5 | `POST /statistics/cam_parking_area/searchDay` | `POST /api/v1/statistics/custom-period` | 동일 | 경로 간소화 |
+| 6 | `POST /graphData` | `POST /api/v1/statistics/graph-data` | 동일 | 경로 구조화 |
+| 7 | `POST /statistics/cam_parking_area/searchgraph` | `POST /api/v1/statistics/graph` | 동일 | 경로 간소화 |
+| **로그인/인증** |
+| 8 | `POST /login_setting` | `POST /api/v1/auth/login` | 동일 | 경로 구조화 + JWT |
+| 9 | `POST /create_admin` | `POST /api/v1/users` | 동일 | role=admin |
+| 10 | `POST /confirm_account_list` | `GET /api/v1/users` | **POST→GET** | REST 원칙 |
+| 11 | `POST /settings/account/changePassword` | `PATCH /api/v1/users/{account}/password` | **POST→PATCH** | REST 원칙 |
+| 12 | `POST /settings/account/insertUser` | `POST /api/v1/users` | 동일 | 경로 간소화 |
+| **주차 관리** |
+| 13 | `GET /login_setting/base` | `GET /api/v1/auth/base-info` | 동일 | 경로 구조화 |
+| 14 | `GET /settings/parking_area` | `GET /api/v1/parking-zones` | 동일 | 경로 간소화 |
+| 15 | `POST /pabi/tag` | `GET /api/v1/vehicle/by-tag?tag=` | **POST→GET** | Query param<br>(POST도 지원) |
+| 16 | `POST /pabi/car` | `GET /api/v1/vehicle/by-plate?plate=` | **POST→GET** | Query param<br>(POST도 지원) |
+| **설정 관리** |
+| 17 | `GET /settings/account` | `GET /api/v1/users` | 동일 | 경로 간소화 |
+| 18 | `POST /settings/account/deleteUser` | `DELETE /api/v1/users/{account}` | **POST→DELETE** | REST 원칙 |
+| 19 | `POST /settings/account/updateUser` | `PUT /api/v1/users/{account}` | **POST→PUT** | REST 원칙 |
+| 20 | `POST /settings/account/resetPassword` | `PATCH /api/v1/users/{account}/password/reset` | **POST→PATCH** | REST 원칙 |
+| 21 | `POST /base` | `POST /api/v1/parking/information` | 동일 | 경로 구조화 |
+| 22 | `GET /base/get` | `GET /api/v1/parking/information` | 동일 | 경로 간소화 |
+| 23 | `/setOverride` | 없음 | N/A | ⚠️ 외부 장치 API |
+| 24 | `GET /ping` | `GET /api/v1/monitoring/ping` | 동일 | 경로 구조화 |
+| 25 | `GET /isalive/isalive` | `GET /api/v1/monitoring/health` | 동일 | 경로 간소화 |
+| **디스플레이** |
+| 26 | `POST /display` | `POST /api/v1/display/config` | 동일 | 경로 구조화 |
+| 27 | `POST /led_cal` | `POST /api/v1/led/calibration` | 동일 | 경로 구조화 |
+
+### 📊 메서드 변경 통계
+
+| 변경 패턴 | 개수 | 비율 |
+|----------|------|------|
+| 메서드 동일 (경로만 변경) | 19개 | 70% |
+| POST → GET | 3개 | 11% |
+| POST → DELETE | 1개 | 4% |
+| POST → PUT | 1개 | 4% |
+| POST → PATCH | 2개 | 7% |
+| 외부 API (매핑 없음) | 1개 | 4% |
+
+### 🎯 RESTful 변경 핵심 원칙
+
+1. **POST → GET**: 데이터 조회 작업
+   - `/confirm_account_list`: 사용자 목록 조회
+   - `/pabi/tag`, `/pabi/car`: 차량 정보 조회
+
+2. **POST → DELETE**: 삭제 작업
+   - `/settings/account/deleteUser`: 사용자 삭제
+
+3. **POST → PUT**: 전체 업데이트
+   - `/settings/account/updateUser`: 사용자 정보 전체 수정
+
+4. **POST → PATCH**: 부분 업데이트
+   - `/settings/account/changePassword`: 비밀번호만 변경
+   - `/settings/account/resetPassword`: 비밀번호 리셋만
+
+5. **경로 구조화**:
+   - `/api/v1/{resource}/{action}` 형식
+   - Kebab-case 사용 (dash-separated)
+   - 명확한 리소스 계층 구조
+
+---
+
+## 💡 클라이언트 마이그레이션 가이드
+
+### ✅ 단계별 마이그레이션
+
+#### 1단계: 레거시 API 계속 사용 (현재)
+```javascript
+// 변경 없음 - 그대로 사용
+fetch('/settings/get', {
+  method: 'POST',
+  body: JSON.stringify({key: 'display_mode'})
+});
+```
+
+#### 2단계: RESTful API로 점진적 마이그레이션
+```javascript
+// 새로운 방식
+fetch('/api/v1/settings/general/get?key=display_mode', {
+  method: 'GET'
+});
+```
+
+#### 3단계: 혼용 사용 (권장)
+```javascript
+// 중요 API는 RESTful로, 기타는 레거시로
+const APIS = {
+  // RESTful 사용
+  login: '/api/v1/auth/login',
+  getUsers: '/api/v1/users',
+  
+  // 레거시 유지 (호환성)
+  pabiTag: '/pabi/tag',
+  display: '/display'
+};
+```
+
+### 🔄 하위 호환성 보장
+
+**모든 레거시 API는 계속 작동합니다!**
+
+| API 버전 | 상태 | 권장 사용처 |
+|---------|------|------------|
+| 레거시 (26개) | ✅ 완벽 작동 | 기존 클라이언트, 빠른 개발 |
+| RESTful (신규) | ✅ 병행 운영 | 새 프로젝트, 표준 준수 |
+
+---
+
 **보고서 작성**: AI Assistant  
 **분석 기준**: 클라이언트 JSON 설정 파일  
-**최종 업데이트**: 2025-11-05
+**최종 업데이트**: 2025-11-05  
+**추가된 정보**: 레거시 → RESTful API 전체 매핑
 
