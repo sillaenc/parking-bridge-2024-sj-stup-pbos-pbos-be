@@ -41,7 +41,45 @@ class Settings {
         return Response.badRequest(body: 'Error: $e');
       }
     });
-    /// GET 요청으로 설정값 조회
+    /// POST 요청으로 설정값 조회 (레거시 호환)
+    /// Body에서 {"key": "..."}를 받음: POST /settings/get
+    router.post('/get', (Request request) async{
+      try {
+        var payload = await request.readAsString();
+        var input = jsonDecode(payload);
+        var check = input['key'];
+        
+        var body = {
+          "transaction": [
+            {
+              "query": "#get_settings",
+              "values": {"key": check}
+            }
+          ]
+        };
+        
+        var result = await http.post(
+          Uri.parse(url!),
+          headers: headers,
+          body: jsonEncode(body),
+        );
+        
+        var decodedresult = jsonDecode(utf8.decode(result.bodyBytes));
+        var resultSet = decodedresult['results'][0]['resultSet'][0];
+        print('[Settings] POST /get - key: $check, result: $resultSet');
+        
+        return Response.ok(
+          jsonEncode(resultSet), 
+          headers: {'Content-Type': 'application/json'}
+        );
+      } catch (e, stackTrace) {
+        print('Settings.post.get 오류: $e');
+        print('스택 트레이스: $stackTrace');
+        return Response.badRequest(body: 'Error: $e');
+      }
+    });
+
+    /// GET 요청으로 설정값 조회 (RESTful 방식)
     /// Query parameter로 key를 받음: GET /api/v1/settings/general/get?key=somekey
     router.get('/get', (Request request) async{
       try {
@@ -79,7 +117,7 @@ class Settings {
         
         var decodedresult = jsonDecode(utf8.decode(result.bodyBytes));
         var resultSet = decodedresult['results'][0]['resultSet'][0];
-        print('Settings.get - key: $key, result: $resultSet');
+        print('[Settings] GET /get - key: $key, result: $resultSet');
         
         return Response.ok(
           jsonEncode(resultSet), 
