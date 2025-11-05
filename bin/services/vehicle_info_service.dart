@@ -186,6 +186,145 @@ class VehicleInfoService {
     return hasKorean || hasAlphaNumeric;
   }
 
+  /// 모든 차량 정보 조회
+  ///
+  /// 현재 주차장에 주차된 모든 차량의 정보를 조회
+  Future<VehicleInfoServiceResponse<List<ParkingSpaceVehicleInfo>>>
+      getAllVehicleInfo() async {
+    try {
+      final url = manageAddress.displayDbAddr;
+      if (url == null) {
+        return VehicleInfoServiceResponse<List<ParkingSpaceVehicleInfo>>(
+          success: false,
+          message: '데이터베이스 주소가 설정되지 않았습니다.',
+          error: 'DATABASE_ADDRESS_NOT_SET',
+        );
+      }
+
+      final headers = {'Content-Type': 'application/json'};
+      // 모든 차량 정보를 조회하는 쿼리
+      final body = {
+        "transaction": [
+          {
+            "query": "#get_all_vehicles",
+            "values": {}
+          }
+        ]
+      };
+
+      final response = await http.post(
+        Uri.parse(url),
+        headers: headers,
+        body: jsonEncode(body),
+      );
+
+      final utf8DecodedBody = utf8.decode(response.bodyBytes);
+      final decodedResponse = jsonDecode(utf8DecodedBody);
+
+      final resultSet = decodedResponse['results'][0]['resultSet'] as List;
+
+      if (resultSet.isEmpty) {
+        return VehicleInfoServiceResponse<List<ParkingSpaceVehicleInfo>>(
+          success: true,
+          message: '현재 주차된 차량이 없습니다.',
+          data: [],
+        );
+      }
+
+      final vehicleList = resultSet
+          .map((item) => ParkingSpaceVehicleInfo.fromJson(item))
+          .toList();
+
+      return VehicleInfoServiceResponse<List<ParkingSpaceVehicleInfo>>(
+        success: true,
+        message: '차량 정보 조회 완료 (${vehicleList.length}건)',
+        data: vehicleList,
+      );
+    } catch (e, stackTrace) {
+      print('VehicleInfoService.getAllVehicleInfo 오류: $e');
+      print('스택 트레이스: $stackTrace');
+
+      return VehicleInfoServiceResponse<List<ParkingSpaceVehicleInfo>>(
+        success: false,
+        message: '차량 정보 조회 중 오류가 발생했습니다.',
+        error: e.toString(),
+      );
+    }
+  }
+
+  /// 특정 차량 ID로 위치 조회
+  ///
+  /// 차량 ID(태그)를 통해 차량의 위치 정보를 조회
+  Future<VehicleInfoServiceResponse<ParkingSpaceVehicleInfo>>
+      getVehicleLocationById(String vehicleId) async {
+    try {
+      // 차량 ID 유효성 검사
+      if (vehicleId.isEmpty) {
+        return VehicleInfoServiceResponse<ParkingSpaceVehicleInfo>(
+          success: false,
+          message: '차량 ID가 제공되지 않았습니다.',
+          error: 'MISSING_VEHICLE_ID',
+        );
+      }
+
+      final url = manageAddress.displayDbAddr;
+      if (url == null) {
+        return VehicleInfoServiceResponse<ParkingSpaceVehicleInfo>(
+          success: false,
+          message: '데이터베이스 주소가 설정되지 않았습니다.',
+          error: 'DATABASE_ADDRESS_NOT_SET',
+        );
+      }
+
+      final headers = {'Content-Type': 'application/json'};
+      final body = {
+        "transaction": [
+          {
+            "query": "#get_plate",
+            "values": {"tag": vehicleId}
+          }
+        ]
+      };
+
+      final response = await http.post(
+        Uri.parse(url),
+        headers: headers,
+        body: jsonEncode(body),
+      );
+
+      final utf8DecodedBody = utf8.decode(response.bodyBytes);
+      final decodedResponse = jsonDecode(utf8DecodedBody);
+
+      final resultSet = decodedResponse['results'][0]['resultSet'] as List;
+
+      if (resultSet.isEmpty) {
+        return VehicleInfoServiceResponse<ParkingSpaceVehicleInfo>(
+          success: false,
+          message: '해당 ID의 차량을 찾을 수 없습니다.',
+          error: 'VEHICLE_NOT_FOUND',
+        );
+      }
+
+      final vehicleData = resultSet[0];
+      final vehicleInfo = ParkingSpaceVehicleInfo.fromJson(vehicleData);
+
+      return VehicleInfoServiceResponse<ParkingSpaceVehicleInfo>(
+        success: true,
+        message: '차량 위치 조회 완료',
+        data: vehicleInfo,
+      );
+    } catch (e, stackTrace) {
+      print('VehicleInfoService.getVehicleLocationById 오류: $e');
+      print('스택 트레이스: $stackTrace');
+
+      return VehicleInfoServiceResponse<ParkingSpaceVehicleInfo>(
+        success: false,
+        message: '차량 위치 조회 중 오류가 발생했습니다.',
+        error: e.toString(),
+      );
+    }
+  }
+
   /// 서비스 상태 확인
   Future<bool> isServiceHealthy() async {
     try {

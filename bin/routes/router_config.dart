@@ -443,10 +443,14 @@ class RouterConfig {
     _router.mount('/settings/account', settingsAccount.router); // 슬래시 버전 (레거시)
 
     // 주차 관리 (5개)
-    _router.mount('/settings_parking_area', settingsParkingArea.router); // 언더스코어 버전
-    _router.mount('/settings/parking_area', settingsParkingArea.router); // 슬래시 버전 (레거시)
-    _router.mount('/settings_cam_parking_area', settingsCamParkingArea.router); // 언더스코어 버전
-    _router.mount('/settings/cam_parking_area', settingsCamParkingArea.router); // 슬래시 버전 (레거시)
+    _router.mount(
+        '/settings_parking_area', settingsParkingArea.router); // 언더스코어 버전
+    _router.mount(
+        '/settings/parking_area', settingsParkingArea.router); // 슬래시 버전 (레거시)
+    _router.mount('/settings_cam_parking_area',
+        settingsCamParkingArea.router); // 언더스코어 버전
+    _router.mount('/settings/cam_parking_area',
+        settingsCamParkingArea.router); // 슬래시 버전 (레거시)
     _router.mount('/base_information', baseInformation.router);
     _router.mount('/base', baseInformation.router); // 추가: /base 경로
 

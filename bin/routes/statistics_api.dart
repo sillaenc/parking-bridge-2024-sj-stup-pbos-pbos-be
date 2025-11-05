@@ -205,25 +205,33 @@ class StatisticsApi {
   Future<Response> _handleCustomPeriodStatistics(Request request) async {
     try {
       final requestBody = await request.readAsString();
+      print('[Statistics] Custom Period Request Body: $requestBody');
+      
       final requestData = jsonDecode(requestBody);
 
-      final startDay = requestData['startDay'] as String?;
-      final endDay = requestData['endDay'] as String?;
+      // startDate/endDate 파라미터 지원 (권장) + 레거시 startDay/endDay도 지원
+      final startDate = requestData['startDate'] as String? ?? requestData['startDay'] as String?;
+      final endDate = requestData['endDate'] as String? ?? requestData['endDay'] as String?;
 
-      if (startDay == null || endDay == null) {
+      if (startDate == null || endDate == null) {
         return Response.badRequest(
           body: jsonEncode({
-            'error': 'startDay와 endDay는 필수 파라미터입니다.',
-            'code': 'MISSING_PARAMETERS'
+            'error': 'startDate와 endDate는 필수 파라미터입니다.',
+            'code': 'MISSING_PARAMETERS',
+            'hint': '예시: {"startDate": "2025-11-04", "endDate": "2025-11-05"}'
           }),
           headers: _getDefaultHeaders(),
         );
       }
 
+      print('[Statistics] Custom Period - startDate: $startDate, endDate: $endDate');
+
       final result = await _statisticsService.getCustomPeriodStatistics(
-        startDay,
-        endDay,
+        startDate,
+        endDate,
       );
+
+      print('[Statistics] Custom Period - Result count: ${result.data.length}');
 
       return Response.ok(
         jsonEncode(result.data),
@@ -240,25 +248,37 @@ class StatisticsApi {
   Future<Response> _handleGraphStatistics(Request request) async {
     try {
       final requestBody = await request.readAsString();
+      print('[Statistics] Graph Request Body: $requestBody');
+      
       final requestData = jsonDecode(requestBody);
 
-      final startDay = requestData['startDay'] as String?;
-      final endDay = requestData['endDay'] as String?;
+      // startDate/endDate 파라미터 지원 (권장) + 레거시 startDay/endDay도 지원
+      final startDate = requestData['startDate'] as String? ?? requestData['startDay'] as String?;
+      final endDate = requestData['endDate'] as String? ?? requestData['endDay'] as String?;
 
-      if (startDay == null || endDay == null) {
+      if (startDate == null || endDate == null) {
         return Response.badRequest(
           body: jsonEncode({
-            'error': 'startDay와 endDay는 필수 파라미터입니다.',
-            'code': 'MISSING_PARAMETERS'
+            'error': 'startDate와 endDate는 필수 파라미터입니다.',
+            'code': 'MISSING_PARAMETERS',
+            'hint': '예시: {"startDate": "2025-11-04", "endDate": "2025-11-05"}'
           }),
           headers: _getDefaultHeaders(),
         );
       }
 
+      // 레거시 API와 동일하게 시간 추가 (00시 ~ 23시)
+      final startDateWithTime = '$startDate 00';
+      final endDateWithTime = '$endDate 23';
+      
+      print('[Statistics] Graph - startDate: $startDateWithTime, endDate: $endDateWithTime');
+
       final result = await _statisticsService.getGraphStatistics(
-        startDay,
-        endDay,
+        startDateWithTime,
+        endDateWithTime,
       );
+
+      print('[Statistics] Graph - Result count: ${result.data.length}');
 
       return Response.ok(
         jsonEncode(result.data),

@@ -1576,48 +1576,122 @@ paths:
     post:
       tags: [statistics]
       summary: 사용자 정의 기간 통계 조회
-      description: 지정된 사용자 정의 기간의 통계를 조회합니다.
+      description: |
+        지정된 사용자 정의 기간의 통계를 조회합니다.
+        레거시 호환: startDay/endDay 파라미터도 지원합니다.
       requestBody:
         required: true
         content:
           application/json:
             schema:
               type: object
+              required:
+                - startDate
+                - endDate
               properties:
                 startDate:
                   type: string
                   format: date
+                  description: 조회 시작 날짜 (YYYY-MM-DD)
+                  example: "2025-11-04"
                 endDate:
                   type: string
                   format: date
+                  description: 조회 종료 날짜 (YYYY-MM-DD)
+                  example: "2025-11-05"
+            examples:
+              기본:
+                value:
+                  startDate: "2025-11-04"
+                  endDate: "2025-11-05"
+              레거시 호환:
+                value:
+                  startDay: "2025-11-04"
+                  endDay: "2025-11-05"
       responses:
         '200':
           description: 사용자 정의 기간 통계 데이터
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+        '400':
+          description: 잘못된 요청 (파라미터 누락)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                  code:
+                    type: string
+                  hint:
+                    type: string
 
   /api/v1/statistics/graph:
     post:
       tags: [statistics]
       summary: 그래프용 통계 데이터 조회
-      description: 차트 및 그래프 표시를 위한 통계 데이터를 조회합니다.
+      description: |
+        차트 및 그래프 표시를 위한 통계 데이터를 조회합니다.
+        시간 범위: 시작일 00시 ~ 종료일 23시
+        레거시 호환: startDay/endDay 파라미터도 지원합니다.
       requestBody:
         required: true
         content:
           application/json:
             schema:
               type: object
+              required:
+                - startDate
+                - endDate
               properties:
                 startDate:
                   type: string
                   format: date
+                  description: 조회 시작 날짜 (YYYY-MM-DD, 00시부터)
+                  example: "2025-11-04"
                 endDate:
                   type: string
                   format: date
+                  description: 조회 종료 날짜 (YYYY-MM-DD, 23시까지)
+                  example: "2025-11-05"
                 type:
                   type: string
                   enum: [daily, weekly, monthly]
+                  description: 그래프 타입 (선택사항)
+            examples:
+              기본:
+                value:
+                  startDate: "2025-11-04"
+                  endDate: "2025-11-05"
+              레거시 호환:
+                value:
+                  startDay: "2025-11-04"
+                  endDay: "2025-11-05"
       responses:
         '200':
           description: 그래프용 통계 데이터
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    recorded_hour:
+                      type: string
+                    car_type:
+                      type: string
+                    floor:
+                      type: string
+                    count:
+                      type: integer
+        '400':
+          description: 잘못된 요청 (파라미터 누락)
 
   /api/v1/statistics/health:
     get:

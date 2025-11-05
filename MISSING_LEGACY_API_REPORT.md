@@ -314,3 +314,4 @@ void _configureLegacyRoutes() {
 **작성자**: AI Assistant  
 **다음 단계**: `_configureLegacyRoutes()` 수정 및 마운트 추가
 
+

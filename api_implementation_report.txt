@@ -1,0 +1,819 @@
+================================================================================
+API 구현 상태 전수조사 상세 보고서
+================================================================================
+
+총 엔드포인트: 189개
+구현됨: 0개 (0.0%)
+미구현: 189개 (100.0%)
+
+================================================================================
+미구현 API 상세 목록
+================================================================================
+
+
+[auth] - 14개 미구현
+--------------------------------------------------------------------------------
+POST /api/v1/auth/login
+  Summary: 사용자 로그인
+  Tags: auth
+
+GET /api/v1/auth/base-info
+  Summary: 기본 정보 조회
+  Tags: auth
+
+GET /api/v1/auth/token
+  Summary: 토큰 정보 조회
+  Tags: auth
+
+GET /api/v1/auth/protected
+  Summary: 보호된 엔드포인트 테스트
+  Tags: auth
+
+POST /api/v1/auth/refresh
+  Summary: 토큰 갱신
+  Tags: auth
+
+GET /api/v1/auth/health
+  Summary: 인증 서비스 상태 확인
+  Tags: auth
+
+GET /api/v1/auth/info
+  Summary: 인증 서비스 정보
+  Tags: auth
+
+GET /api/v1/auth/accounts/check
+  Summary: 계정 목록 확인
+  Tags: auth
+
+POST /api/v1/auth/legacy
+  Summary: 레거시 로그인 (기존 클라이언트 호환)
+  Tags: auth
+
+GET /api/v1/auth/legacy/base
+  Summary: 레거시 기본 정보 조회
+  Tags: auth
+
+GET /api/v1/auth/legacy/jwt
+  Summary: 레거시 JWT 토큰 조회
+  Tags: auth
+
+GET /api/v1/auth/legacy/protected
+  Summary: 레거시 보호된 리소스 접근 테스트
+  Tags: auth
+
+GET /api/v1/auth/status
+  Summary: 로그인 상태 및 기본 정보 조회
+  Tags: auth
+
+POST /api/v1/auth/status/profile
+  Summary: 사용자 프로필 조회
+  Tags: auth
+
+
+[base-info] - 9개 미구현
+--------------------------------------------------------------------------------
+GET /api/v1/parking/information
+  Summary: 주차장 기본 정보 조회
+  Tags: base-info
+
+POST /api/v1/parking/information
+  Summary: 주차장 기본 정보 생성
+  Tags: base-info
+
+PUT /api/v1/parking/information
+  Summary: 주차장 기본 정보 업데이트
+  Tags: base-info
+
+GET /api/v1/parking/information/statistics
+  Summary: 주차장 통계 정보 조회
+  Tags: base-info
+
+GET /api/v1/parking/information/full
+  Summary: 주차장 전체 정보 조회 (통계 포함)
+  Tags: base-info
+
+GET /api/v1/parking/information/health
+  Summary: 기본 정보 서비스 상태 확인
+  Tags: base-info
+
+GET /api/v1/parking/information/info
+  Summary: 기본 정보 서비스 정보 조회
+  Tags: base-info
+
+POST /api/v1/parking/information/legacy
+  Summary: 레거시 기본 정보 생성/업데이트
+  Tags: base-info
+
+GET /api/v1/parking/information/legacy/get
+  Summary: 레거시 기본 정보 조회 (통계 포함)
+  Tags: base-info
+
+
+[billboard] - 7개 미구현
+--------------------------------------------------------------------------------
+GET /api/v1/billboard
+  Summary: 광고판 API 정보 조회
+  Tags: billboard
+
+GET /api/v1/billboard/floor/{floor}
+  Summary: 층별 주차 정보 조회
+  Tags: billboard
+
+POST /api/v1/billboard/floor
+  Summary: 층별 주차 정보 업데이트
+  Tags: billboard
+
+POST /api/v1/billboard/part-system/control
+  Summary: 부분 시스템 제어
+  Tags: billboard
+
+GET /api/v1/billboard/health
+  Summary: 광고판 서비스 상태 확인
+  Tags: billboard
+
+GET /api/v1/billboard/info
+  Summary: 광고판 서비스 정보 조회
+  Tags: billboard
+
+GET /api/v1/billboard/legacy
+  Summary: 레거시 광고판 조회
+  Tags: billboard
+
+
+[cameras] - 8개 미구현
+--------------------------------------------------------------------------------
+GET /api/v1/cameras
+  Summary: 모든 카메라 조회
+  Tags: cameras
+
+POST /api/v1/cameras
+  Summary: 새 카메라 등록
+  Tags: cameras
+
+GET /api/v1/cameras/{tag}
+  Summary: 특정 카메라 조회
+  Tags: cameras
+
+DELETE /api/v1/cameras/{tag}
+  Summary: 카메라 삭제
+  Tags: cameras
+
+GET /api/v1/cameras/{tag}/image
+  Summary: 카메라 이미지 조회 ⭐ 핵심 기능
+  Tags: cameras
+
+PATCH /api/v1/cameras/{tag}/image
+  Summary: 이미지 링크 업데이트 (Shell script용)
+  Tags: cameras
+
+GET /api/v1/cameras/health
+  Summary: 카메라 서비스 상태 확인
+  Tags: cameras
+
+GET /api/v1/cameras/info
+  Summary: 카메라 서비스 정보 조회
+  Tags: cameras
+
+
+[central] - 4개 미구현
+--------------------------------------------------------------------------------
+GET /api/v1/central/dashboard
+  Summary: 중앙 대시보드 데이터 조회
+  Tags: central
+
+GET /api/v1/central/health
+  Summary: 중앙 대시보드 서비스 상태 확인
+  Tags: central
+
+GET /api/v1/central/info
+  Summary: 중앙 대시보드 서비스 정보 조회
+  Tags: central
+
+GET /api/v1/central/legacy
+  Summary: 레거시 중앙 대시보드 조회
+  Tags: central
+
+
+[display] - 7개 미구현
+--------------------------------------------------------------------------------
+GET /api/v1/display
+  Summary: 디스플레이 API 정보 조회
+  Tags: display
+
+GET /api/v1/display/info
+  Summary: 디스플레이 정보 조회 (GET)
+  Tags: display
+
+POST /api/v1/display/info
+  Summary: 디스플레이 정보 업데이트 (POST)
+  Tags: display
+
+POST /api/v1/display/bulk-update
+  Summary: 디스플레이 일괄 업데이트
+  Tags: display
+
+GET /api/v1/display/health
+  Summary: 디스플레이 서비스 상태 확인
+  Tags: display
+
+GET /api/v1/display/legacy
+  Summary: 레거시 디스플레이 조회
+  Tags: display
+
+POST /api/v1/display/legacy
+  Summary: 레거시 디스플레이 업데이트
+  Tags: display
+
+
+[electric-signs] - 12개 미구현
+--------------------------------------------------------------------------------
+GET /api/v1/parking/electric-signs
+  Summary: 모든 전광판 조회
+  Tags: electric-signs
+
+POST /api/v1/parking/electric-signs
+  Summary: 새 전광판 생성
+  Tags: electric-signs
+
+GET /api/v1/parking/electric-signs/{uid}
+  Summary: 특정 전광판 조회
+  Tags: electric-signs
+
+PUT /api/v1/parking/electric-signs/{uid}
+  Summary: 전광판 정보 업데이트
+  Tags: electric-signs
+
+DELETE /api/v1/parking/electric-signs/{uid}
+  Summary: 전광판 삭제
+  Tags: electric-signs
+
+GET /api/v1/parking/electric-signs/statistics
+  Summary: 전광판 통계 조회
+  Tags: electric-signs
+
+GET /api/v1/parking/electric-signs/health
+  Summary: 전광판 서비스 상태 확인
+  Tags: electric-signs
+
+GET /api/v1/parking/electric-signs/info
+  Summary: 전광판 서비스 정보 조회
+  Tags: electric-signs
+
+GET /api/v1/parking/electric-signs/legacy
+  Summary: 레거시 전광판 목록 조회
+  Tags: electric-signs
+
+POST /api/v1/parking/electric-signs/legacy/update
+  Summary: 레거시 전광판 업데이트
+  Tags: electric-signs
+
+POST /api/v1/parking/electric-signs/legacy/insert
+  Summary: 레거시 전광판 삽입
+  Tags: electric-signs
+
+POST /api/v1/parking/electric-signs/legacy/deleteZone
+  Summary: 레거시 전광판 삭제
+  Tags: electric-signs
+
+
+[engine] - 6개 미구현
+--------------------------------------------------------------------------------
+GET /api/v1/engine/data/process
+  Summary: 엔진 데이터 수동 처리 트리거
+  Tags: engine
+
+GET /api/v1/engine/data/status
+  Summary: 현재 주차장 상태 조회
+  Tags: engine
+
+GET /api/v1/engine/data/errors
+  Summary: 현재 에러 상태 조회
+  Tags: engine
+
+GET /api/v1/engine/data/statistics
+  Summary: 처리 통계 정보 조회
+  Tags: engine
+
+POST /api/v1/engine/data/statistics/trigger
+  Summary: 수동 통계 처리 트리거
+  Tags: engine
+
+GET /api/v1/engine/data/health
+  Summary: 엔진 데이터 처리 서비스 헬스 체크
+  Tags: engine
+
+
+[files] - 42개 미구현
+--------------------------------------------------------------------------------
+GET /api/v1/files
+  Summary: 모든 주차 구역 조회
+  Tags: files
+
+POST /api/v1/files
+  Summary: 파일 업로드 및 주차 구역 생성 (최대 500MB 지원)
+  Tags: files
+
+GET /api/v1/files/{name}
+  Summary: 특정 주차 구역 조회
+  Tags: files
+
+PUT /api/v1/files/{name}
+  Summary: 파일 업데이트 및 주차 구역 업데이트
+  Tags: files
+
+DELETE /api/v1/files/{name}
+  Summary: 주차 구역 삭제
+  Tags: files
+
+PATCH /api/v1/parking-lots/{tag}/type
+  Summary: 주차 공간 유형 변경
+  Tags: files
+
+PATCH /api/v1/parking-lots/{tag}/status
+  Summary: 주차 공간 상태 변경
+  Tags: files
+
+GET /api/v1/parking-lots/health
+  Summary: 주차 공간 서비스 상태 확인
+  Tags: files
+
+GET /api/v1/parking-lots/info
+  Summary: 주차 공간 서비스 정보 조회
+  Tags: files
+
+GET /api/v1/parking-zones
+  Summary: 모든 주차 구역 조회 (파일 포함)
+  Tags: files
+
+POST /api/v1/parking-zones
+  Summary: 새 주차 구역 생성 (파일 업로드)
+  Tags: files
+
+GET /api/v1/parking-zones/{name}
+  Summary: 특정 주차 구역 조회 (파일 포함)
+  Tags: files
+
+PUT /api/v1/parking-zones/{name}
+  Summary: 주차 구역 업데이트 (파일 교체)
+  Tags: files
+
+DELETE /api/v1/parking-zones/{name}
+  Summary: 주차 구역 삭제
+  Tags: files
+
+GET /api/v1/parking-zones/health
+  Summary: 주차 구역 서비스 상태 확인
+  Tags: files
+
+GET /api/v1/parking-zones/info
+  Summary: 주차 구역 서비스 정보 조회
+  Tags: files
+
+GET /api/v1/parking-zones/legacy
+  Summary: 레거시 주차 구역 목록 조회
+  Tags: files
+
+POST /api/v1/parking-zones/legacy/insertFile
+  Summary: 레거시 파일 삽입
+  Tags: files
+
+POST /api/v1/parking-zones/legacy/deleteFile
+  Summary: 레거시 파일 삭제
+  Tags: files
+
+POST /api/v1/parking-zones/legacy/UpdateFile
+  Summary: 레거시 파일 업데이트
+  Tags: files
+
+POST /api/v1/parking-zones/legacy/ChangeLotType
+  Summary: 레거시 주차 공간 유형 변경
+  Tags: files
+
+POST /api/v1/parking-zones/legacy/ChangeParked
+  Summary: 레거시 주차 상태 변경
+  Tags: files
+
+PATCH /api/v1/files/lots/{tag}/type
+  Summary: 주차 공간 유형 변경
+  Tags: files
+
+PATCH /api/v1/files/lots/{tag}/status
+  Summary: 주차 상태 변경
+  Tags: files
+
+GET /api/v1/filesystem
+  Summary: 파일 시스템 내 모든 파일 조회
+  Tags: files
+
+POST /api/v1/filesystem/sync
+  Summary: 파일시스템-DB 동기화
+  Tags: files
+
+GET /api/v1/filesystem/health
+  Summary: 파일시스템 상태 확인
+  Tags: files
+
+GET /api/v1/filesystem/info
+  Summary: 파일시스템 서비스 정보 조회
+  Tags: files
+
+GET /api/v1/files/list
+  Summary: 파일 시스템 파일 목록 조회
+  Tags: files
+
+POST /api/v1/files/sync
+  Summary: 수동 파일시스템 동기화
+  Tags: files
+
+GET /api/v1/files/health
+  Summary: 파일시스템 상태 확인
+  Tags: files
+
+GET /api/v1/files/service-health
+  Summary: 주차 구역 관리 서비스 상태
+  Tags: files
+
+GET /api/v1/files/info
+  Summary: 주차 구역 관리 서비스 정보
+  Tags: files
+
+GET /api/v1/settings/camera-parking/surfaces
+  Summary: 모든 카메라 주차 표면 조회
+  Tags: files
+
+POST /api/v1/settings/camera-parking/surfaces
+  Summary: 새 카메라 표면 생성
+  Tags: files
+
+GET /api/v1/settings/camera-parking/surfaces/{surfaceId}
+  Summary: 특정 카메라 표면 조회
+  Tags: files
+
+PUT /api/v1/settings/camera-parking/surfaces/{surfaceId}
+  Summary: 카메라 표면 업데이트
+  Tags: files
+
+DELETE /api/v1/settings/camera-parking/surfaces/{surfaceId}
+  Summary: 카메라 표면 삭제
+  Tags: files
+
+GET /api/v1/settings/camera-parking/health
+  Summary: 카메라 주차 서비스 상태 확인
+  Tags: files
+
+GET /api/v1/settings/camera-parking/info
+  Summary: 카메라 주차 서비스 정보
+  Tags: files
+
+POST /api/v1/parking/pabi/tag
+  Summary: 태그로 주차 구역 차량 정보 조회
+  Tags: files
+
+POST /api/v1/parking/pabi/car
+  Summary: 번호판으로 차량 위치 조회
+  Tags: files
+
+
+[led] - 3개 미구현
+--------------------------------------------------------------------------------
+GET /api/v1/led/calculation
+  Summary: LED 계산 수행 (GET)
+  Tags: led
+
+GET /api/v1/led/health
+  Summary: LED 계산 서비스 상태 확인
+  Tags: led
+
+POST /api/v1/led/legacy
+  Summary: 레거시 LED 계산 (POST)
+  Tags: led
+
+
+[rtsp] - 13개 미구현
+--------------------------------------------------------------------------------
+GET /api/v1/rtsp/info
+  Summary: RTSP 서비스 정보 조회
+  Tags: rtsp
+
+GET /api/v1/rtsp/stats
+  Summary: RTSP 캡처 통계 조회
+  Tags: rtsp
+
+GET /api/v1/rtsp/adaptive-stats
+  Summary: 적응형 통계 정보 조회 (신규)
+  Tags: rtsp
+
+GET /api/v1/rtsp/health
+  Summary: RTSP 서비스 상태 확인
+  Tags: rtsp
+
+POST /api/v1/rtsp/trigger
+  Summary: 수동 캡처 실행
+  Tags: rtsp
+
+GET /api/v1/rtsp/scheduler
+  Summary: 스케줄러 상태 조회
+  Tags: rtsp
+
+POST /api/v1/rtsp/blacklist/reset
+  Summary: 블랙리스트 초기화 (신규)
+  Tags: rtsp
+
+DELETE /api/v1/rtsp/blacklist/{address}
+  Summary: 블랙리스트에서 특정 주소 제거 (신규)
+  Tags: rtsp
+
+GET /api/v1/rtsp/image/{tag}
+  Summary: 특정 태그의 최신 캡처 이미지 조회
+  Tags: rtsp
+
+GET /api/v1/rtsp/list
+  Summary: 모든 RTSP 설정 조회
+  Tags: rtsp
+
+POST /api/v1/rtsp
+  Summary: 새 RTSP 설정 생성
+  Tags: rtsp
+
+PUT /api/v1/rtsp/{tag}
+  Summary: RTSP 설정 업데이트
+  Tags: rtsp
+
+DELETE /api/v1/rtsp/{tag}
+  Summary: RTSP 설정 삭제
+  Tags: rtsp
+
+
+[settings] - 7개 미구현
+--------------------------------------------------------------------------------
+GET /api/v1/settings/database/config
+  Summary: 데이터베이스 설정 조회
+  Tags: settings
+
+PUT /api/v1/settings/database/config
+  Summary: 전체 데이터베이스 설정 업데이트
+  Tags: settings
+
+PUT /api/v1/settings/database/engine
+  Summary: 엔진 데이터베이스 설정 업데이트
+  Tags: settings
+
+PUT /api/v1/settings/database/display
+  Summary: 디스플레이 데이터베이스 설정 업데이트
+  Tags: settings
+
+POST /api/v1/settings/database/test-connection
+  Summary: 데이터베이스 연결 테스트
+  Tags: settings
+
+GET /api/v1/settings/database/health
+  Summary: 데이터베이스 관리 서비스 상태
+  Tags: settings
+
+GET /api/v1/settings/database/info
+  Summary: 데이터베이스 관리 서비스 정보
+  Tags: settings
+
+
+[statistics] - 13개 미구현
+--------------------------------------------------------------------------------
+GET /api/v1/statistics/daily
+  Summary: 일별 통계 조회
+  Tags: statistics
+
+GET /api/v1/statistics/weekly
+  Summary: 주별 통계 조회
+  Tags: statistics
+
+GET /api/v1/statistics/monthly
+  Summary: 월별 통계 조회
+  Tags: statistics
+
+GET /api/v1/statistics/yearly
+  Summary: 연별 통계 조회
+  Tags: statistics
+
+GET /api/v1/statistics/daily/all
+  Summary: 모든 일별 통계 조회
+  Tags: statistics
+
+GET /api/v1/statistics/monthly/all
+  Summary: 모든 월별 통계 조회
+  Tags: statistics
+
+GET /api/v1/statistics/yearly/all
+  Summary: 모든 연별 통계 조회
+  Tags: statistics
+
+GET /api/v1/statistics/several-years
+  Summary: 여러 해 통계 조회
+  Tags: statistics
+
+GET /api/v1/statistics/several-years/all
+  Summary: 모든 여러 해 통계 조회
+  Tags: statistics
+
+POST /api/v1/statistics/custom-period
+  Summary: 사용자 정의 기간 통계 조회
+  Tags: statistics
+
+POST /api/v1/statistics/graph
+  Summary: 그래프용 통계 데이터 조회
+  Tags: statistics
+
+GET /api/v1/statistics/health
+  Summary: 통계 서비스 상태 확인
+  Tags: statistics
+
+GET /api/v1/statistics/info
+  Summary: 통계 서비스 정보 조회
+  Tags: statistics
+
+
+[system] - 13개 미구현
+--------------------------------------------------------------------------------
+GET /api/v1/monitoring/health
+  Summary: 전체 시스템 생존 상태 확인
+  Tags: system
+
+POST /api/v1/monitoring/health
+  Summary: 새로운 서비스 URL 등록
+  Tags: system
+
+GET /api/v1/monitoring/health/services
+  Summary: 등록된 서비스들의 생존 상태 확인
+  Tags: system
+
+GET /api/v1/monitoring/errors
+  Summary: 현재 오류 상태 조회
+  Tags: system
+
+POST /api/v1/monitoring/errors
+  Summary: 오류 보고
+  Tags: system
+
+DELETE /api/v1/monitoring/errors
+  Summary: 오류 목록 초기화
+  Tags: system
+
+GET /api/v1/system/health
+  Summary: 전체 시스템 상태 확인
+  Tags: system
+
+GET /api/v1/system/ping
+  Summary: 간단한 생존 확인
+  Tags: system
+
+GET /api/v1/monitoring/health/isalive
+  Summary: 간단한 생존 확인 (IsAlive)
+  Tags: system
+
+GET /api/v1/monitoring/ping
+  Summary: 데이터베이스 Ping
+  Tags: system
+
+GET /api/v1/monitoring/ping/database
+  Summary: 데이터베이스 상세 Ping
+  Tags: system
+
+GET /api/v1/monitoring/status
+  Summary: 모니터링 시스템 상태 조회
+  Tags: system
+
+GET /api/v1/monitoring/info
+  Summary: 모니터링 서비스 정보
+  Tags: system
+
+
+[users] - 17개 미구현
+--------------------------------------------------------------------------------
+GET /api/v1/users
+  Summary: 모든 사용자 조회
+  Tags: users
+
+POST /api/v1/users
+  Summary: 새 사용자 생성
+  Tags: users
+
+GET /api/v1/users/{account}
+  Summary: 특정 사용자 조회
+  Tags: users
+
+PUT /api/v1/users/{account}
+  Summary: 사용자 정보 수정
+  Tags: users
+
+DELETE /api/v1/users/{account}
+  Summary: 사용자 삭제
+  Tags: users
+
+PATCH /api/v1/users/{account}/password
+  Summary: 비밀번호 변경
+  Tags: users
+
+PATCH /api/v1/users/{account}/password/reset
+  Summary: 비밀번호 초기화
+  Tags: users
+
+GET /api/v1/users/health
+  Summary: 사용자 관리 서비스 상태
+  Tags: users
+
+GET /api/v1/users/info
+  Summary: 사용자 관리 서비스 정보
+  Tags: users
+
+GET /api/v1/users/legacy
+  Summary: 레거시 사용자 목록 조회
+  Tags: users
+
+POST /api/v1/users/legacy
+  Summary: 레거시 사용자 생성/업데이트 (통합)
+  Tags: users
+
+POST /api/v1/users/legacy/updateUser
+  Summary: 레거시 사용자 정보 수정
+  Tags: users
+
+POST /api/v1/users/legacy/changePassword
+  Summary: 레거시 비밀번호 변경
+  Tags: users
+
+POST /api/v1/users/legacy/resetPassword
+  Summary: 레거시 비밀번호 리셋
+  Tags: users
+
+POST /api/v1/users/legacy/insertUser
+  Summary: 레거시 사용자 삽입
+  Tags: users
+
+POST /api/v1/users/legacy/deleteUser
+  Summary: 레거시 사용자 삭제
+  Tags: users
+
+POST /api/v1/users/admin
+  Summary: 관리자 계정 생성
+  Tags: users
+
+
+[utilities] - 7개 미구현
+--------------------------------------------------------------------------------
+GET /api/v1/resources
+  Summary: 주차장 리소스 조회
+  Tags: utilities
+
+GET /api/v1/resources/parking-lots
+  Summary: 주차 공간 목록 조회
+  Tags: utilities
+
+GET /api/v1/resources/parking-lots/raw
+  Summary: 주차 공간 원시 데이터 조회
+  Tags: utilities
+
+POST /api/v1/resources/refresh
+  Summary: 리소스 새로고침
+  Tags: utilities
+
+GET /api/v1/resources/status
+  Summary: 리소스 상태 조회
+  Tags: utilities
+
+GET /api/v1/resources/health
+  Summary: 리소스 관리 서비스 상태
+  Tags: utilities
+
+GET /api/v1/resources/info
+  Summary: 리소스 관리 서비스 정보
+  Tags: utilities
+
+
+[vehicle] - 7개 미구현
+--------------------------------------------------------------------------------
+GET /api/v1/vehicle/info
+  Summary: 차량 정보 조회
+  Tags: vehicle
+
+GET /api/v1/vehicle/location/{vehicleId}
+  Summary: 특정 차량 위치 조회
+  Tags: vehicle
+
+GET /api/v1/vehicle/by-tag
+  Summary: 태그로 차량 정보 조회 (GET)
+  Tags: vehicle
+
+POST /api/v1/vehicle/by-tag
+  Summary: 태그로 차량 정보 조회 (POST)
+  Tags: vehicle
+
+GET /api/v1/vehicle/by-plate
+  Summary: 번호판으로 차량 위치 조회 (GET)
+  Tags: vehicle
+
+POST /api/v1/vehicle/by-plate
+  Summary: 번호판으로 차량 위치 조회 (POST)
+  Tags: vehicle
+
+GET /api/v1/vehicle/health
+  Summary: 차량 정보 서비스 상태 확인
+  Tags: vehicle
+
