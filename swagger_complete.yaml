@@ -394,8 +394,8 @@ paths:
                   example: "홍길동"
                 userlevel:
                   type: integer
-                  description: 사용자 레벨 (1=User, 2=Control, 3=Desk, 4=Display)
-                  enum: [1, 2, 3, 4]
+                  description: 사용자 레벨 (0=Super Admin, 1=User, 2=Control, 3=Desk, 4=Display)
+                  enum: [0, 1, 2, 3, 4]
                   example: 1
                 isActivated:
                   type: integer
@@ -445,8 +445,8 @@ paths:
                   example: "김철수"
                 userlevel:
                   type: integer
-                  description: 사용자 레벨 (1=User, 2=Control, 3=Desk, 4=Display)
-                  enum: [1, 2, 3, 4]
+                  description: 사용자 레벨 (0=Super Admin, 1=User, 2=Control, 3=Desk, 4=Display)
+                  enum: [0, 1, 2, 3, 4]
                   example: 2
                 isActivated:
                   type: integer
