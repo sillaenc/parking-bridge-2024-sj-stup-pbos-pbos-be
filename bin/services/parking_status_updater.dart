@@ -72,11 +72,22 @@ class ParkingStatusUpdater {
     required String timestamp,
   }) async {
     try {
+      // ws4sqlite 요청 크기 제한을 고려하여 일정 묶음 단위로 배치를 전송한다.
+      const int LOTS_PER_BATCH = 40; // 요청 크기 여유를 위한 경험적 값
       final transactions = <Map<String, dynamic>>[];
+      int processedLots = 0;
+
+      Future<void> flushBatch() async {
+        if (transactions.isEmpty) return;
+        await _dbClient.executeBatch(
+          url: displayDbUrl,
+          transactions: List<Map<String, dynamic>>.from(transactions),
+        );
+        transactions.clear();
+      }
 
       // 각 주차 공간에 대해 상태 업데이트 및 로그 기록
       for (final lot in updatedLotList) {
-        // TbLots 테이블 업데이트
         transactions.add({
           "statement": "#U_TbLots",
           "values": {
@@ -85,7 +96,6 @@ class ParkingStatusUpdater {
           },
         });
 
-        // TbLotStatus 테이블에 상태 변화 기록
         transactions.add({
           "statement": "#I_TbLotStatus",
           "values": {
@@ -94,16 +104,17 @@ class ParkingStatusUpdater {
             "added": timestamp,
           },
         });
+
+        processedLots += 1;
+        if (processedLots % LOTS_PER_BATCH == 0) {
+          await flushBatch();
+        }
       }
 
-      // 배치 실행
-      if (transactions.isNotEmpty) {
-        await _dbClient.executeBatch(
-          url: displayDbUrl,
-          transactions: transactions,
-        );
+      await flushBatch();
 
-        print('✅ ${updatedLotList.length}개 주차 공간 상태가 업데이트되었습니다.');
+      if (processedLots > 0) {
+        print('✅ ${processedLots}개 주차 공간 상태가 업데이트되었습니다.');
         return true;
       }
 

@@ -130,9 +130,14 @@ class StatisticsDateHelper {
   /// 사용자 정의 범위 파라미터 생성 (그래프용)
   static Map<String, String> getCustomRangeParams(
       String startDay, String endDay) {
+    final formattedStartDay =
+        startDay.contains(' ') ? startDay : '$startDay 00';
+    final formattedEndDay =
+        endDay.contains(' ') ? endDay : '$endDay 23';
+
     return {
-      'startDay': '$startDay 00',
-      'endDay': '$endDay 23',
+      'startDay': formattedStartDay,
+      'endDay': formattedEndDay,
     };
   }
 }

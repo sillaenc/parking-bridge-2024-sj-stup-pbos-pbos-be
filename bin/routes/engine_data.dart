@@ -69,7 +69,6 @@ class EngineDataRoutes {
         engineDbAddr: addresses['engine']!,
         displayDbAddr: addresses['display']!,
         displayDbLPR: addresses['lpr']!,
-        checkTime: DateTime.now(),
       );
 
       return _successResponse({

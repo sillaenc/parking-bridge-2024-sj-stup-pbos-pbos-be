@@ -267,15 +267,12 @@ class StatisticsApi {
         );
       }
 
-      // 레거시 API와 동일하게 시간 추가 (00시 ~ 23시)
-      final startDayWithTime = '$startDay 00';
-      final endDayWithTime = '$endDay 23';
-      
-      print('[Statistics] Graph - startDay: $startDayWithTime, endDay: $endDayWithTime');
+      // 요청 받은 기간 확인 (서비스에서 시간 범위 포맷 보정 수행)
+      print('[Statistics] Graph - Requested range: start=$startDay, end=$endDay');
 
       final result = await _statisticsService.getGraphStatistics(
-        startDayWithTime,
-        endDayWithTime,
+        startDay,
+        endDay,
       );
 
       print('[Statistics] Graph - Result count: ${result.data.length}');
@@ -305,6 +302,8 @@ class StatisticsApi {
         headers: _getDefaultHeaders(),
       );
     } catch (e, stackTrace) {
+      print('Statistics health check failed: $e');
+      print('StackTrace: $stackTrace');
       return Response.internalServerError(
         body: jsonEncode({
           'status': 'unhealthy',

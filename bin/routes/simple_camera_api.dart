@@ -203,7 +203,7 @@ class SimpleCameraApi {
 
       final body = await request.readAsString();
       final data = jsonDecode(body) as Map<String, dynamic>;
-      final imagePath = data['image_link'] as String;
+      final imagePath = data['last_image_path'] as String;
 
       final result = await _cameraService.updateImageLink(
         databaseUrl,

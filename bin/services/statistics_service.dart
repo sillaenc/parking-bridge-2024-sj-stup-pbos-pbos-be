@@ -282,8 +282,22 @@ class StatisticsService {
         values: params,
       );
 
+      // 결과 컬럼 정규화: car_type → lot_type 변환
+      final normalizedResult = (result as List<dynamic>)
+          .map<Map<String, dynamic>>((row) {
+        final normalizedRow =
+            Map<String, dynamic>.from(row as Map<String, dynamic>);
+        if (normalizedRow.containsKey('car_type')) {
+          final lotTypeValue = normalizedRow['car_type'];
+          normalizedRow
+            ..remove('car_type')
+            ..['lot_type'] = lotTypeValue;
+        }
+        return normalizedRow;
+      }).toList();
+
       return StatisticsResult(
-        data: result,
+        data: normalizedResult,
         query: StatisticsQueries.graph,
         timestamp: DateTime.now(),
       );

@@ -24,17 +24,17 @@ class EngineDataProcessor {
         _statisticsProcessor = statisticsProcessor ?? StatisticsProcessor();
 
   /// 엔진 데이터 전체 처리 플로우 실행
+  /// 내부적으로 `_lastProcessTime`을 사용해 직전 처리 시각을 추적하고,
+  /// 시간 경계가 변경되면 주기 통계 적재를 자동으로 수행한다.
   ///
   /// [engineDbAddr] 엔진 DB 주소
   /// [displayDbAddr] 디스플레이 DB 주소
   /// [displayDbLPR] LPR DB 주소
-  /// [checkTime] 체크 시간
   /// Returns: 처리된 주차 공간 목록
   Future<List<String>> processEngineData({
     required String engineDbAddr,
     required String displayDbAddr,
     required String displayDbLPR,
-    required DateTime checkTime,
   }) async {
     print('🔄 엔진 데이터 처리를 시작합니다: ${DateTime.now()}');
 
@@ -86,9 +86,10 @@ class EngineDataProcessor {
       _statusUpdater.printParkingStatusSummary(updatedLotInfo);
 
       // 8단계: 시간 변화 확인 및 통계 처리
+      final previousProcessTime = _lastProcessTime;
       await _processTimeBasedStatistics(
         displayDbAddr: displayDbAddr,
-        checkTime: checkTime,
+        previousTime: previousProcessTime,
       );
 
       // 9단계: LPR 데이터 처리 (선택적)
@@ -131,16 +132,16 @@ class EngineDataProcessor {
   /// 시간 변화 기반 통계 처리
   ///
   /// [displayDbAddr] 디스플레이 DB 주소
-  /// [checkTime] 체크 시간
+  /// [previousTime] 직전 통계 처리 시각
   Future<void> _processTimeBasedStatistics({
     required String displayDbAddr,
-    required DateTime checkTime,
+    required DateTime previousTime,
   }) async {
     final currentTime = DateTime.now();
-    final previousTime = checkTime.subtract(const Duration(seconds: 10));
+    final referenceTime = previousTime.subtract(const Duration(seconds: 10));
 
     // 시간 변화 감지
-    final timeChanges = DateUtils.checkTimeChanges(previousTime, currentTime);
+    final timeChanges = DateUtils.checkTimeChanges(referenceTime, currentTime);
 
     // 시간별 통계 처리
     if (timeChanges['hour'] == true) {
@@ -178,6 +179,7 @@ class EngineDataProcessor {
       );
     }
 
+    // 다음 호출 시 기준으로 사용할 마지막 처리 시각 갱신
     _lastProcessTime = currentTime;
   }
 

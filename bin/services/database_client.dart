@@ -93,8 +93,17 @@ class DatabaseClient {
       );
 
       if (response.statusCode != 200) {
+        String? errorMessage;
+        try {
+          final decoded = jsonDecode(response.body);
+          errorMessage = decoded['error']?.toString();
+        } catch (_) {
+          errorMessage = response.body.isNotEmpty ? response.body : null;
+        }
+
         throw DatabaseException(
-          'Statement failed with status code: ${response.statusCode}',
+          'Statement failed with status code: ${response.statusCode}'
+          '${errorMessage != null ? ' - $errorMessage' : ''}',
           queryId: statementId,
           statusCode: response.statusCode,
         );
@@ -136,6 +145,25 @@ class DatabaseClient {
           'Batch execution failed with status code: ${response.statusCode}',
           statusCode: response.statusCode,
         );
+      }
+
+      // ws4sqlite는 200을 반환해도 개별 statement 오류를 result 배열에 담는다.
+      try {
+        final decoded = jsonDecode(response.body);
+        final results = decoded['results'];
+        if (results is List) {
+          for (final entry in results) {
+            final error = entry?['error'];
+            if (error != null) {
+              throw DatabaseException(
+                'Batch statement failed: $error',
+              );
+            }
+          }
+        }
+      } catch (e) {
+        if (e is DatabaseException) rethrow;
+        // JSON 파싱 실패는 무시 (ws4sqlite 구버전의 plain 응답 대응)
       }
 
       return true;

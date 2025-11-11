@@ -11,8 +11,6 @@ class PeriodicTaskService {
   final EngineService _engineService;
   final EngineDataProcessor _engineDataProcessor;
   final ManageAddress _manageAddress;
-  DateTime _lastCheck = DateTime.now();
-
   PeriodicTaskService({
     required ManageAddress manageAddress,
     EngineService? engineService,
@@ -53,9 +51,7 @@ class PeriodicTaskService {
           engineDbAddr: engineAddr,
           displayDbAddr: _manageAddress.displayDbAddr!,
           displayDbLPR: _manageAddress.displayDbLPR ?? '',
-          checkTime: _lastCheck,
         );
-        _lastCheck = DateTime.now();
       }
     } catch (e, stackTrace) {
       print('Error in periodic task: $e');

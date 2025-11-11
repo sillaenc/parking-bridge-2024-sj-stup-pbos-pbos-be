@@ -6,15 +6,15 @@
 class Camera {
   final int? uid;
   final String tag;
-  final String cameraName;
-  final String? imageLink;
+  final String rtspAddress;
+  final String? lastImagePath;
 
   /// 카메라 정보 생성자
   Camera({
     this.uid,
     required this.tag,
-    required this.cameraName,
-    this.imageLink,
+    required this.rtspAddress,
+    this.lastImagePath,
   });
 
   /// JSON에서 Camera 객체 생성
@@ -22,8 +22,8 @@ class Camera {
     return Camera(
       uid: json['uid'] as int?,
       tag: json['tag'] as String,
-      cameraName: json['camera_name'] as String,
-      imageLink: json['image_link'] as String?,
+      rtspAddress: (json['rtsp_address'] ?? json['camera_name']) as String,
+      lastImagePath: json['last_image_path'] as String?,
     );
   }
 
@@ -32,33 +32,36 @@ class Camera {
     return {
       'uid': uid,
       'tag': tag,
-      'camera_name': cameraName,
-      'image_link': imageLink,
+      'rtsp_address': rtspAddress,
+      'last_image_path': lastImagePath,
     };
   }
 
   @override
   String toString() {
-    return 'Camera(uid: $uid, tag: $tag, cameraName: $cameraName, imageLink: $imageLink)';
+    return 'Camera(uid: $uid, tag: $tag, rtspAddress: $rtspAddress, lastImagePath: $lastImagePath)';
   }
 }
 
 /// 카메라 등록/수정 요청 모델
 class CameraRequest {
   final String tag;
-  final String cameraName;
+  final String rtspAddress;
+  final String? lastImagePath;
 
   /// 카메라 요청 생성자
   CameraRequest({
     required this.tag,
-    required this.cameraName,
+    required this.rtspAddress,
+    this.lastImagePath,
   });
 
   /// JSON에서 CameraRequest 객체 생성
   factory CameraRequest.fromJson(Map<String, dynamic> json) {
     return CameraRequest(
       tag: json['tag'] as String,
-      cameraName: json['camera_name'] as String,
+      rtspAddress: (json['rtsp_address'] ?? json['camera_name']) as String,
+      lastImagePath: json['last_image_path'] as String?,
     );
   }
 
@@ -66,7 +69,8 @@ class CameraRequest {
   Map<String, dynamic> toJson() {
     return {
       'tag': tag,
-      'camera_name': cameraName,
+      'rtsp_address': rtspAddress,
+      if (lastImagePath != null) 'last_image_path': lastImagePath,
     };
   }
 }
@@ -109,9 +113,22 @@ class CameraServiceResponse<T> {
     return {
       'success': success,
       'message': message,
-      'data': data,
+      'data': _encodeData(data),
       if (errorCode != null) 'error_code': errorCode,
     };
+  }
+
+  dynamic _encodeData(dynamic value) {
+    if (value is Camera) {
+      return value.toJson();
+    }
+    if (value is List) {
+      return value.map((item) => _encodeData(item)).toList();
+    }
+    if (value is Map) {
+      return value.map((key, item) => MapEntry(key, _encodeData(item)));
+    }
+    return value;
   }
 }
 

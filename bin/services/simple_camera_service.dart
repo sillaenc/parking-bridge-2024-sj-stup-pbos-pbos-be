@@ -37,7 +37,7 @@ class SimpleCameraService {
       // pb.yaml에 카메라 테이블이 없는 경우
       if (e.toString().contains('Query failed with status code: 400')) {
         return CameraServiceResponse.error(
-          'pb.yaml에 tb_camera 테이블과 #S_Camera_All 쿼리를 추가해주세요.',
+          'pb.yaml에 rtsp_capture 테이블 관련 카메라 쿼리가 정의되어 있는지 확인해주세요.',
           'CAMERA_TABLE_NOT_FOUND',
         );
       }
@@ -83,7 +83,7 @@ class SimpleCameraService {
       // pb.yaml에 카메라 테이블이 없는 경우
       if (e.toString().contains('Query failed with status code: 400')) {
         return CameraServiceResponse.error(
-          'pb.yaml에 tb_camera 테이블과 #S_Camera_ByTag 쿼리를 추가해주세요.',
+          'pb.yaml에 rtsp_capture 테이블 관련 카메라 쿼리가 정의되어 있는지 확인해주세요.',
           'CAMERA_TABLE_NOT_FOUND',
         );
       }
@@ -120,7 +120,8 @@ class SimpleCameraService {
         queryId: "#I_Camera",
         values: {
           'tag': request.tag,
-          'camera_name': request.cameraName,
+          'rtsp_address': request.rtspAddress,
+          'last_image_path': request.lastImagePath ?? '',
         },
       );
 
@@ -154,7 +155,7 @@ class SimpleCameraService {
         queryId: "#U_Camera_ImageLink",
         values: {
           'tag': tag,
-          'image_link': imagePath,
+          'last_image_path': imagePath,
         },
       );
 
@@ -229,9 +230,9 @@ class SimpleCameraService {
         );
       }
 
-      final imageLink = cameraResponse.data!.imageLink;
+      final imagePath = cameraResponse.data!.lastImagePath;
 
-      if (imageLink == null || imageLink.isEmpty) {
+      if (imagePath == null || imagePath.isEmpty) {
         return CameraServiceResponse.error(
           '해당 카메라의 이미지가 없습니다.',
           'IMAGE_NOT_FOUND',
@@ -240,7 +241,7 @@ class SimpleCameraService {
 
       return CameraServiceResponse.success(
         '이미지 경로를 조회했습니다.',
-        imageLink,
+        imagePath,
       );
     } catch (e) {
       print('Error getting camera image path: $e');
