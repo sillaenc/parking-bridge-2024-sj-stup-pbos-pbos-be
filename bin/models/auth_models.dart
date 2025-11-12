@@ -192,6 +192,7 @@ class LotTypeInfo {
 /// 로트 상세 정보 모델
 class LotDetailInfo {
   final int uid;
+  final String? tag;
   final String point;
   final int lotType;
   final String asset;
@@ -202,6 +203,7 @@ class LotDetailInfo {
 
   const LotDetailInfo({
     required this.uid,
+    this.tag,
     required this.point,
     required this.lotType,
     required this.asset,
@@ -214,6 +216,7 @@ class LotDetailInfo {
   factory LotDetailInfo.fromJson(Map<String, dynamic> json) {
     return LotDetailInfo(
       uid: json['uid'] as int,
+      tag: json['tag'] as String?,
       point: json['point'] as String,
       lotType: json['lot_type'] as int,
       asset: json['asset'] as String,
@@ -227,6 +230,7 @@ class LotDetailInfo {
   Map<String, dynamic> toJson() {
     return {
       'uid': uid,
+      if (tag != null) 'tag': tag,
       'point': point,
       'lot_type': lotType,
       'asset': asset,
