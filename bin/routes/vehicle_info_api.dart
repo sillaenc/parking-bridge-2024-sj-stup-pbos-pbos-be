@@ -18,6 +18,9 @@ class VehicleInfoApi {
   Router get router {
     final router = Router();
 
+    // GET /api/v1/vehicle/info - 전체 차량 정보 목록 조회
+    router.get('/info', _getAllVehicleInfo);
+
     // GET /api/v1/vehicle/by-tag?tag={tag} - 태그로 차량 정보 조회
     router.get('/by-tag', _getVehicleInfoByTag);
 
@@ -34,6 +37,41 @@ class VehicleInfoApi {
     router.get('/health', _getServiceHealth);
 
     return router;
+  }
+
+  /// GET 방식으로 전체 차량 정보 목록 조회
+  Future<Response> _getAllVehicleInfo(Request request) async {
+    try {
+      final serviceResponse =
+          await _vehicleInfoService.getAllVehicleInfo();
+
+      if (serviceResponse.success) {
+        return Response.ok(
+          jsonEncode(serviceResponse.toJson()),
+          headers: {'Content-Type': 'application/json'},
+        );
+      } else {
+        final statusCode = _getStatusCodeFromError(serviceResponse.error);
+        return Response(
+          statusCode,
+          body: jsonEncode(serviceResponse.toJson()),
+          headers: {'Content-Type': 'application/json'},
+        );
+      }
+    } catch (e, stackTrace) {
+      print('VehicleInfoApi._getAllVehicleInfo 오류: $e');
+      print('스택 트레이스: $stackTrace');
+
+      return Response.internalServerError(
+        body: jsonEncode({
+          'success': false,
+          'message': '전체 차량 정보 조회 중 서버 오류가 발생했습니다.',
+          'error': e.toString(),
+          'timestamp': DateTime.now().toIso8601String(),
+        }),
+        headers: {'Content-Type': 'application/json'},
+      );
+    }
   }
 
   /// GET 방식으로 태그로 차량 정보 조회
