@@ -29,6 +29,14 @@ String rtspToFilename(String rtspAddress) {
 
     String filename = 'cam_${host}_${port}';
 
+    // 채널 정보가 있으면 파일명에 포함하여 덮어쓰임 방지
+    final channel = uri.queryParameters['channel'];
+    if (channel != null && channel.isNotEmpty) {
+      final sanitizedChannel =
+          channel.replaceAll(RegExp(r'[^a-zA-Z0-9]'), '_');
+      filename = '${filename}_ch$sanitizedChannel';
+    }
+
     // 파일명이 너무 길면 줄이기
     if (filename.length > RtspConfig.MAX_FILENAME_LENGTH) {
       final bytes = utf8.encode(rtspAddress);

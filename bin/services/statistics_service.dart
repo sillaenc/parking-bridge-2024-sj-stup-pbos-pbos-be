@@ -287,14 +287,25 @@ class StatisticsService {
           .map<Map<String, dynamic>>((row) {
         final normalizedRow =
             Map<String, dynamic>.from(row as Map<String, dynamic>);
+
         if (normalizedRow.containsKey('car_type')) {
           final lotTypeValue = normalizedRow['car_type'];
           normalizedRow
             ..remove('car_type')
             ..['lot_type'] = lotTypeValue;
         }
+
+        final countValue = normalizedRow['count'];
+        final normalizedCount = countValue is num
+            ? countValue.toInt()
+            : int.tryParse('$countValue') ?? 0;
+        normalizedRow['count'] = normalizedCount;
+
         return normalizedRow;
-      }).toList();
+      })
+          // 빈 구간은 클라이언트에 전달하지 않는다.
+          .where((row) => (row['count'] as int) > 0)
+          .toList();
 
       return StatisticsResult(
         data: normalizedResult,
