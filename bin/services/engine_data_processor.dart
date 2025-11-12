@@ -138,10 +138,9 @@ class EngineDataProcessor {
     required DateTime previousTime,
   }) async {
     final currentTime = DateTime.now();
-    final referenceTime = previousTime.subtract(const Duration(seconds: 10));
 
-    // 시간 변화 감지
-    final timeChanges = DateUtils.checkTimeChanges(referenceTime, currentTime);
+    // 시간 변화 감지 (previousTime과 currentTime을 직접 비교)
+    final timeChanges = DateUtils.checkTimeChanges(previousTime, currentTime);
 
     // 시간별 통계 처리
     if (timeChanges['hour'] == true) {
