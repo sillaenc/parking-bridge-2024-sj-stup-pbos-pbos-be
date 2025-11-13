@@ -276,11 +276,27 @@ class StatisticsService {
       final params =
           StatisticsDateHelper.getCustomRangeParams(startDay, endDay);
 
+      // 🔍 디버깅: 실제 전달되는 파라미터 확인
+      print('🔍 [DEBUG] Graph API Parameters:');
+      print('   - startDay: ${params['startDay']}');
+      print('   - endDay: ${params['endDay']}');
+      print('   - Query ID: ${StatisticsQueries.graph}');
+      print('   - DB URL: $_databaseUrl');
+
       final result = await _databaseClient.executeQuery(
         url: _databaseUrl,
         queryId: StatisticsQueries.graph,
         values: params,
       );
+
+      // 🔍 디버깅: 쿼리 결과 확인
+      print('🔍 [DEBUG] Raw Query Result Count: ${result.length}');
+      if (result.isNotEmpty) {
+        print('🔍 [DEBUG] First Row Sample: ${result.first}');
+        if (result.length > 1) {
+          print('🔍 [DEBUG] Second Row Sample: ${result[1]}');
+        }
+      }
 
       // 결과 컬럼 정규화: car_type → lot_type 변환
       final normalizedResult = (result as List<dynamic>)

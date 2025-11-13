@@ -13,7 +13,8 @@ class EngineDataProcessor {
   final StatisticsProcessor _statisticsProcessor;
 
   // 이전 시간 체크를 위한 변수들
-  DateTime _lastProcessTime = DateTime.now();
+  // 초기값을 과거 시각으로 설정하여 첫 실행 시에도 통계 처리가 되도록 함
+  DateTime _lastProcessTime = DateTime.now().subtract(const Duration(hours: 2));
 
   EngineDataProcessor({
     DatabaseClient? dbClient,
@@ -138,9 +139,13 @@ class EngineDataProcessor {
     required DateTime previousTime,
   }) async {
     final currentTime = DateTime.now();
+    
+    // 구버전과 동일하게 10초 오프셋을 적용하여 시간 변화 감지
+    // 이렇게 하면 정시(예: 05:00:00)에 가까운 시점에서 확실하게 감지됨
+    final checkTime = currentTime.subtract(const Duration(seconds: 10));
 
-    // 시간 변화 감지 (previousTime과 currentTime을 직접 비교)
-    final timeChanges = DateUtils.checkTimeChanges(previousTime, currentTime);
+    // 시간 변화 감지 (previousTime과 checkTime을 비교)
+    final timeChanges = DateUtils.checkTimeChanges(previousTime, checkTime);
 
     // 시간별 통계 처리
     if (timeChanges['hour'] == true) {
@@ -179,7 +184,8 @@ class EngineDataProcessor {
     }
 
     // 다음 호출 시 기준으로 사용할 마지막 처리 시각 갱신
-    _lastProcessTime = currentTime;
+    // 10초 오프셋이 적용된 시각을 저장하여 일관성 유지
+    _lastProcessTime = checkTime;
   }
 
   /// 주차장 상태 정보 조회 (API용)
