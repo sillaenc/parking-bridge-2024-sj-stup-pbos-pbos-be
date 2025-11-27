@@ -1,0 +1,298 @@
+// PBOS migration schema (PostgreSQL) based on pb.yaml
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          Int     @id @default(autoincrement()) @map("uid")
+  account     String  @db.VarChar(30)
+  passwd      String
+  username    String? @db.VarChar(50)
+  userlevel   Int
+  isActivated Boolean @default(true) @map("isActivated")
+
+  @@map("tb_users")
+  @@unique([account])
+  @@index([account, passwd])
+}
+
+model Parking {
+  id            Int     @id @default(autoincrement()) @map("uid")
+  tag           String? @db.VarChar(50)
+  useTag        Boolean? @map("use_tag")
+  logo          String?
+  useLogo       Boolean? @map("use_logo")
+  serverTimeout Int? @map("server_timeout")
+
+  @@map("tb_parking")
+}
+
+model LotType {
+  id         Int     @id @default(autoincrement()) @map("uid")
+  lotType    String? @db.VarChar(30) @map("lot_type")
+  tag        String? @db.VarChar(30)
+  codeFormat String? @db.VarChar(5) @map("code_format")
+  isUsed     Boolean?
+
+  lots       Lot[]
+
+  @@map("tb_lot_type")
+  @@index([lotType])
+  @@index([isUsed])
+}
+
+model LotImage {
+  id           Int      @id @default(autoincrement()) @map("uid")
+  xbottomright Decimal? @db.Decimal(10, 2)
+  ybottomright Decimal? @db.Decimal(10, 2)
+
+  @@map("tb_lots_image")
+}
+
+model LotStatus {
+  id      Int       @id @default(autoincrement()) @map("uid")
+  lotId   Int?      @map("lot")
+  isParked Boolean?
+  added   DateTime?
+
+  lot     Lot?      @relation(fields: [lotId], references: [id])
+
+  @@map("tb_lot_status")
+  @@index([added])
+}
+
+model DbSetting {
+  id             Int    @id @default(autoincrement()) @map("uid")
+  engineDbAddr   String? @map("engine_db_addr")
+  engineDbId     String? @map("engine_db_id") @db.VarChar(20)
+  engineDbPasswd String? @map("engine_db_passwd") @db.VarChar(20)
+  displayDbLpr   String? @map("display_db_lpr")
+
+  @@map("tb_db_setting")
+}
+
+model Lot {
+  id        Int      @id @default(autoincrement()) @map("uid")
+  tag       String?  @db.VarChar(50)
+  lotTypeId Int?     @map("lot_type")
+  point     String?  @db.VarChar(20)
+  parked    Boolean? @default(true)
+  isUsed    Boolean? @default(false)
+  asset     String?
+  floor     String?
+  plate     String?
+  startTime DateTime?
+
+  lotType   LotType? @relation(fields: [lotTypeId], references: [id])
+  statuses  LotStatus[]
+  processed ProcessedDb[]
+  perDay    PerDay[]
+  perMonth  PerMonth[]
+  perYear   PerYear[]
+
+  @@map("tb_lots")
+  @@unique([tag])
+  @@index([floor])
+  @@index([tag])
+  @@index([lotTypeId])
+}
+
+model ProcessedDb {
+  id           Int      @id @default(autoincrement()) @map("uid")
+  lotId        Int?     @map("lot")
+  carType      Int?     @map("car_type")
+  hourParking  Boolean? @map("hour_parking")
+  recordedHour DateTime? @map("recorded_hour")
+
+  lot          Lot?     @relation(fields: [lotId], references: [id])
+
+  @@map("processed_db")
+  @@index([recordedHour])
+  @@index([lotId])
+}
+
+model PerDay {
+  id          Int      @id @default(autoincrement()) @map("uid")
+  lotId       Int?     @map("lot")
+  carType     Int?     @map("car_type")
+  dayParking  Boolean? @map("day_parking")
+  recordedDay DateTime? @map("recorded_day")
+
+  lot         Lot?     @relation(fields: [lotId], references: [id])
+
+  @@map("perday")
+  @@index([recordedDay])
+}
+
+model PerMonth {
+  id            Int      @id @default(autoincrement()) @map("uid")
+  lotId         Int?     @map("lot")
+  carType       Int?     @map("car_type")
+  monthParking  Boolean? @map("month_parking")
+  recordedMonth DateTime? @map("recorded_month")
+
+  lot           Lot?     @relation(fields: [lotId], references: [id])
+
+  @@map("permonth")
+  @@index([recordedMonth])
+}
+
+model PerYear {
+  id           Int      @id @default(autoincrement()) @map("uid")
+  lotId        Int?     @map("lot")
+  carType      Int?     @map("car_type")
+  yearParking  Boolean? @map("year_parking")
+  recordedYear DateTime? @map("recorded_year")
+
+  lot          Lot?     @relation(fields: [lotId], references: [id])
+
+  @@map("peryear")
+  @@index([recordedYear])
+}
+
+model ParkingZone {
+  id          Int     @id @default(autoincrement()) @map("uid")
+  parkingName String  @db.VarChar(50) @map("parking_name")
+  fileAddress String  @map("file_address")
+  floor       String?
+
+  files       ParkingZoneFile[]
+
+  @@map("tb_parking_zone")
+  @@unique([parkingName])
+  @@unique([fileAddress])
+  @@index([parkingName])
+}
+
+model ParkingSurface {
+  id         Int    @id @default(autoincrement()) @map("uid")
+  tag        String @db.VarChar(50)
+  engineCode String @db.VarChar(10) @map("engine_code")
+  uri        String
+
+  @@map("tb_parking_surface")
+  @@index([tag])
+}
+
+model RawData {
+  uid        Int       @id @default(autoincrement()) @map("uid")
+  recordId   Int?      @map("id")
+  timestamp  DateTime?
+  parkingLot String?   @map("parking_lot")
+
+  @@map("rawdata")
+}
+
+model MultipleSigns {
+  id         Int    @id @default(autoincrement()) @map("uid")
+  parkingLot String @map("parking_lot")
+
+  @@map("multiple_signs")
+}
+
+model BaseInfo {
+  id         Int    @id @default(autoincrement()) @map("uid")
+  name       String
+  address    String
+  latitude   String? @db.VarChar(30)
+  longitude  String? @db.VarChar(30)
+  manager    String
+  phoneNumber String @db.VarChar(30) @map("phone_number")
+
+  @@map("base")
+}
+
+model Setting {
+  id    Int    @id @default(autoincrement()) @map("uid")
+  key   String @unique
+  value String?
+
+  @@map("settings")
+}
+
+model Display {
+  id       Int     @id @default(autoincrement()) @map("uid")
+  tag      String  @unique
+  lotTypeId Int?   @map("lot_type")
+  point    String? @db.VarChar(20)
+  asset    String?
+  floor    String?
+
+  @@map("display")
+}
+
+model Ping {
+  id        Int     @id @default(autoincrement()) @map("uid")
+  name      String
+  address   String
+  isalright Boolean?
+
+  @@map("ping")
+  @@unique([name, address])
+}
+
+model FileEntry {
+  id               Int     @id @default(autoincrement()) @map("uid")
+  filename         String  @db.VarChar(255)
+  originalFilename String? @db.VarChar(255) @map("original_filename")
+  filePath         String  @map("file_path")
+  fileType         String? @db.VarChar(10) @map("file_type")
+  fileCategory     String? @db.VarChar(20) @map("file_category")
+  fileSize         Int?    @map("file_size")
+  mimeType         String? @db.VarChar(100) @map("mime_type")
+  description      String?
+  uploadedAt       DateTime @default(now()) @map("uploaded_at")
+  updatedAt       DateTime @default(now()) @map("updated_at")
+  isActive         Boolean @default(true) @map("is_active")
+
+  parkingZoneFiles ParkingZoneFile[]
+
+  @@map("tb_files")
+  @@unique([filePath])
+  @@index([fileCategory])
+  @@index([fileType])
+  @@index([filename])
+  @@index([isActive])
+}
+
+model ParkingZoneFile {
+  id             Int       @id @default(autoincrement()) @map("uid")
+  parkingZoneId  Int       @map("parking_zone_id")
+  fileId         Int?      @map("file_id")
+  filePurpose    String?   @db.VarChar(50) @map("file_purpose")
+  createdAt      DateTime  @default(now()) @map("created_at")
+
+  parkingZone    ParkingZone @relation(fields: [parkingZoneId], references: [id])
+  file           FileEntry?  @relation(fields: [fileId], references: [id])
+
+  @@map("tb_parking_zone_files")
+  @@unique([parkingZoneId, fileId])
+  @@index([parkingZoneId])
+  @@index([fileId])
+}
+
+model Camera {
+  id         Int    @id @default(autoincrement()) @map("uid")
+  tag        String @unique @db.VarChar(50)
+  cameraName String @db.VarChar(100) @map("camera_name")
+  imageLink  String? @db.VarChar(255) @map("image_link")
+
+  @@map("tb_camera")
+  @@index([tag])
+}
+
+model RtspCapture {
+  id           Int    @id @default(autoincrement()) @map("uid")
+  tag          String @unique @db.VarChar(50)
+  rtspAddress  String @map("rtsp_address")
+  lastImagePath String? @map("last_image_path")
+
+  @@map("rtsp_capture")
+  @@index([tag])
+  @@index([rtspAddress])
+}

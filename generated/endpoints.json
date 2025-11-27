@@ -1,0 +1,1805 @@
+{
+  "count": 225,
+  "endpoints": [
+    {
+      "method": "POST",
+      "route": "/api/v1/auth/login",
+      "summary": "사용자 로그인",
+      "tags": [
+        "auth"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/api/v1/auth/base-info",
+      "summary": "기본 정보 조회",
+      "tags": [
+        "auth"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/api/v1/auth/token",
+      "summary": "토큰 정보 조회",
+      "tags": [
+        "auth"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/api/v1/auth/protected",
+      "summary": "보호된 엔드포인트 테스트",
+      "tags": [
+        "auth"
+      ]
+    },
+    {
+      "method": "POST",
+      "route": "/api/v1/auth/refresh",
+      "summary": "토큰 갱신",
+      "tags": [
+        "auth"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/api/v1/auth/health",
+      "summary": "인증 서비스 상태 확인",
+      "tags": [
+        "auth"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/api/v1/auth/info",
+      "summary": "인증 서비스 정보",
+      "tags": [
+        "auth"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/api/v1/auth/accounts/check",
+      "summary": "계정 목록 확인",
+      "tags": [
+        "auth"
+      ]
+    },
+    {
+      "method": "POST",
+      "route": "/api/v1/auth/legacy",
+      "summary": "레거시 로그인 (기존 클라이언트 호환)",
+      "tags": [
+        "auth"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/api/v1/auth/legacy/base",
+      "summary": "레거시 기본 정보 조회",
+      "tags": [
+        "auth"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/api/v1/auth/legacy/jwt",
+      "summary": "레거시 JWT 토큰 조회",
+      "tags": [
+        "auth"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/api/v1/auth/legacy/protected",
+      "summary": "레거시 보호된 리소스 접근 테스트",
+      "tags": [
+        "auth"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/api/v1/auth/status",
+      "summary": "로그인 상태 및 기본 정보 조회",
+      "tags": [
+        "auth"
+      ]
+    },
+    {
+      "method": "POST",
+      "route": "/api/v1/auth/status/profile",
+      "summary": "사용자 프로필 조회",
+      "tags": [
+        "auth"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/confirm_account_list",
+      "summary": "레거시 계정 목록 확인 (최상위 경로)",
+      "tags": [
+        "auth"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/parking_status",
+      "summary": "레거시 주차 상태 조회 (최상위 경로)",
+      "tags": [
+        "auth"
+      ]
+    },
+    {
+      "method": "POST",
+      "route": "/login_setting",
+      "summary": "레거시 로그인 설정 (최상위 경로)",
+      "tags": [
+        "auth"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/api/v1/users",
+      "summary": "모든 사용자 조회",
+      "tags": [
+        "users"
+      ]
+    },
+    {
+      "method": "POST",
+      "route": "/api/v1/users",
+      "summary": "새 사용자 생성",
+      "tags": [
+        "users"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/api/v1/users/{account}",
+      "summary": "특정 사용자 조회",
+      "tags": [
+        "users"
+      ]
+    },
+    {
+      "method": "PUT",
+      "route": "/api/v1/users/{account}",
+      "summary": "사용자 정보 수정",
+      "tags": [
+        "users"
+      ]
+    },
+    {
+      "method": "DELETE",
+      "route": "/api/v1/users/{account}",
+      "summary": "사용자 삭제",
+      "tags": [
+        "users"
+      ]
+    },
+    {
+      "method": "PATCH",
+      "route": "/api/v1/users/{account}/password",
+      "summary": "비밀번호 변경",
+      "tags": [
+        "users"
+      ]
+    },
+    {
+      "method": "PATCH",
+      "route": "/api/v1/users/{account}/password/reset",
+      "summary": "비밀번호 초기화",
+      "tags": [
+        "users"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/api/v1/users/health",
+      "summary": "사용자 관리 서비스 상태",
+      "tags": [
+        "users"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/api/v1/users/info",
+      "summary": "사용자 관리 서비스 정보",
+      "tags": [
+        "users"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/api/v1/users/legacy",
+      "summary": "레거시 사용자 목록 조회",
+      "tags": [
+        "users"
+      ]
+    },
+    {
+      "method": "POST",
+      "route": "/api/v1/users/legacy",
+      "summary": "레거시 사용자 생성/업데이트 (통합)",
+      "tags": [
+        "users"
+      ]
+    },
+    {
+      "method": "POST",
+      "route": "/api/v1/users/legacy/updateUser",
+      "summary": "레거시 사용자 정보 수정",
+      "tags": [
+        "users"
+      ]
+    },
+    {
+      "method": "POST",
+      "route": "/api/v1/users/legacy/changePassword",
+      "summary": "레거시 비밀번호 변경",
+      "tags": [
+        "users"
+      ]
+    },
+    {
+      "method": "POST",
+      "route": "/api/v1/users/legacy/resetPassword",
+      "summary": "레거시 비밀번호 리셋",
+      "tags": [
+        "users"
+      ]
+    },
+    {
+      "method": "POST",
+      "route": "/api/v1/users/legacy/insertUser",
+      "summary": "레거시 사용자 삽입",
+      "tags": [
+        "users"
+      ]
+    },
+    {
+      "method": "POST",
+      "route": "/api/v1/users/legacy/deleteUser",
+      "summary": "레거시 사용자 삭제",
+      "tags": [
+        "users"
+      ]
+    },
+    {
+      "method": "POST",
+      "route": "/api/v1/users/admin",
+      "summary": "관리자 계정 생성",
+      "tags": [
+        "users"
+      ]
+    },
+    {
+      "method": "POST",
+      "route": "/create_admin",
+      "summary": "레거시 관리자 생성 (최상위 경로)",
+      "tags": [
+        "users"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/settings_account",
+      "summary": "레거시 계정 설정 (최상위 경로)",
+      "tags": [
+        "settings"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/api/v1/files",
+      "summary": "모든 주차 구역 조회",
+      "tags": [
+        "files"
+      ]
+    },
+    {
+      "method": "POST",
+      "route": "/api/v1/files",
+      "summary": "파일 업로드 및 주차 구역 생성 (최대 500MB 지원)",
+      "tags": [
+        "files"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/api/v1/files/{name}",
+      "summary": "특정 주차 구역 조회",
+      "tags": [
+        "files"
+      ]
+    },
+    {
+      "method": "PUT",
+      "route": "/api/v1/files/{name}",
+      "summary": "파일 업데이트 및 주차 구역 업데이트",
+      "tags": [
+        "files"
+      ]
+    },
+    {
+      "method": "DELETE",
+      "route": "/api/v1/files/{name}",
+      "summary": "주차 구역 삭제",
+      "tags": [
+        "files"
+      ]
+    },
+    {
+      "method": "PATCH",
+      "route": "/api/v1/parking-lots/{tag}/type",
+      "summary": "주차 공간 유형 변경",
+      "tags": [
+        "files"
+      ]
+    },
+    {
+      "method": "PATCH",
+      "route": "/api/v1/parking-lots/{tag}/status",
+      "summary": "주차 공간 상태 변경",
+      "tags": [
+        "files"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/api/v1/parking-lots/health",
+      "summary": "주차 공간 서비스 상태 확인",
+      "tags": [
+        "files"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/api/v1/parking-lots/info",
+      "summary": "주차 공간 서비스 정보 조회",
+      "tags": [
+        "files"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/api/v1/parking-zones",
+      "summary": "모든 주차 구역 조회 (파일 포함)",
+      "tags": [
+        "files"
+      ]
+    },
+    {
+      "method": "POST",
+      "route": "/api/v1/parking-zones",
+      "summary": "새 주차 구역 생성 (파일 업로드)",
+      "tags": [
+        "files"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/api/v1/parking-zones/{name}",
+      "summary": "특정 주차 구역 조회 (파일 포함)",
+      "tags": [
+        "files"
+      ]
+    },
+    {
+      "method": "PUT",
+      "route": "/api/v1/parking-zones/{name}",
+      "summary": "주차 구역 업데이트 (파일 교체)",
+      "tags": [
+        "files"
+      ]
+    },
+    {
+      "method": "DELETE",
+      "route": "/api/v1/parking-zones/{name}",
+      "summary": "주차 구역 삭제",
+      "tags": [
+        "files"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/api/v1/parking-zones/health",
+      "summary": "주차 구역 서비스 상태 확인",
+      "tags": [
+        "files"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/api/v1/parking-zones/info",
+      "summary": "주차 구역 서비스 정보 조회",
+      "tags": [
+        "files"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/api/v1/parking-zones/legacy",
+      "summary": "레거시 주차 구역 목록 조회",
+      "tags": [
+        "files"
+      ]
+    },
+    {
+      "method": "POST",
+      "route": "/api/v1/parking-zones/legacy/insertFile",
+      "summary": "레거시 파일 삽입",
+      "tags": [
+        "files"
+      ]
+    },
+    {
+      "method": "POST",
+      "route": "/api/v1/parking-zones/legacy/deleteFile",
+      "summary": "레거시 파일 삭제",
+      "tags": [
+        "files"
+      ]
+    },
+    {
+      "method": "POST",
+      "route": "/api/v1/parking-zones/legacy/UpdateFile",
+      "summary": "레거시 파일 업데이트",
+      "tags": [
+        "files"
+      ]
+    },
+    {
+      "method": "POST",
+      "route": "/api/v1/parking-zones/legacy/ChangeLotType",
+      "summary": "레거시 주차 공간 유형 변경",
+      "tags": [
+        "files"
+      ]
+    },
+    {
+      "method": "POST",
+      "route": "/api/v1/parking-zones/legacy/ChangeParked",
+      "summary": "레거시 주차 상태 변경",
+      "tags": [
+        "files"
+      ]
+    },
+    {
+      "method": "PATCH",
+      "route": "/api/v1/files/lots/{tag}/type",
+      "summary": "주차 공간 유형 변경",
+      "tags": [
+        "files"
+      ]
+    },
+    {
+      "method": "PATCH",
+      "route": "/api/v1/files/lots/{tag}/status",
+      "summary": "주차 상태 변경",
+      "tags": [
+        "files"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/api/v1/filesystem",
+      "summary": "파일 시스템 내 모든 파일 조회",
+      "tags": [
+        "files"
+      ]
+    },
+    {
+      "method": "POST",
+      "route": "/api/v1/filesystem/sync",
+      "summary": "파일시스템-DB 동기화",
+      "tags": [
+        "files"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/api/v1/filesystem/health",
+      "summary": "파일시스템 상태 확인",
+      "tags": [
+        "files"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/api/v1/filesystem/info",
+      "summary": "파일시스템 서비스 정보 조회",
+      "tags": [
+        "files"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/api/v1/files/list",
+      "summary": "파일 시스템 파일 목록 조회",
+      "tags": [
+        "files"
+      ]
+    },
+    {
+      "method": "POST",
+      "route": "/api/v1/files/sync",
+      "summary": "수동 파일시스템 동기화",
+      "tags": [
+        "files"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/api/v1/files/health",
+      "summary": "파일시스템 상태 확인",
+      "tags": [
+        "files"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/api/v1/files/service-health",
+      "summary": "주차 구역 관리 서비스 상태",
+      "tags": [
+        "files"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/api/v1/files/info",
+      "summary": "주차 구역 관리 서비스 정보",
+      "tags": [
+        "files"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/api/v1/settings/camera-parking/surfaces",
+      "summary": "모든 카메라 주차 표면 조회",
+      "tags": [
+        "files"
+      ]
+    },
+    {
+      "method": "POST",
+      "route": "/api/v1/settings/camera-parking/surfaces",
+      "summary": "새 카메라 표면 생성",
+      "tags": [
+        "files"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/api/v1/settings/camera-parking/surfaces/{surfaceId}",
+      "summary": "특정 카메라 표면 조회",
+      "tags": [
+        "files"
+      ]
+    },
+    {
+      "method": "PUT",
+      "route": "/api/v1/settings/camera-parking/surfaces/{surfaceId}",
+      "summary": "카메라 표면 업데이트",
+      "tags": [
+        "files"
+      ]
+    },
+    {
+      "method": "DELETE",
+      "route": "/api/v1/settings/camera-parking/surfaces/{surfaceId}",
+      "summary": "카메라 표면 삭제",
+      "tags": [
+        "files"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/api/v1/settings/camera-parking/health",
+      "summary": "카메라 주차 서비스 상태 확인",
+      "tags": [
+        "files"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/api/v1/settings/camera-parking/info",
+      "summary": "카메라 주차 서비스 정보",
+      "tags": [
+        "files"
+      ]
+    },
+    {
+      "method": "POST",
+      "route": "/api/v1/parking/pabi/tag",
+      "summary": "태그로 주차 구역 차량 정보 조회",
+      "tags": [
+        "files"
+      ]
+    },
+    {
+      "method": "POST",
+      "route": "/api/v1/parking/pabi/car",
+      "summary": "번호판으로 차량 위치 조회",
+      "tags": [
+        "files"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/settings_parking_area",
+      "summary": "레거시 주차 구역 설정 (최상위 경로)",
+      "tags": [
+        "files"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/settings_cam_parking_area",
+      "summary": "레거시 카메라 주차 구역 설정 (최상위 경로)",
+      "tags": [
+        "files"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/api/v1/monitoring/health",
+      "summary": "전체 시스템 생존 상태 확인",
+      "tags": [
+        "system"
+      ]
+    },
+    {
+      "method": "POST",
+      "route": "/api/v1/monitoring/health",
+      "summary": "새로운 서비스 URL 등록",
+      "tags": [
+        "system"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/api/v1/monitoring/health/services",
+      "summary": "등록된 서비스들의 생존 상태 확인",
+      "tags": [
+        "system"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/api/v1/monitoring/errors",
+      "summary": "현재 오류 상태 조회",
+      "tags": [
+        "system"
+      ]
+    },
+    {
+      "method": "POST",
+      "route": "/api/v1/monitoring/errors",
+      "summary": "오류 보고",
+      "tags": [
+        "system"
+      ]
+    },
+    {
+      "method": "DELETE",
+      "route": "/api/v1/monitoring/errors",
+      "summary": "오류 목록 초기화",
+      "tags": [
+        "system"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/api/v1/system/health",
+      "summary": "전체 시스템 상태 확인",
+      "tags": [
+        "system"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/api/v1/system/ping",
+      "summary": "간단한 생존 확인",
+      "tags": [
+        "system"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/api/v1/statistics/daily",
+      "summary": "일별 통계 조회",
+      "tags": [
+        "statistics"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/api/v1/statistics/weekly",
+      "summary": "주별 통계 조회",
+      "tags": [
+        "statistics"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/api/v1/statistics/monthly",
+      "summary": "월별 통계 조회",
+      "tags": [
+        "statistics"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/api/v1/statistics/yearly",
+      "summary": "연별 통계 조회",
+      "tags": [
+        "statistics"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/api/v1/statistics/daily/all",
+      "summary": "모든 일별 통계 조회",
+      "tags": [
+        "statistics"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/api/v1/statistics/monthly/all",
+      "summary": "모든 월별 통계 조회",
+      "tags": [
+        "statistics"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/api/v1/statistics/yearly/all",
+      "summary": "모든 연별 통계 조회",
+      "tags": [
+        "statistics"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/api/v1/statistics/several-years",
+      "summary": "여러 해 통계 조회",
+      "tags": [
+        "statistics"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/api/v1/statistics/several-years/all",
+      "summary": "모든 여러 해 통계 조회",
+      "tags": [
+        "statistics"
+      ]
+    },
+    {
+      "method": "POST",
+      "route": "/api/v1/statistics/custom-period",
+      "summary": "사용자 정의 기간 통계 조회",
+      "tags": [
+        "statistics"
+      ]
+    },
+    {
+      "method": "POST",
+      "route": "/api/v1/statistics/graph",
+      "summary": "그래프용 통계 데이터 조회",
+      "tags": [
+        "statistics"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/api/v1/statistics/health",
+      "summary": "통계 서비스 상태 확인",
+      "tags": [
+        "statistics"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/api/v1/statistics/info",
+      "summary": "통계 서비스 정보 조회",
+      "tags": [
+        "statistics"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/api/v1/parking/electric-signs",
+      "summary": "모든 전광판 조회",
+      "tags": [
+        "electric-signs"
+      ]
+    },
+    {
+      "method": "POST",
+      "route": "/api/v1/parking/electric-signs",
+      "summary": "새 전광판 생성",
+      "tags": [
+        "electric-signs"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/api/v1/parking/electric-signs/{uid}",
+      "summary": "특정 전광판 조회",
+      "tags": [
+        "electric-signs"
+      ]
+    },
+    {
+      "method": "PUT",
+      "route": "/api/v1/parking/electric-signs/{uid}",
+      "summary": "전광판 정보 업데이트",
+      "tags": [
+        "electric-signs"
+      ]
+    },
+    {
+      "method": "DELETE",
+      "route": "/api/v1/parking/electric-signs/{uid}",
+      "summary": "전광판 삭제",
+      "tags": [
+        "electric-signs"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/api/v1/parking/electric-signs/statistics",
+      "summary": "전광판 통계 조회",
+      "tags": [
+        "electric-signs"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/api/v1/parking/electric-signs/health",
+      "summary": "전광판 서비스 상태 확인",
+      "tags": [
+        "electric-signs"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/api/v1/parking/electric-signs/info",
+      "summary": "전광판 서비스 정보 조회",
+      "tags": [
+        "electric-signs"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/api/v1/parking/electric-signs/legacy",
+      "summary": "레거시 전광판 목록 조회",
+      "tags": [
+        "electric-signs"
+      ]
+    },
+    {
+      "method": "POST",
+      "route": "/api/v1/parking/electric-signs/legacy/update",
+      "summary": "레거시 전광판 업데이트",
+      "tags": [
+        "electric-signs"
+      ]
+    },
+    {
+      "method": "POST",
+      "route": "/api/v1/parking/electric-signs/legacy/insert",
+      "summary": "레거시 전광판 삽입",
+      "tags": [
+        "electric-signs"
+      ]
+    },
+    {
+      "method": "POST",
+      "route": "/api/v1/parking/electric-signs/legacy/deleteZone",
+      "summary": "레거시 전광판 삭제",
+      "tags": [
+        "electric-signs"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/api/v1/parking/information",
+      "summary": "주차장 기본 정보 조회",
+      "tags": [
+        "base-info"
+      ]
+    },
+    {
+      "method": "POST",
+      "route": "/api/v1/parking/information",
+      "summary": "주차장 기본 정보 생성",
+      "tags": [
+        "base-info"
+      ]
+    },
+    {
+      "method": "PUT",
+      "route": "/api/v1/parking/information",
+      "summary": "주차장 기본 정보 업데이트",
+      "tags": [
+        "base-info"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/api/v1/parking/information/statistics",
+      "summary": "주차장 통계 정보 조회",
+      "tags": [
+        "base-info"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/api/v1/parking/information/full",
+      "summary": "주차장 전체 정보 조회 (통계 포함)",
+      "tags": [
+        "base-info"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/api/v1/parking/information/health",
+      "summary": "기본 정보 서비스 상태 확인",
+      "tags": [
+        "base-info"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/api/v1/parking/information/info",
+      "summary": "기본 정보 서비스 정보 조회",
+      "tags": [
+        "base-info"
+      ]
+    },
+    {
+      "method": "POST",
+      "route": "/api/v1/parking/information/legacy",
+      "summary": "레거시 기본 정보 생성/업데이트",
+      "tags": [
+        "base-info"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/api/v1/parking/information/legacy/get",
+      "summary": "레거시 기본 정보 조회 (통계 포함)",
+      "tags": [
+        "base-info"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/api/v1/vehicle/info",
+      "summary": "차량 정보 조회",
+      "tags": [
+        "vehicle"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/api/v1/vehicle/location/{vehicleId}",
+      "summary": "특정 차량 위치 조회",
+      "tags": [
+        "vehicle"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/api/v1/vehicle/by-tag",
+      "summary": "태그로 차량 정보 조회 (GET)",
+      "tags": [
+        "vehicle"
+      ]
+    },
+    {
+      "method": "POST",
+      "route": "/api/v1/vehicle/by-tag",
+      "summary": "태그로 차량 정보 조회 (POST)",
+      "tags": [
+        "vehicle"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/api/v1/vehicle/by-plate",
+      "summary": "번호판으로 차량 위치 조회 (GET)",
+      "tags": [
+        "vehicle"
+      ]
+    },
+    {
+      "method": "POST",
+      "route": "/api/v1/vehicle/by-plate",
+      "summary": "번호판으로 차량 위치 조회 (POST)",
+      "tags": [
+        "vehicle"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/api/v1/vehicle/health",
+      "summary": "차량 정보 서비스 상태 확인",
+      "tags": [
+        "vehicle"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/api/v1/display",
+      "summary": "디스플레이 API 정보 조회",
+      "tags": [
+        "display"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/api/v1/display/info",
+      "summary": "디스플레이 정보 조회 (GET)",
+      "tags": [
+        "display"
+      ]
+    },
+    {
+      "method": "POST",
+      "route": "/api/v1/display/info",
+      "summary": "디스플레이 정보 업데이트 (POST)",
+      "tags": [
+        "display"
+      ]
+    },
+    {
+      "method": "POST",
+      "route": "/api/v1/display/bulk-update",
+      "summary": "디스플레이 일괄 업데이트",
+      "tags": [
+        "display"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/api/v1/display/health",
+      "summary": "디스플레이 서비스 상태 확인",
+      "tags": [
+        "display"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/api/v1/display/legacy",
+      "summary": "레거시 디스플레이 조회",
+      "tags": [
+        "display"
+      ]
+    },
+    {
+      "method": "POST",
+      "route": "/api/v1/display/legacy",
+      "summary": "레거시 디스플레이 업데이트",
+      "tags": [
+        "display"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/api/v1/billboard",
+      "summary": "광고판 API 정보 조회",
+      "tags": [
+        "billboard"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/api/v1/billboard/floor/{floor}",
+      "summary": "층별 주차 정보 조회",
+      "tags": [
+        "billboard"
+      ]
+    },
+    {
+      "method": "POST",
+      "route": "/api/v1/billboard/floor",
+      "summary": "층별 주차 정보 업데이트",
+      "tags": [
+        "billboard"
+      ]
+    },
+    {
+      "method": "POST",
+      "route": "/api/v1/billboard/part-system/control",
+      "summary": "부분 시스템 제어",
+      "tags": [
+        "billboard"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/api/v1/billboard/health",
+      "summary": "광고판 서비스 상태 확인",
+      "tags": [
+        "billboard"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/api/v1/billboard/info",
+      "summary": "광고판 서비스 정보 조회",
+      "tags": [
+        "billboard"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/api/v1/billboard/legacy",
+      "summary": "레거시 광고판 조회",
+      "tags": [
+        "billboard"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/api/v1/central/dashboard",
+      "summary": "중앙 대시보드 데이터 조회",
+      "tags": [
+        "central"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/api/v1/central/health",
+      "summary": "중앙 대시보드 서비스 상태 확인",
+      "tags": [
+        "central"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/api/v1/central/info",
+      "summary": "중앙 대시보드 서비스 정보 조회",
+      "tags": [
+        "central"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/api/v1/central/legacy",
+      "summary": "레거시 중앙 대시보드 조회",
+      "tags": [
+        "central"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/api/v1/led/calculation",
+      "summary": "LED 계산 수행 (GET)",
+      "tags": [
+        "led"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/api/v1/led/health",
+      "summary": "LED 계산 서비스 상태 확인",
+      "tags": [
+        "led"
+      ]
+    },
+    {
+      "method": "POST",
+      "route": "/api/v1/led/legacy",
+      "summary": "레거시 LED 계산 (POST)",
+      "tags": [
+        "led"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/api/v1/rtsp/info",
+      "summary": "RTSP 서비스 정보 조회",
+      "tags": [
+        "rtsp"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/api/v1/rtsp/stats",
+      "summary": "RTSP 캡처 통계 조회",
+      "tags": [
+        "rtsp"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/api/v1/rtsp/adaptive-stats",
+      "summary": "적응형 통계 정보 조회 (신규)",
+      "tags": [
+        "rtsp"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/api/v1/rtsp/health",
+      "summary": "RTSP 서비스 상태 확인",
+      "tags": [
+        "rtsp"
+      ]
+    },
+    {
+      "method": "POST",
+      "route": "/api/v1/rtsp/trigger",
+      "summary": "수동 캡처 실행",
+      "tags": [
+        "rtsp"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/api/v1/rtsp/scheduler",
+      "summary": "스케줄러 상태 조회",
+      "tags": [
+        "rtsp"
+      ]
+    },
+    {
+      "method": "POST",
+      "route": "/api/v1/rtsp/blacklist/reset",
+      "summary": "블랙리스트 초기화 (신규)",
+      "tags": [
+        "rtsp"
+      ]
+    },
+    {
+      "method": "DELETE",
+      "route": "/api/v1/rtsp/blacklist/{address}",
+      "summary": "블랙리스트에서 특정 주소 제거 (신규)",
+      "tags": [
+        "rtsp"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/api/v1/rtsp/image/{tag}",
+      "summary": "특정 태그의 최신 캡처 이미지 조회",
+      "tags": [
+        "rtsp"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/api/v1/rtsp/list",
+      "summary": "모든 RTSP 설정 조회",
+      "tags": [
+        "rtsp"
+      ]
+    },
+    {
+      "method": "POST",
+      "route": "/api/v1/rtsp",
+      "summary": "새 RTSP 설정 생성",
+      "tags": [
+        "rtsp"
+      ]
+    },
+    {
+      "method": "PUT",
+      "route": "/api/v1/rtsp/{tag}",
+      "summary": "RTSP 설정 업데이트",
+      "tags": [
+        "rtsp"
+      ]
+    },
+    {
+      "method": "DELETE",
+      "route": "/api/v1/rtsp/{tag}",
+      "summary": "RTSP 설정 삭제",
+      "tags": [
+        "rtsp"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/api/v1/cameras",
+      "summary": "모든 카메라 조회",
+      "tags": [
+        "cameras"
+      ]
+    },
+    {
+      "method": "POST",
+      "route": "/api/v1/cameras",
+      "summary": "새 카메라 등록",
+      "tags": [
+        "cameras"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/api/v1/cameras/{tag}",
+      "summary": "특정 카메라 조회",
+      "tags": [
+        "cameras"
+      ]
+    },
+    {
+      "method": "DELETE",
+      "route": "/api/v1/cameras/{tag}",
+      "summary": "카메라 삭제",
+      "tags": [
+        "cameras"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/api/v1/cameras/{tag}/image",
+      "summary": "카메라 이미지 조회 ⭐ 핵심 기능",
+      "tags": [
+        "cameras"
+      ]
+    },
+    {
+      "method": "PATCH",
+      "route": "/api/v1/cameras/{tag}/image",
+      "summary": "이미지 링크 업데이트 (Shell script용)",
+      "tags": [
+        "cameras"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/api/v1/cameras/health",
+      "summary": "카메라 서비스 상태 확인",
+      "tags": [
+        "cameras"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/api/v1/cameras/info",
+      "summary": "카메라 서비스 정보 조회",
+      "tags": [
+        "cameras"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/api/v1/engine/data/process",
+      "summary": "엔진 데이터 수동 처리 트리거",
+      "tags": [
+        "engine"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/api/v1/engine/data/status",
+      "summary": "현재 주차장 상태 조회",
+      "tags": [
+        "engine"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/api/v1/engine/data/errors",
+      "summary": "현재 에러 상태 조회",
+      "tags": [
+        "engine"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/api/v1/engine/data/statistics",
+      "summary": "처리 통계 정보 조회",
+      "tags": [
+        "engine"
+      ]
+    },
+    {
+      "method": "POST",
+      "route": "/api/v1/engine/data/statistics/trigger",
+      "summary": "수동 통계 처리 트리거",
+      "tags": [
+        "engine"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/api/v1/engine/data/health",
+      "summary": "엔진 데이터 처리 서비스 헬스 체크",
+      "tags": [
+        "engine"
+      ]
+    },
+    {
+      "method": "POST",
+      "route": "/graphData",
+      "summary": "레거시 그래프 데이터 조회 (최상위 경로)",
+      "tags": [
+        "utilities"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/graphData/test",
+      "summary": "그래프 데이터 테스트 엔드포인트 (최상위 경로)",
+      "tags": [
+        "utilities"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/api/v1/resources",
+      "summary": "주차장 리소스 조회",
+      "tags": [
+        "utilities"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/api/v1/resources/parking-lots",
+      "summary": "주차 공간 목록 조회",
+      "tags": [
+        "utilities"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/api/v1/resources/parking-lots/raw",
+      "summary": "주차 공간 원시 데이터 조회",
+      "tags": [
+        "utilities"
+      ]
+    },
+    {
+      "method": "POST",
+      "route": "/api/v1/resources/refresh",
+      "summary": "리소스 새로고침",
+      "tags": [
+        "utilities"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/api/v1/resources/status",
+      "summary": "리소스 상태 조회",
+      "tags": [
+        "utilities"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/api/v1/resources/health",
+      "summary": "리소스 관리 서비스 상태",
+      "tags": [
+        "utilities"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/api/v1/resources/info",
+      "summary": "리소스 관리 서비스 정보",
+      "tags": [
+        "utilities"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/api/v1/settings/database/config",
+      "summary": "데이터베이스 설정 조회",
+      "tags": [
+        "settings"
+      ]
+    },
+    {
+      "method": "PUT",
+      "route": "/api/v1/settings/database/config",
+      "summary": "전체 데이터베이스 설정 업데이트",
+      "tags": [
+        "settings"
+      ]
+    },
+    {
+      "method": "PUT",
+      "route": "/api/v1/settings/database/engine",
+      "summary": "엔진 데이터베이스 설정 업데이트",
+      "tags": [
+        "settings"
+      ]
+    },
+    {
+      "method": "PUT",
+      "route": "/api/v1/settings/database/display",
+      "summary": "디스플레이 데이터베이스 설정 업데이트",
+      "tags": [
+        "settings"
+      ]
+    },
+    {
+      "method": "POST",
+      "route": "/api/v1/settings/database/test-connection",
+      "summary": "데이터베이스 연결 테스트",
+      "tags": [
+        "settings"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/api/v1/settings/database/health",
+      "summary": "데이터베이스 관리 서비스 상태",
+      "tags": [
+        "settings"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/api/v1/settings/database/info",
+      "summary": "데이터베이스 관리 서비스 정보",
+      "tags": [
+        "settings"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/api/v1/settings/general/get",
+      "summary": "설정값 조회 (GET)",
+      "tags": [
+        "settings"
+      ]
+    },
+    {
+      "method": "POST",
+      "route": "/api/v1/settings/general",
+      "summary": "설정값 저장/업데이트",
+      "tags": [
+        "settings"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/api/v1/monitoring/health/isalive",
+      "summary": "간단한 생존 확인 (IsAlive)",
+      "tags": [
+        "system"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/api/v1/monitoring/ping",
+      "summary": "데이터베이스 Ping",
+      "tags": [
+        "system"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/api/v1/monitoring/ping/database",
+      "summary": "데이터베이스 상세 Ping",
+      "tags": [
+        "system"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/api/v1/monitoring/status",
+      "summary": "모니터링 시스템 상태 조회",
+      "tags": [
+        "system"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/api/v1/monitoring/info",
+      "summary": "모니터링 서비스 정보",
+      "tags": [
+        "system"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/get_resource",
+      "summary": "레거시 리소스 조회 (최상위 경로)",
+      "tags": [
+        "utilities"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/isalive",
+      "summary": "레거시 생존 확인 (최상위 경로)",
+      "tags": [
+        "system"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/ping",
+      "summary": "레거시 Ping (최상위 경로)",
+      "tags": [
+        "system"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/error",
+      "summary": "레거시 에러 조회 (최상위 경로)",
+      "tags": [
+        "system"
+      ]
+    },
+    {
+      "method": "POST",
+      "route": "/error",
+      "summary": "레거시 에러 보고 (최상위 경로)",
+      "tags": [
+        "system"
+      ]
+    },
+    {
+      "method": "POST",
+      "route": "/pabi",
+      "summary": "레거시 차량 정보 조회 (최상위 경로)",
+      "tags": [
+        "vehicle"
+      ]
+    },
+    {
+      "method": "POST",
+      "route": "/led_cal",
+      "summary": "레거시 LED 계산 (최상위 경로)",
+      "tags": [
+        "led"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/central",
+      "summary": "레거시 중앙 대시보드 (최상위 경로)",
+      "tags": [
+        "central"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/billboard",
+      "summary": "레거시 광고판 조회 (최상위 경로)",
+      "tags": [
+        "billboard"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/display",
+      "summary": "레거시 디스플레이 조회 (최상위 경로)",
+      "tags": [
+        "display"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/base_information",
+      "summary": "레거시 기본 정보 조회 (최상위 경로)",
+      "tags": [
+        "base-info"
+      ]
+    },
+    {
+      "method": "POST",
+      "route": "/base_information",
+      "summary": "레거시 기본 정보 업데이트 (최상위 경로)",
+      "tags": [
+        "base-info"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/multiple_electric_signs",
+      "summary": "레거시 전광판 조회 (최상위 경로)",
+      "tags": [
+        "electric-signs"
+      ]
+    },
+    {
+      "method": "POST",
+      "route": "/multiple_electric_signs",
+      "summary": "레거시 전광판 업데이트 (최상위 경로)",
+      "tags": [
+        "electric-signs"
+      ]
+    },
+    {
+      "method": "POST",
+      "route": "/statistics_cam_parking_area",
+      "summary": "레거시 카메라 주차 통계 (최상위 경로)",
+      "tags": [
+        "statistics"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/settings_db_management",
+      "summary": "레거시 DB 관리 설정 (최상위 경로)",
+      "tags": [
+        "settings"
+      ]
+    },
+    {
+      "method": "POST",
+      "route": "/settings",
+      "summary": "레거시 설정 저장 (최상위 경로)",
+      "tags": [
+        "settings"
+      ]
+    },
+    {
+      "method": "POST",
+      "route": "/settings/get",
+      "summary": "레거시 설정 조회 (최상위 경로 - POST 방식)",
+      "tags": [
+        "settings"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/docs",
+      "summary": "Swagger UI 문서 (기본)",
+      "tags": [
+        "utilities"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/swagger-ui.html",
+      "summary": "Swagger UI 문서 (대체 경로)",
+      "tags": [
+        "utilities"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/api-docs",
+      "summary": "API 문서 (대체 경로)",
+      "tags": [
+        "utilities"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/docs-complete",
+      "summary": "완전한 Swagger UI 문서 (177개 API)",
+      "tags": [
+        "utilities"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/swagger.yaml",
+      "summary": "기본 OpenAPI 스펙 (YAML)",
+      "tags": [
+        "utilities"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/swagger-complete.yaml",
+      "summary": "완전한 OpenAPI 스펙 (YAML)",
+      "tags": [
+        "utilities"
+      ]
+    },
+    {
+      "method": "GET",
+      "route": "/openapi.json",
+      "summary": "OpenAPI 스펙 (JSON)",
+      "tags": [
+        "utilities"
+      ]
+    }
+  ]
+}

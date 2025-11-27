@@ -1,0 +1,22 @@
+version: "3.9"
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: pbos-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: pbos
+      POSTGRES_PASSWORD: pbos
+      POSTGRES_DB: pbos
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "pbos"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  pgdata:
