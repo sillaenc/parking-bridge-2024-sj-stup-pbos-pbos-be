@@ -31,8 +31,8 @@ export class RtspSchedulerService implements OnModuleInit, OnModuleDestroy {
   private async loop() {
     if (this.running || this.stop) return;
     this.running = true;
+    try {
       const result = await this.tick();
-      this.running = false;
       if (!this.stop) {
         this.logger.log(
           `RTSP 캡처 배치 완료: 총 ${result.total}건, 성공 ${result.successful}, 실패 ${result.failed}`,
@@ -40,15 +40,21 @@ export class RtspSchedulerService implements OnModuleInit, OnModuleDestroy {
         if (!result.failed) {
           this.logger.log(`RTSP 캡처 성공: ${result.successful}/${result.total}개`);
         }
-      if (result.failed) {
-        const failed = result.results
-          .filter((r) => !r.success)
-          .map((r) => `${r.tag}${r.status ? `(${r.status})` : ''}`)
-          .join(', ');
-        this.logger.warn(`RTSP 캡처 실패 태그: ${failed}`);
+        if (result.failed) {
+          const failed = result.results
+            .filter((r) => !r.success)
+            .map((r) => `${r.tag}${r.status ? `(${r.status})` : ''}`)
+            .join(', ');
+          this.logger.warn(`RTSP 캡처 실패 태그: ${failed}`);
+        }
       }
-      // 한 사이클 결과 로그 후 대기 시간 적용
-      setTimeout(() => this.loop(), this.cycleDelayMs);
+    } catch (e: any) {
+      this.logger.error(`RTSP 캡처 배치 실패(루프): ${e?.message || e}`);
+    } finally {
+      this.running = false;
+      if (!this.stop) {
+        setTimeout(() => this.loop(), this.cycleDelayMs);
+      }
     }
   }
 

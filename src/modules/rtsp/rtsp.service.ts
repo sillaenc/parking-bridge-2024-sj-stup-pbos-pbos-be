@@ -12,6 +12,7 @@ const CAPTURE_DIR = path.join(process.cwd(), 'camera', 'captures');
 @Injectable()
 export class RtspService {
   private readonly batchSize: number;
+  private readonly maxRetries: number;
 
   constructor(
     private readonly prisma: PrismaService,
@@ -19,6 +20,8 @@ export class RtspService {
   ) {
     const n = Number(this.config.get<string>('RTSP_BATCH_SIZE') ?? '20');
     this.batchSize = Number.isFinite(n) && n > 0 ? Math.floor(n) : 20;
+    const retry = Number(this.config.get<string>('RTSP_RETRY_ATTEMPTS') ?? '2');
+    this.maxRetries = Number.isFinite(retry) && retry >= 0 ? Math.floor(retry) : 2;
   }
 
   async listCameras() {
@@ -95,6 +98,15 @@ export class RtspService {
     fs.mkdirSync(dir, { recursive: true });
   }
 
+  private isFreshCapture(targetPath: string, startedAt: number) {
+    try {
+      const stat = fs.statSync(targetPath);
+      return stat.size > 0 && stat.mtimeMs >= startedAt - 500; // 허용 오차 0.5s
+    } catch {
+      return false;
+    }
+  }
+
   private rtspAddressToPath(rtspAddress: string) {
     try {
       const uri = new URL(rtspAddress);
@@ -129,6 +141,7 @@ export class RtspService {
     const timeoutMs = Number(
       this.config.get<string>('FFMPEG_TIMEOUT_MS') ?? this.config.get<string>('FFMPEG_TIMEOUT') ?? '30000',
     );
+    const startedAt = Date.now();
     return new Promise<{ ok: boolean; status?: number; error?: string }>((resolve) => {
       const args = [
         '-y',
@@ -147,6 +160,11 @@ export class RtspService {
         args,
         { timeout: Number.isFinite(timeoutMs) ? timeoutMs : 30000 },
         (error, _stdout, stderr) => {
+          const produced = this.isFreshCapture(targetPath, startedAt);
+          if (produced) {
+            resolve({ ok: true });
+            return;
+          }
           if (error) {
             // stderr에서 RTSP 응답 코드 추출 시도
             const match = `${stderr}`.match(/(40\d|50\d)/);
@@ -154,7 +172,7 @@ export class RtspService {
             resolve({ ok: false, status: code, error: error.message });
             return;
           }
-          resolve({ ok: true });
+          resolve({ ok: false, error: 'ffmpeg produced no output' });
         },
       );
     });
@@ -195,8 +213,8 @@ export class RtspService {
       throw new Error('RTSP address not found');
     }
     const targetPath = this.rtspAddressToPath(cam.rtspAddress);
-    const ok = await this.captureWithFfmpeg(cam.rtspAddress, targetPath);
-    if (!ok) throw new Error('ffmpeg capture failed');
+    const res = await this.captureWithFfmpeg(cam.rtspAddress, targetPath);
+    if (!res.ok) throw new Error(res.error || 'ffmpeg capture failed');
 
     await this.prisma.rtspCapture.update({
       where: { tag },
@@ -223,6 +241,26 @@ export class RtspService {
     };
   }
 
+  private async captureChunkWithRetry(cameras: { tag: string; rtspAddress: string }[]) {
+    let results = await Promise.all(cameras.map((cam) => this.captureOne(cam)));
+    let failed = results.filter((r) => !r.success);
+
+    let attempt = 0;
+    while (failed.length && attempt < this.maxRetries) {
+      attempt++;
+      const retryTargets = cameras.filter((cam) => failed.some((f) => f.tag === cam.tag));
+      const retryResults = await Promise.all(retryTargets.map((cam) => this.captureOne(cam)));
+      // 최신 결과로 교체
+      results = results.map((r) => {
+        const newer = retryResults.find((nr) => nr.tag === r.tag);
+        return newer ?? r;
+      });
+      failed = results.filter((r) => !r.success);
+    }
+
+    return results;
+  }
+
   async triggerAllCaptures() {
     // 같은 rtspAddress 중복 제거 (같은 채널 중복 연결 방지)
     const allCameras = await this.listCameras();
@@ -235,7 +273,7 @@ export class RtspService {
     const results: { tag: string; success: boolean; image_path?: string; error?: string }[] = [];
     for (let i = 0; i < cameras.length; i += this.batchSize) {
       const chunk = cameras.slice(i, i + this.batchSize);
-      const chunkResults = await Promise.all(chunk.map((cam) => this.captureOne(cam)));
+      const chunkResults = await this.captureChunkWithRetry(chunk);
       results.push(...chunkResults);
     }
     const successCount = results.filter((r) => r.success).length;
