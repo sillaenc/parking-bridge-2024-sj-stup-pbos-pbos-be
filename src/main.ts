@@ -1,12 +1,14 @@
-import { ValidationPipe } from '@nestjs/common';
+import { Logger, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
+import { IdToUidInterceptor } from './common/interceptors/id-to-uid.interceptor';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
     bufferLogs: true,
   });
+  const requestLogger = new Logger('HTTP');
 
   // CORS/헤더를 레거시 형태(*)에 맞춤
   app.enableCors({
@@ -24,6 +26,34 @@ async function bootstrap() {
     res.header('Access-Control-Allow-Headers', 'Origin, Content-Type, X-Auth-Token, Authorization');
     next();
   });
+  http.use((req: any, res: any, next: any) => {
+    const stringifySafe = (payload: unknown) => {
+      try {
+        return JSON.stringify(payload);
+      } catch {
+        return '[unserializable]';
+      }
+    };
+    const { method, originalUrl } = req;
+    const contentType: string = req?.headers?.['content-type'] ?? '';
+    const queryStr = req?.query && Object.keys(req.query).length > 0 ? stringifySafe(req.query) : '';
+    const bodyStr =
+      contentType.includes('multipart/form-data') || contentType.includes('octet-stream')
+        ? '[binary/body omitted]'
+        : req?.body && Object.keys(req.body).length > 0
+        ? stringifySafe(req.body)?.slice(0, 500)
+        : '';
+
+    const parts = [`REQ ${method} ${originalUrl}`];
+    if (queryStr) parts.push(`query=${queryStr}`);
+    if (bodyStr) parts.push(`body=${bodyStr}`);
+    requestLogger.log(parts.join(' | '));
+
+    res.on('finish', () => {
+      requestLogger.log(`RES ${method} ${originalUrl} -> ${res.statusCode}`);
+    });
+    next();
+  });
 
   app.useGlobalPipes(
     new ValidationPipe({
@@ -32,6 +62,7 @@ async function bootstrap() {
       transform: true,
     }),
   );
+  app.useGlobalInterceptors(new IdToUidInterceptor());
 
   const config = new DocumentBuilder()
     .setTitle('PBOS Backend')

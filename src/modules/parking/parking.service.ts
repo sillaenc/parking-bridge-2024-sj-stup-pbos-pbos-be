@@ -6,6 +6,8 @@ import { UpdateLotStatusDto } from './dto/update-lot-status.dto';
 import { CreateLotTypeDto } from './dto/create-lot-type.dto';
 import { UpdateBaseInfoDto } from './dto/update-base-info.dto';
 import { SearchVehicleDto } from './dto/search-vehicle.dto';
+import { LegacyParkingAreaDto } from './dto/legacy-parking-area.dto';
+import { ChangeLotTypeDto } from './dto/change-lot-type.dto';
 
 @Injectable()
 export class ParkingService {
@@ -177,5 +179,57 @@ export class ParkingService {
       },
     });
     return base;
+  }
+
+  // Legacy /settings/parking_area helpers
+  async legacyListZones() {
+    return this.listZones();
+  }
+
+  async legacyInsertZone(dto: LegacyParkingAreaDto) {
+    return this.prisma.parkingZone.upsert({
+      where: { parkingName: dto.parking_name },
+      update: {
+        fileAddress: dto.file_address,
+        floor: dto.floor,
+      },
+      create: {
+        parkingName: dto.parking_name,
+        fileAddress: dto.file_address,
+        floor: dto.floor,
+      },
+    });
+  }
+
+  async legacyUpdateZone(dto: LegacyParkingAreaDto) {
+    return this.prisma.parkingZone.upsert({
+      where: { parkingName: dto.parking_name },
+      update: {
+        fileAddress: dto.file_address,
+        floor: dto.floor,
+      },
+      create: {
+        parkingName: dto.parking_name,
+        fileAddress: dto.file_address,
+        floor: dto.floor,
+      },
+    });
+  }
+
+  async legacyDeleteZone(parkingName: string) {
+    return this.prisma.parkingZone.deleteMany({
+      where: { parkingName },
+    });
+  }
+
+  async legacyChangeLotType(dto: ChangeLotTypeDto) {
+    const updated = await this.prisma.lot.update({
+      where: { tag: dto.tag },
+      data: {
+        tag: dto.changed_tag,
+        lotTypeId: dto.lot_type,
+      },
+    });
+    return updated;
   }
 }

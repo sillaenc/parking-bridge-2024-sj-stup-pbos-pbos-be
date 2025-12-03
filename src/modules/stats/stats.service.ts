@@ -74,10 +74,11 @@ export class StatsService {
   }
 
   async graphRange(dto: GraphRangeDto) {
-    const start = new Date(dto.start);
-    const end = new Date(dto.end);
-    const floor = dto.floor;
-    const lotTypeId = dto.lotTypeId !== undefined ? Number(dto.lotTypeId) : undefined;
+    if (!dto.startDay || !dto.endDay) {
+      throw new Error('startDay and endDay are required');
+    }
+    const start = new Date(dto.startDay);
+    const end = new Date(dto.endDay);
 
     const conditions: string[] = [
       'p."hour_parking" = TRUE',
@@ -86,34 +87,31 @@ export class StatsService {
     ];
     const params: any[] = [start, end];
 
-    if (floor) {
-      conditions.push('l."floor" = $3');
-      params.push(floor);
-    }
-    if (lotTypeId !== undefined && !Number.isNaN(lotTypeId)) {
-      conditions.push(`l."lot_type" = $${params.length + 1}`);
-      params.push(lotTypeId);
-    }
-
     const where = conditions.join(' AND ');
     const sql = `
       SELECT
-        to_char(date_trunc('hour', p."recorded_hour"), 'YYYY-MM-DD"T"HH24:00:00"Z"') AS hour,
+        to_char(date_trunc('hour', p."recorded_hour"), 'YYYY-MM-DD HH24') AS recorded_hour,
+        p."car_type" AS car_type,
+        l."floor" AS floor,
         COUNT(*) AS count
       FROM "processed_db" p
       JOIN "tb_lots" l ON p."lot" = l."uid"
       WHERE ${where}
-      GROUP BY date_trunc('hour', p."recorded_hour")
-      ORDER BY date_trunc('hour', p."recorded_hour")
+      GROUP BY date_trunc('hour', p."recorded_hour"), p."car_type", l."floor"
+      ORDER BY date_trunc('hour', p."recorded_hour"), l."floor", p."car_type"
     `;
 
-    const rows = await this.prisma.$queryRawUnsafe<{ hour: string; count: bigint }[]>(
+    const rows = await this.prisma.$queryRawUnsafe<
+      { recorded_hour: string; car_type: number | null; floor: string | null; count: bigint }[]
+    >(
       sql,
       ...params,
     );
-    // 스펙 호환: BigInt -> number, hour 문자열 유지
+    // 스펙 호환: BigInt -> number
     return rows.map((r) => ({
-      hour: r.hour,
+      recorded_hour: r.recorded_hour,
+      car_type: r.car_type,
+      floor: r.floor,
       count: Number(r.count),
     }));
   }

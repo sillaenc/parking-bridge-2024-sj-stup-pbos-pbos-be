@@ -1,0 +1,10 @@
+.env
+.dotenv
+.log
+.zip
+.pdf
+display/
+error/
+file/
+node_modules/
+rtsp/

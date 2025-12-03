@@ -1,5 +1,5 @@
 import { Body, Controller, HttpCode, Post, ValidationPipe, Get } from '@nestjs/common';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiTags, ApiBody } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { BaseInfoService } from '../base-info/base-info.service';
@@ -15,6 +15,14 @@ export class AuthController {
   @Post('login')
   @HttpCode(200)
   @ApiOperation({ summary: '로그인(JWT 발급)' })
+  @ApiBody({
+    type: LoginDto,
+    examples: {
+      default: {
+        value: { account: 'admin', passwd: 'password123' },
+      },
+    },
+  })
   async login(
     @Body(
       new ValidationPipe({
@@ -33,7 +41,7 @@ export class AuthController {
   @HttpCode(200)
   @ApiOperation({ summary: '기본 정보 조회' })
   async baseInfo() {
-    const info = await this.baseInfoService.getBase();
-    return info ?? {};
+    const data = await this.baseInfoService.getAuthBasePayload();
+    return { success: true, message: 'Base information retrieved successfully', data };
   }
 }

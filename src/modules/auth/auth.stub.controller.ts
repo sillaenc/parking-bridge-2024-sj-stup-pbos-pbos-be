@@ -1,8 +1,9 @@
 import { Controller, HttpException, HttpStatus } from '@nestjs/common';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiExcludeController, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Get, Post, Put } from '@nestjs/common';
 
 @ApiTags('auth')
+@ApiExcludeController() // Swagger 문서에서는 숨김 (실제 구현 컨트롤러를 사용)
 @Controller()
 export class AuthStubController {
   @Post('/api/v1/auth/login')

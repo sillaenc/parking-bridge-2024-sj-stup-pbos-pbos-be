@@ -1,22 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsInt, IsOptional, IsString } from 'class-validator';
+import { IsString } from 'class-validator';
 
 export class GraphRangeDto {
-  @ApiProperty({ example: 'B1', required: false })
-  @IsOptional()
+  @ApiProperty({ example: '2025-11-04' })
   @IsString()
-  floor?: string;
+  startDay!: string;
 
-  @ApiProperty({ example: 1, required: false, description: 'lot_type FK' })
-  @IsOptional()
-  @IsInt()
-  lotTypeId?: number;
-
-  @ApiProperty({ example: '2025-01-01T00:00:00Z' })
+  @ApiProperty({ example: '2025-11-05' })
   @IsString()
-  start!: string;
-
-  @ApiProperty({ example: '2025-01-02T00:00:00Z' })
-  @IsString()
-  end!: string;
+  endDay!: string;
 }

@@ -10,7 +10,7 @@ import {
   UseGuards,
   UsePipes,
 } from '@nestjs/common';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CreateUserDto } from './dto/create-user.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
@@ -33,6 +33,7 @@ export class UsersController {
 
   @Get(':account')
   @ApiOperation({ summary: '계정으로 사용자 조회' })
+  @ApiParam({ name: 'account', example: 'admin' })
   async getUser(@Param('account') account: string) {
     const user = await this.usersService.findByAccount(account);
     if (!user) {
@@ -43,6 +44,20 @@ export class UsersController {
 
   @Post()
   @ApiOperation({ summary: '사용자 생성' })
+  @ApiBody({
+    type: CreateUserDto,
+    examples: {
+      default: {
+        value: {
+          account: 'admin',
+          passwd: 'password123',
+          username: '관리자',
+          userlevel: 1,
+          isActivated: true,
+        },
+      },
+    },
+  })
   @UsePipes(
     new ValidationPipe({
       whitelist: true,
@@ -57,6 +72,13 @@ export class UsersController {
 
   @Put(':account/password')
   @ApiOperation({ summary: '비밀번호 변경' })
+  @ApiParam({ name: 'account', example: 'admin' })
+  @ApiBody({
+    type: UpdatePasswordDto,
+    examples: {
+      default: { value: { oldPassword: 'old-pass', newPassword: 'new-pass' } },
+    },
+  })
   async changePassword(
     @Param('account') account: string,
     @Body() body: UpdatePasswordDto,
@@ -72,6 +94,11 @@ export class UsersController {
   @UseGuards(JwtAuthGuard)
   @Put(':account/activation')
   @ApiOperation({ summary: '활성/비활성 설정' })
+  @ApiParam({ name: 'account', example: 'admin' })
+  @ApiBody({
+    type: UpdateActivationDto,
+    examples: { default: { value: { isActivated: true } } },
+  })
   async changeActivation(
     @Param('account') account: string,
     @Body() body: UpdateActivationDto,
@@ -83,6 +110,11 @@ export class UsersController {
   @UseGuards(JwtAuthGuard)
   @Put(':account/reset')
   @ApiOperation({ summary: '비밀번호 초기화(관리자용)' })
+  @ApiParam({ name: 'account', example: 'admin' })
+  @ApiBody({
+    type: ResetPasswordDto,
+    examples: { default: { value: { newPassword: 'new-password', note: '관리자 초기화' } } },
+  })
   async resetPassword(@Param('account') account: string, @Body() body: ResetPasswordDto) {
     const data = await this.usersService.resetPassword(account, body);
     return { success: true, data };
