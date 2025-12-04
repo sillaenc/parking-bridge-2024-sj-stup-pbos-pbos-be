@@ -87,6 +87,16 @@ export class StatsController {
 
   @Post('custom-period')
   @ApiOperation({ summary: '사용자 정의 기간 통계 조회' })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        startDay: { type: 'string', example: '2025-11-04' },
+        endDay: { type: 'string', example: '2025-11-05' },
+      },
+      required: ['startDay', 'endDay'],
+    },
+  })
   async customPeriod(@Body() body: StatsRangeDto) {
     const data = await this.statsService.perDayRange(body);
     return { success: true, data };
@@ -129,8 +139,8 @@ export class StatsController {
   @UseGuards(JwtAuthGuard)
   async legacyCamParkingArea(@Body() body: any) {
     const data = await this.statsService.perDayRange({
-      start: body?.startDay,
-      end: body?.endDay,
+      startDay: body?.startDay,
+      endDay: body?.endDay,
     } as StatsRangeDto);
     return { success: true, data };
   }

@@ -38,37 +38,25 @@ export class StatsService {
   }
 
   async perDayRange(range: StatsRangeDto) {
+    const { start, end } = this.resolveRange(range);
     return this.prisma.perDay.findMany({
-      where: {
-        recordedDay: {
-          gte: new Date(range.start),
-          lte: new Date(range.end),
-        },
-      },
+      where: start && end ? { recordedDay: { gte: start, lte: end } } : undefined,
       orderBy: { recordedDay: 'asc' },
     });
   }
 
   async perMonthRange(range: StatsRangeDto) {
+    const { start, end } = this.resolveRange(range);
     return this.prisma.perMonth.findMany({
-      where: {
-        recordedMonth: {
-          gte: new Date(range.start),
-          lte: new Date(range.end),
-        },
-      },
+      where: start && end ? { recordedMonth: { gte: start, lte: end } } : undefined,
       orderBy: { recordedMonth: 'asc' },
     });
   }
 
   async perYearRange(range: StatsRangeDto) {
+    const { start, end } = this.resolveRange(range);
     return this.prisma.perYear.findMany({
-      where: {
-        recordedYear: {
-          gte: new Date(range.start),
-          lte: new Date(range.end),
-        },
-      },
+      where: start && end ? { recordedYear: { gte: start, lte: end } } : undefined,
       orderBy: { recordedYear: 'asc' },
     });
   }
@@ -77,8 +65,10 @@ export class StatsService {
     if (!dto.startDay || !dto.endDay) {
       throw new Error('startDay and endDay are required');
     }
-    const start = new Date(dto.startDay);
-    const end = new Date(dto.endDay);
+    const parseKstStart = (day: string) => new Date(`${day}T00:00:00+09:00`);
+    const parseKstEnd = (day: string) => new Date(`${day}T23:59:59.999+09:00`);
+    const start = parseKstStart(dto.startDay);
+    const end = parseKstEnd(dto.endDay);
 
     const conditions: string[] = [
       'p."hour_parking" = TRUE',
@@ -90,15 +80,18 @@ export class StatsService {
     const where = conditions.join(' AND ');
     const sql = `
       SELECT
-        to_char(date_trunc('hour', p."recorded_hour"), 'YYYY-MM-DD HH24') AS recorded_hour,
+        to_char(
+          date_trunc('hour', timezone('Asia/Seoul', p."recorded_hour")),
+          'YYYY-MM-DD HH24'
+        ) AS recorded_hour,
         p."car_type" AS car_type,
         l."floor" AS floor,
         COUNT(*) AS count
       FROM "processed_db" p
       JOIN "tb_lots" l ON p."lot" = l."uid"
       WHERE ${where}
-      GROUP BY date_trunc('hour', p."recorded_hour"), p."car_type", l."floor"
-      ORDER BY date_trunc('hour', p."recorded_hour"), l."floor", p."car_type"
+      GROUP BY date_trunc('hour', timezone('Asia/Seoul', p."recorded_hour")), p."car_type", l."floor"
+      ORDER BY date_trunc('hour', timezone('Asia/Seoul', p."recorded_hour")), l."floor", p."car_type"
     `;
 
     const rows = await this.prisma.$queryRawUnsafe<
@@ -172,5 +165,31 @@ export class StatsService {
     return this.prisma.perYear.findMany({
       orderBy: { recordedYear: 'asc' },
     });
+  }
+
+  private resolveRange(range: StatsRangeDto) {
+    const toKstStart = (day: string) => new Date(`${day}T00:00:00.000+09:00`);
+    const toKstEnd = (day: string) => new Date(`${day}T23:59:59.999+09:00`);
+
+    const startStr = range.startDay ?? range.start;
+    const endStr = range.endDay ?? range.end;
+
+    const start =
+      startStr && !range.start
+        ? toKstStart(startStr)
+        : startStr
+        ? new Date(startStr)
+        : undefined;
+    const end =
+      endStr && !range.end
+        ? toKstEnd(endStr)
+        : endStr
+        ? new Date(endStr)
+        : undefined;
+
+    return {
+      start,
+      end,
+    };
   }
 }
