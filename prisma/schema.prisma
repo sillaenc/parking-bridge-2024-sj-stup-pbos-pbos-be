@@ -58,7 +58,7 @@ model LotStatus {
   id      Int       @id @default(autoincrement()) @map("uid")
   lotId   Int?      @map("lot")
   isParked Boolean?
-  added   DateTime?
+  added   DateTime? @db.Timestamptz(3)
 
   lot     Lot?      @relation(fields: [lotId], references: [id])
 
@@ -86,7 +86,7 @@ model Lot {
   asset     String?
   floor     String?
   plate     String?
-  startTime DateTime?
+  startTime DateTime? @db.Timestamptz(3)
 
   lotType   LotType? @relation(fields: [lotTypeId], references: [id])
   statuses  LotStatus[]
@@ -107,7 +107,7 @@ model ProcessedDb {
   lotId        Int?     @map("lot")
   carType      Int?     @map("car_type")
   hourParking  Boolean? @map("hour_parking")
-  recordedHour DateTime? @map("recorded_hour")
+  recordedHour DateTime? @db.Timestamptz(3) @map("recorded_hour")
 
   lot          Lot?     @relation(fields: [lotId], references: [id])
 
@@ -121,7 +121,7 @@ model PerDay {
   lotId       Int?     @map("lot")
   carType     Int?     @map("car_type")
   dayParking  Boolean? @map("day_parking")
-  recordedDay DateTime? @map("recorded_day")
+  recordedDay DateTime? @db.Timestamptz(3) @map("recorded_day")
 
   lot         Lot?     @relation(fields: [lotId], references: [id])
 
@@ -134,7 +134,7 @@ model PerMonth {
   lotId         Int?     @map("lot")
   carType       Int?     @map("car_type")
   monthParking  Boolean? @map("month_parking")
-  recordedMonth DateTime? @map("recorded_month")
+  recordedMonth DateTime? @db.Timestamptz(3) @map("recorded_month")
 
   lot           Lot?     @relation(fields: [lotId], references: [id])
 
@@ -147,7 +147,7 @@ model PerYear {
   lotId        Int?     @map("lot")
   carType      Int?     @map("car_type")
   yearParking  Boolean? @map("year_parking")
-  recordedYear DateTime? @map("recorded_year")
+  recordedYear DateTime? @db.Timestamptz(3) @map("recorded_year")
 
   lot          Lot?     @relation(fields: [lotId], references: [id])
 
@@ -182,7 +182,7 @@ model ParkingSurface {
 model RawData {
   uid        Int       @id @default(autoincrement()) @map("uid")
   recordId   Int?      @map("id")
-  timestamp  DateTime?
+  timestamp  DateTime? @db.Timestamptz(3)
   parkingLot String?   @map("parking_lot")
 
   @@map("rawdata")

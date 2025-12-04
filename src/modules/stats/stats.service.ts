@@ -81,7 +81,7 @@ export class StatsService {
     const sql = `
       SELECT
         to_char(
-          date_trunc('hour', timezone('Asia/Seoul', p."recorded_hour")),
+          date_trunc('hour', p."recorded_hour"),
           'YYYY-MM-DD HH24'
         ) AS recorded_hour,
         p."car_type" AS car_type,
@@ -90,8 +90,8 @@ export class StatsService {
       FROM "processed_db" p
       JOIN "tb_lots" l ON p."lot" = l."uid"
       WHERE ${where}
-      GROUP BY date_trunc('hour', timezone('Asia/Seoul', p."recorded_hour")), p."car_type", l."floor"
-      ORDER BY date_trunc('hour', timezone('Asia/Seoul', p."recorded_hour")), l."floor", p."car_type"
+      GROUP BY date_trunc('hour', p."recorded_hour"), p."car_type", l."floor"
+      ORDER BY date_trunc('hour', p."recorded_hour"), l."floor", p."car_type"
     `;
 
     const rows = await this.prisma.$queryRawUnsafe<

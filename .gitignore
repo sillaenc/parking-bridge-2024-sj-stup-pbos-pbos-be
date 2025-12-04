@@ -3,9 +3,11 @@
 .log
 .zip
 .pdf
+/.DS_Store
 display/
 error/
 file/
 node_modules/
 rtsp/
 camera/
+camera/captures/
